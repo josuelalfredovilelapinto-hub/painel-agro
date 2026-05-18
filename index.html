@@ -12,7 +12,7 @@
     
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.8);
+            --glass: rgba(255, 255, 255, 0.85);
             --blur: blur(15px);
             --agro-dark: #1b5e20;
             --u-blue: #0288d1;
@@ -21,17 +21,15 @@
 
         body { 
             font-family: 'Inter', sans-serif; 
-            background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover;
             margin: 0; 
             color: #1a202c; 
         }
 
-        /* Container Principal com Efeito Glassmorphism */
         .glass-container {
             background: var(--glass);
             backdrop-filter: var(--blur);
-            -webkit-backdrop-filter: var(--blur);
             min-height: 100vh;
             padding: 20px;
         }
@@ -45,33 +43,26 @@
 
         .grid-main { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 
-        /* Estilo dos Cards de Ciência */
         .sci-card {
             background: white; border-radius: 18px; padding: 22px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.08);
             border-bottom: 4px solid var(--u-blue);
             transition: transform 0.3s;
         }
-        .sci-card:hover { transform: scale(1.02); }
-        .sci-card h3 { font-size: 0.9rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 15px 0; }
-
-        .big-val { font-size: 2.8rem; font-weight: 800; color: var(--agro-dark); }
         
-        /* Badges e Status */
+        .big-val { font-size: 2.8rem; font-weight: 800; color: var(--agro-dark); margin: 10px 0; }
+        
         .status-badge { 
             display: inline-block; padding: 6px 12px; border-radius: 8px; 
             font-size: 0.75rem; font-weight: 700; margin-top: 10px;
         }
         .bg-ideal { background: #e8f5e9; color: #2e7d32; }
-        .bg-warning { background: #fff3e0; color: #ef6c00; }
         .bg-danger { background: #ffebee; color: #c62828; }
 
-        /* Mapa e Previsão */
-        #map { height: 400px; border-radius: 15px; margin-top: 20px; }
+        #map { height: 400px; border-radius: 15px; margin-top: 20px; border: 1px solid #ddd; }
+        
         .forecast-grid { display: flex; overflow-x: auto; gap: 15px; padding: 10px 0; }
-        .forecast-item { background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; min-width: 100px; text-align: center; }
-
-        @media (max-width: 600px) { .big-val { font-size: 2rem; } }
+        .forecast-day { background: #f8f9fa; padding: 10px; border-radius: 10px; min-width: 80px; text-align: center; border: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -80,150 +71,123 @@
     <header>
         <div>
             <h1 style="margin:0; font-size: 1.5rem; color: var(--agro-dark);"><i class="fas fa-satellite"></i> UFFS AgroSmart Enterprise</h1>
-            <p style="margin:0; font-size: 0.8rem; color: #555;">Laranjeiras do Sul | Estação Híbrida 001D0AE08F6A</p>
+            <p style="margin:0; font-size: 0.8rem; color: #555;">Estação Híbrida Laranjeiras do Sul | 45fd1e06...</p>
         </div>
-        <div id="date-time" style="text-align:right; font-weight: bold;">--/--/-- --:--</div>
+        <div id="date-time" style="font-weight: bold;">--/--/-- --:--</div>
     </header>
 
     <div class="grid-main">
         <div class="sci-card">
-            <h3><i class="fas fa-thermometer-half"></i> Atmosfera & Conforto</h3>
+            <h3><i class="fas fa-thermometer-half"></i> Atmosfera Real-Time</h3>
             <div id="temp" class="big-val">--°C</div>
-            <div style="display:flex; justify-content: space-between;">
-                <span>ST: <b id="st">--</b></span>
-                <span>Orvalho: <b id="dew">--</b></span>
-            </div>
-            <div id="alert-geada" class="status-badge bg-ideal">Geada: Risco Nulo</div>
+            <p>Orvalho: <b id="dew">--</b> | ST: <b id="st">--</b></p>
+            <div id="alert-geada" class="status-badge bg-ideal">Monitorando Geada...</div>
         </div>
 
         <div class="sci-card" style="border-bottom-color: var(--accent);">
             <h3><i class="fas fa-spray-can"></i> Janela de Aplicação</h3>
             <div id="dpv" class="big-val">-- <small style="font-size: 1rem;">kPa</small></div>
-            <div id="status-pulv" class="status-badge bg-warning">Analisando Condições...</div>
-            <div style="margin-top:10px; font-size: 0.85rem;">
-                Vento: <b id="wind">-- km/h</b> | Delta T: <b id="dt">--</b>
-            </div>
+            <div id="status-pulv" class="status-badge bg-ideal">Calculando DPV...</div>
+            <div style="margin-top:10px; font-size: 0.85rem;">Vento: <b id="wind">--</b> | Delta T: <b id="dt">--</b></div>
         </div>
 
         <div class="sci-card" style="border-bottom-color: #7e57c2;">
-            <h3><i class="fas fa-wind"></i> Qualidade do Ar & AQI</h3>
+            <h3><i class="fas fa-wind"></i> Qualidade do Ar (AQI)</h3>
             <div id="aqi" class="big-val">--</div>
-            <p id="air-status" style="margin:0; font-weight: bold;">--</p>
-            <small>PM2.5: <span id="pm25">--</span> | CO: <span id="co">--</span></small>
+            <p id="air-status" style="margin:0; font-weight: bold; color:#7e57c2;">--</p>
+            <small>CO: <span id="co">--</span> | PM2.5: <span id="pm25">--</span></small>
         </div>
     </div>
 
     <div class="grid-main" style="margin-top:25px; grid-template-columns: 2fr 1fr;">
         <div class="sci-card">
-            <h3><i class="fas fa-chart-line"></i> Histórico Térmico & Radiação Solar</h3>
-            <canvas id="mainChart" style="max-height: 300px;"></canvas>
+            <h3><i class="fas fa-chart-line"></i> Tendência Térmica & Histórico</h3>
+            <canvas id="mainChart" style="max-height: 250px;"></canvas>
         </div>
         <div class="sci-card">
-            <h3><i class="fas fa-cloud-sun-rain"></i> Previsão 7 Dias</h3>
-            <div id="forecast" class="forecast-grid">
-                </div>
+            <h3><i class="fas fa-calendar-alt"></i> Previsão 7 Dias</h3>
+            <div id="forecast" class="forecast-grid">Carregando previsão satélite...</div>
         </div>
     </div>
 
     <div class="sci-card" style="margin-top:25px;">
-        <h3><i class="fas fa-map-marked-alt"></i> Radar de Chuva & Nuvens (Real-time)</h3>
+        <h3><i class="fas fa-map-marked-alt"></i> Radar Regional de Precipitação</h3>
         <div id="map"></div>
     </div>
-
-    <footer style="text-align:center; padding: 40px; color: #444; font-size: 0.8rem;">
-        SAD Desenvolvido para UFFS Laranjeiras do Sul. Fontes: Davis Instruments, OpenWeatherMap, NASA Power.
-    </footer>
 </div>
 
 <script>
-    // --- CONFIGURAÇÕES ---
-    const OPENWEATHER_KEY = 'SUA_CHAVE_AQUI'; // Insira sua chave aqui
+    const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const LAT = -25.41;
     const LON = -52.41;
 
-    // --- INICIALIZAÇÃO DO MAPA ---
+    // Mapa
     const map = L.map('map').setView([LAT, LON], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    // Camada de Chuva do OpenWeather (Exemplo)
-    L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${OPENWEATHER_KEY}`).addTo(map);
+    L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY}`).addTo(map);
 
-    // --- GRÁFICO ---
+    // Gráfico
     const ctx = document.getElementById('mainChart').getContext('2d');
     const mainChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
-            datasets: [{
-                label: 'Temperatura (°C)',
-                data: [12, 18, 25, 27, 22, 16],
-                borderColor: '#1b5e20',
-                backgroundColor: 'rgba(27, 94, 32, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
+            labels: ['Manhã', 'Tarde', 'Noite'],
+            datasets: [{ label: 'Temp °C', data: [0, 0, 0], borderColor: '#1b5e20', tension: 0.4, fill: true, backgroundColor: 'rgba(27, 94, 32, 0.1)' }]
+        }
     });
 
-    // --- BUSCA DE DADOS HÍBRIDOS ---
-    async function updateSystem() {
+    async function updateDashboard() {
         try {
-            // 1. Dados da Estação Davis (Via sua Netlify Function)
+            // 1. Dados Davis (Estação)
             const resDavis = await fetch('/api/get-weather');
             const xmlText = await resDavis.text();
             const xml = new DOMParser().parseFromString(xmlText, "text/xml");
 
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0].textContent);
-            const windKts = parseFloat(xml.getElementsByTagName("wind_kt")[0].textContent);
-            const windKm = (windKts * 1.852).toFixed(1);
+            const windKm = (parseFloat(xml.getElementsByTagName("wind_kt")[0].textContent) * 1.852).toFixed(1);
 
-            // 2. Cálculos Agro-Científicos
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = es * (1 - (ur / 100));
             const dew = t - ((100 - ur) / 5);
 
-            // Atualiza UI Davis
             document.getElementById('temp').innerText = t + "°C";
-            document.getElementById('st').innerText = t.toFixed(1) + "°C";
             document.getElementById('dew').innerText = dew.toFixed(1) + "°C";
             document.getElementById('dpv').innerText = dpv.toFixed(2);
-            document.getElementById('wind').innerText = windKm;
+            document.getElementById('wind').innerText = windKm + " km/h";
             document.getElementById('dt').innerText = (t - dew).toFixed(1) + "°C";
 
-            // Lógica de Pulverização
-            const sp = document.getElementById('status-pulv');
-            if (windKm >= 3 && windKm <= 10 && dpv < 1.6) {
-                sp.innerText = "CONDIÇÃO IDEAL PARA APLICAÇÃO";
-                sp.className = "status-badge bg-ideal";
-            } else {
-                sp.innerText = "RISCO: EVAPORAÇÃO OU DERIVA";
-                sp.className = "status-badge bg-danger";
+            // 2. Dados OpenWeather (Ar e Previsão)
+            const resAir = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${API_KEY}`);
+            const airData = await resAir.json();
+            const aqiVal = airData.list[0].main.aqi;
+            const aqiDesc = ["N/A", "Excelente", "Bom", "Moderado", "Pobre", "Muito Pobre"];
+            
+            document.getElementById('aqi').innerText = aqiVal;
+            document.getElementById('air-status').innerText = aqiDesc[aqiVal];
+            document.getElementById('pm25').innerText = airData.list[0].components.pm2_5;
+            document.getElementById('co').innerText = airData.list[0].components.co.toFixed(0);
+
+            // Previsão Simples
+            const resPrev = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`);
+            const prevData = await resPrev.json();
+            let forecastHtml = "";
+            for(let i=0; i<prevData.list.length; i+=8) {
+                const day = prevData.list[i];
+                forecastHtml += `<div class="forecast-day">
+                    <small>${new Date(day.dt*1000).toLocaleDateString('pt-BR', {weekday: 'short'})}</small><br>
+                    <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" width="30"><br>
+                    <b>${day.main.temp.toFixed(0)}°</b>
+                </div>`;
             }
+            document.getElementById('forecast').innerHTML = forecastHtml;
 
-            // 3. Dados Complementares (OpenWeatherMap)
-            // Se você já tiver a chave, descomente abaixo:
-            /*
-            const resOW = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${OPENWEATHER_KEY}`);
-            const dataOW = await resOW.json();
-            const aqi = dataOW.list[0].main.aqi;
-            document.getElementById('aqi').innerText = aqi;
-            document.getElementById('pm25').innerText = dataOW.list[0].components.pm2_5;
-            */
-
-        } catch (error) {
-            console.error("Erro na integração híbrida:", error);
-        }
+        } catch (e) { console.error("Erro na atualização híbrida:", e); }
     }
 
-    // Relógio
-    setInterval(() => {
-        document.getElementById('date-time').innerText = new Date().toLocaleString();
-    }, 1000);
-
-    updateSystem();
-    setInterval(updateSystem, 300000);
+    setInterval(() => document.getElementById('date-time').innerText = new Date().toLocaleString(), 1000);
+    updateDashboard();
+    setInterval(updateDashboard, 300000);
 </script>
-
 </body>
 </html>
