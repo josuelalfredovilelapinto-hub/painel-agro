@@ -2,86 +2,137 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>UFFS Bio-Pathogen v10.0 | Epidemiology Monitor</title>
+    <title>UFFS Bio-Data v11.0 | Total Research Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #090c10; --card: #161b22; --border: #30363d; --text: #c9d1d9; --virus: #ff7b72; --safe: #3fb950; --warning: #d29922; }
-        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+        :root { --bg: #05070a; --card: #121d2f; --border: #1e293b; --accent: #00d4ff; --agro: #2ea043; --warning: #d29922; --danger: #f85149; --text: #e6edf3; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; font-size: 11px; }
         
-        .grid-pathogen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; position: relative; }
+        /* Layout Grid */
+        .container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+        .span-2 { grid-column: span 2; }
+        .span-3 { grid-column: span 3; }
+        .span-4 { grid-column: span 4; }
+        .span-6 { grid-column: span 6; }
+
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 12px; position: relative; }
+        .card h3 { font-size: 10px; text-transform: uppercase; margin: 0 0 10px 0; color: var(--accent); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+
+        .big-val { font-size: 2.2rem; font-weight: bold; line-height: 1; margin: 10px 0; }
+        .sub-val { font-size: 0.9rem; color: #8b949e; }
+
+        /* Epidemiologia Styles */
+        .pathogen-box { padding: 8px; border-radius: 4px; margin-bottom: 8px; border-left: 4px solid; background: rgba(0,0,0,0.2); }
+        .risk-high { border-color: var(--danger); color: var(--danger); }
+        .risk-low { border-color: var(--agro); color: var(--agro); }
+
+        /* Mini Tabelas */
+        .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .m-item { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #333; }
+
+        /* Tabela Principal */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: rgba(0,0,0,0.3); }
+        th { background: #0d1117; color: var(--accent); padding: 8px; text-align: left; }
+        td { padding: 6px; border-bottom: 1px solid #1e293b; }
         
-        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
-        
-        .val-main { font-size: 2.5rem; font-weight: 900; margin: 5px 0; }
-        .tag { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; position: absolute; top: 15px; right: 15px; }
-        
-        .pathogen-alert { margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.4; }
-        .danger { background: rgba(255, 123, 114, 0.1); border: 1px solid var(--virus); color: var(--virus); }
-        .low { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--safe); color: var(--safe); }
-        
-        .equation { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 9px; color: #8b949e; margin-top: 10px; }
-        
-        .full-span { grid-column: span 4; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-        th { text-align: left; padding: 8px; color: var(--warning); border-bottom: 1px solid var(--border); }
-        td { padding: 8px; border-bottom: 1px solid var(--border); }
+        .source-badge { position: absolute; top: 5px; right: 5px; font-size: 8px; padding: 2px 4px; border-radius: 3px; background: #30363d; }
     </style>
 </head>
 <body>
 
-<div class="header-section">
+<header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px; border-left:5px solid var(--accent); padding-left:15px;">
     <div>
-        <h1 style="margin:0; font-size: 1.4rem;">SAD Fitossanitário & Epidemiologia</h1>
-        <small>UFFS - Campus Laranjeiras | Monitoramento de Patógenos em Tempo Real</small>
+        <h1 style="margin:0; font-size:1.6rem;">SAD AGRO-EPIDEMIOLÓGICO</h1>
+        <span>UFFS LARANJEIRAS | Bio-Data Research Engine</span>
     </div>
-    <div id="clock" style="font-family: monospace; font-size: 1.2rem;">--:--:--</div>
-</div>
+    <div style="text-align:right">
+        <div id="relogio" style="font-size:1.2rem; font-weight:bold;">--:--:--</div>
+        <div id="coord" style="color:var(--warning)">LAT: -25.41 | LON: -52.41</div>
+    </div>
+</header>
 
-<div class="grid-pathogen">
+<div class="container">
     
-    <div class="card">
-        <span class="tag" style="background: #1f6feb; color: white;">SENSOR VIRTUAL</span>
-        <h3 style="font-size: 11px; margin:0;">Status do Molhamento (PMF)</h3>
-        <div id="pmf_status" class="val-main">--</div>
-        <div id="pmf_timer">Acumulado Hoje: <b>0.0 h</b></div>
-        <div class="equation">PMF se (T - T_orvalho) < 1.5°C</div>
-        <div class="pathogen-alert" id="pmf_msg">--</div>
+    <div class="card span-2">
+        <span class="source-badge">DAVIS STATION</span>
+        <h3>Atmosfera & Calor</h3>
+        <div class="big-val" id="t_atual">--.-°C</div>
+        <div class="m-grid">
+            <div class="m-item"><span>Ponto Orvalho:</span> <b id="t_dew">--.-</b></div>
+            <div class="m-item"><span>Sensação (Chill):</span> <b id="t_chill">--.-</b></div>
+            <div class="m-item"><span>Índice Calor:</span> <b id="t_heat">--.-</b></div>
+            <div class="m-item"><span>UR do Ar:</span> <b id="v_ur">--%</b></div>
+        </div>
     </div>
 
-    <div class="card">
-        <span class="tag" style="background: var(--virus); color: white;">SOJA</span>
-        <h3 style="font-size: 11px; margin:0;">Risco: Ferrugem Asiática</h3>
-        <div id="risk_ferrugem" class="val-main">--%</div>
-        <div class="pathogen-alert" id="ferrugem_msg">--</div>
-        <div class="equation">Model: T (15-28°C) + PMF > 6h</div>
+    <div class="card span-2">
+        <span class="source-badge" style="color:var(--warning)">VIRTUAL ANEMOMETER</span>
+        <h3>Dinâmica dos Ventos</h3>
+        <div class="big-val" id="w_spd">--.- <small style="font-size:12px">km/h</small></div>
+        <div class="m-grid">
+            <div class="m-item"><span>Direção:</span> <b id="w_dir">--°</b></div>
+            <div class="m-item"><span>Rajada Máx:</span> <b id="w_gst">--.-</b></div>
+            <div class="m-item"><span>Delta T:</span> <b id="v_dt" style="color:var(--accent)">--.-</b></div>
+            <div class="m-item"><span>Janela Spray:</span> <b id="v_spray">--</b></div>
+        </div>
     </div>
 
-    <div class="card">
-        <span class="tag" style="background: #fff; color: #000;">FEIJÃO/SOJA</span>
-        <h3 style="font-size: 11px; margin:0;">Risco: Mofo Branco</h3>
-        <div id="risk_mofo" class="val-main">--%</div>
-        <div class="pathogen-alert" id="mofo_msg">--</div>
-        <div class="equation">Model: T < 22°C + UR > 85%</div>
+    <div class="card span-2">
+        <h3>Desenvolvimento Vegetal</h3>
+        <div class="big-val" id="v_foto">--:--h</div>
+        <div class="m-grid">
+            <div class="m-item"><span>Graus-Dia (GD):</span> <b id="v_gd">--.-</b></div>
+            <div class="m-item"><span>Rad. Solar:</span> <b id="v_rad">-- W/m²</b></div>
+            <div class="m-item"><span>UV Index:</span> <b id="v_uv">--</b></div>
+            <div class="m-item"><span>PAR (Est.):</span> <b id="v_par">--.-</b></div>
+        </div>
     </div>
 
-    <div class="card">
-        <span class="tag" style="background: var(--warning); color: white;">GERAL</span>
-        <h3 style="font-size: 11px; margin:0;">Risco: Antracnose</h3>
-        <div id="risk_antrac" class="val-main">--%</div>
-        <div class="pathogen-alert" id="antrac_msg">--</div>
-        <div class="equation">Model: T > 25°C + PMF Prolongado</div>
+    <div class="card span-3">
+        <h3>Risco Epidemiológico (Phyto-Pathogens)</h3>
+        <div class="pathogen-box" id="box_ferrugem">
+            <strong>Ferrugem Asiática (Soja):</strong>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="risk_fer_msg">Analisando...</span>
+                <b id="risk_fer_val" style="font-size:1.5rem">--%</b>
+            </div>
+        </div>
+        <div class="pathogen-box" id="box_mofo">
+            <strong>Mofo Branco (Sclerotinia):</strong>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="risk_mofo_msg">Analisando...</span>
+                <b id="risk_mofo_val" style="font-size:1.5rem">--%</b>
+            </div>
+        </div>
+        <div class="m-grid">
+            <div class="m-item"><span>Molhamento Foliar:</span> <b id="v_leaf">--</b></div>
+            <div class="m-item"><span>DPV (kPa):</span> <b id="v_dpv">--.-</b></div>
+        </div>
     </div>
 
-    <div class="card full-span">
-        <h3 style="font-size: 12px; color: var(--warning);">Log Epidemiológico e Variáveis Fenológicas (GD/Fotoperíodo)</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Data/Hora</th><th>T. Ar</th><th>UR (%)</th><th>DPV</th><th>GD (Tb10)</th><th>Fotoperíodo</th><th>Risco Patógeno</th>
-                </tr>
-            </thead>
-            <tbody id="bio_table"></tbody>
-        </table>
+    <div class="card span-3">
+        <h3>Impacto Ambiental & Ar</h3>
+        <div class="big-val" id="a_aqi">-- <small style="font-size:12px">AQI</small></div>
+        <div class="m-grid">
+            <div class="m-item"><span>Monóxido (CO):</span> <b id="a_co">--</b></div>
+            <div class="m-item"><span>PM 2.5:</span> <b id="a_pm25">--</b></div>
+            <div class="m-item"><span>Ozônio (O3):</span> <b id="a_o3">--</b></div>
+            <div class="m-item"><span>Status Ar:</span> <b id="a_status">--</b></div>
+        </div>
+    </div>
+
+    <div class="card span-6">
+        <h3>Dataset Agrometeorológico Consolidado (Real-Time Log)</h3>
+        <div style="max-height: 200px; overflow-y: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sync</th><th>Temp</th><th>UR</th><th>DPV</th><th>Vento</th><th>Radiação</th><th>GD</th><th>Foto</th><th>Risco Infec.</th>
+                    </tr>
+                </thead>
+                <tbody id="raw_table"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -89,74 +140,93 @@
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const LAT = -25.41;
     const LON = -52.41;
-    const TB = 10;
+    const TB = 10; // Temperatura Base
 
-    async function processEpidemiology() {
+    async function runSAD() {
         try {
-            const res = await fetch('/api/get-weather');
-            const xml = new DOMParser().parseFromString(await res.text(), "text/xml");
-            
+            // 1. FETCH LOCAL STATION (DAVIS)
+            const resDavis = await fetch('/api/get-weather');
+            const xml = new DOMParser().parseFromString(await resDavis.text(), "text/xml");
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0].textContent);
+            const solar = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || 0);
             
-            // Cálculos Base
-            const dewPoint = t - ((100 - ur) / 5);
-            const deltaT = t - dewPoint;
+            // 2. FETCH VIRTUAL SENSORS (OWM)
+            const [wRes, aRes] = await Promise.all([
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`),
+                fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${API_KEY}`)
+            ]);
+            const w = await wRes.json();
+            const a = await aRes.json();
+
+            // 3. CÁLCULOS TÉCNICOS
+            // Psicrometria
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = es * (1 - (ur / 100));
-
-            // 1. Lógica de Molhamento Foliar
-            const pmfAtivo = deltaT < 1.5;
-            const statusPMF = document.getElementById('pmf_status');
-            const msgPMF = document.getElementById('pmf_msg');
+            const dew = t - ((100 - ur) / 5);
+            const dt = (t - dew).toFixed(1);
             
-            if(pmfAtivo) {
-                statusPMF.innerText = "ATIVO";
-                statusPMF.style.color = "#58a6ff";
-                msgPMF.innerHTML = "Condições de <b>Orvalho</b> detectadas. Início do cronômetro de infecção.";
-                msgPMF.className = "pathogen-alert danger";
-            } else {
-                statusPMF.innerText = "SECO";
-                statusPMF.style.color = var(--safe);
-                msgPMF.innerText = "Folhagem seca. Condição hostil para fungos biotróficos.";
-                msgPMF.className = "pathogen-alert low";
-            }
-
-            // 2. Modelagem de Risco (Simplificada para Tempo Real)
-            // Ferrugem: Favorecida por T entre 18-25 e PMF
-            let rFerrugem = (pmfAtivo && t > 15 && t < 28) ? 75 : 10;
-            if (ur > 90) rFerrugem += 20;
-            document.getElementById('risk_ferrugem').innerText = Math.min(rFerrugem, 100) + "%";
-            document.getElementById('ferrugem_msg').innerText = rFerrugem > 60 ? "ALTO RISCO: Condição ótima para germinação de esporos." : "Risco Baixo.";
-
-            // Mofo Branco: Favorecido por clima ameno e alta umidade
-            const rMofo = (t < 22 && ur > 80) ? 85 : 15;
-            document.getElementById('risk_mofo').innerText = rMofo + "%";
-            document.getElementById('mofo_msg').innerText = rMofo > 70 ? "CRÍTICO: T < 22°C e UR alta favorecem apotécios." : "Condição desfavorável.";
-
-            // 3. Fotoperíodo e GD (Reaproveitados da v9)
+            // Astronomia (Fotoperíodo)
             const hoje = new Date();
             const diaAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 86400000);
             const dec = 23.45 * Math.sin((360 / 365) * (diaAno - 80) * Math.PI / 180);
             const h = Math.acos(-Math.tan(LAT * Math.PI / 180) * Math.tan(dec * Math.PI / 180)) * 180 / Math.PI;
-            const foto = (2 / 15) * h;
+            const fotohours = (2 / 15) * h;
 
-            // Inserir na Tabela
-            const row = `<tr>
-                <td>${hoje.toLocaleTimeString()}</td>
-                <td>${t}°C</td><td>${ur}%</td><td>${dpv.toFixed(2)}</td>
-                <td>${Math.max(0, t-TB).toFixed(1)}</td>
-                <td>${foto.toFixed(2)}h</td>
-                <td style="color:${rFerrugem > 50 ? 'var(--virus)' : 'var(--safe)'}">${rFerrugem > 50 ? 'ALERTA INFECÇÃO' : 'ESTÁVEL'}</td>
+            // Vento
+            const wKm = (w.wind.speed * 3.6).toFixed(1);
+
+            // 4. MODELAGEM EPIDEMIOLÓGICA
+            const leafWet = dt < 1.5;
+            let riskFer = (leafWet && t > 18 && t < 26) ? 80 : 15;
+            let riskMofo = (t < 21 && ur > 85) ? 90 : 20;
+
+            // 5. ATUALIZAR UI
+            document.getElementById('t_atual').innerText = t.toFixed(1) + "°";
+            document.getElementById('t_dew').innerText = dew.toFixed(1) + "°C";
+            document.getElementById('v_ur').innerText = ur + "%";
+            document.getElementById('v_dpv').innerText = dpv.toFixed(2);
+            document.getElementById('v_dt').innerText = dt;
+            document.getElementById('w_spd').innerText = wKm;
+            document.getElementById('w_dir').innerText = w.wind.deg + "°";
+            document.getElementById('w_gst').innerText = (w.wind.gust * 3.6 || wKm).toFixed(1);
+            document.getElementById('v_foto').innerText = Math.floor(fotohours) + "h " + Math.round((fotohours % 1) * 60) + "m";
+            document.getElementById('v_gd').innerText = Math.max(0, t - TB).toFixed(2);
+            document.getElementById('v_rad').innerText = solar;
+            document.getElementById('v_par').innerText = (solar * 2.1).toFixed(1);
+            document.getElementById('v_leaf').innerText = leafWet ? "MOLHADA" : "SECA";
+            document.getElementById('v_leaf').style.color = leafWet ? "var(--accent)" : "var(--agro)";
+
+            // Atualizar Qualidade Ar
+            const aqi = a.list[0].main.aqi;
+            document.getElementById('a_aqi').innerText = aqi;
+            document.getElementById('a_co').innerText = a.list[0].components.co.toFixed(0);
+
+            // Atualizar Risco Pathogen
+            const bFer = document.getElementById('box_ferrugem');
+            document.getElementById('risk_fer_val').innerText = riskFer + "%";
+            bFer.className = "pathogen-box " + (riskFer > 50 ? "risk-high" : "risk-low");
+            
+            // Janela Spray
+            const spray = (wKm >= 3 && wKm <= 12 && dt >= 2 && dt <= 8);
+            document.getElementById('v_spray').innerText = spray ? "IDEAL" : "CRÍTICA";
+            document.getElementById('v_spray').style.color = spray ? "var(--agro)" : "var(--danger)";
+
+            // TABELA LOG
+            const log = `<tr>
+                <td>${new Date().toLocaleTimeString()}</td>
+                <td>${t}°</td><td>${ur}%</td><td>${dpv.toFixed(2)}</td>
+                <td>${wKm}</td><td>${solar}</td><td>${Math.max(0, t-TB).toFixed(1)}</td>
+                <td>${fotohours.toFixed(2)}</td><td>${riskFer > 50 ? 'ALERTA' : 'OK'}</td>
             </tr>`;
-            document.getElementById('bio_table').innerHTML = row + document.getElementById('bio_table').innerHTML;
+            document.getElementById('raw_table').innerHTML = log + document.getElementById('raw_table').innerHTML;
 
-        } catch (e) { console.error("Erro Fitossanitário:", e); }
+        } catch (e) { console.error("SAD Error:", e); }
     }
 
-    setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    processEpidemiology();
-    setInterval(processEpidemiology, 300000);
+    setInterval(() => document.getElementById('relogio').innerText = new Date().toLocaleTimeString(), 1000);
+    runSAD();
+    setInterval(runSAD, 300000); // 5 min
 </script>
 </body>
 </html>
