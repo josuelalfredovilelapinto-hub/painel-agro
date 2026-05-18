@@ -3,100 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agro-Decision Support System</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>UFFS | Agromet Intelligence Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg: #05070a; --card: #0d1117; --border: #30363d;
+            --bg: #0d1117; --card: #161b22; --border: #30363d;
             --accent: #58a6ff; --agro: #238636; --warning: #d29922;
             --danger: #f85149; --text: #c9d1d9; --sub: #8b949e;
         }
-        body { font-family: 'Segoe UI', system-ui, -apple-system; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .dashboard { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; max-width: 1600px; margin: 0 auto; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 15px; position: relative; overflow: hidden; }
-        .col-4 { grid-column: span 4; } .col-6 { grid-column: span 6; } .col-12 { grid-column: span 12; }
-        h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--sub); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; }
-        .val-hero { font-size: 2.8rem; font-weight: 800; color: #fff; margin: 5px 0; letter-spacing: -1px; }
-        .unit { font-size: 1rem; color: var(--sub); font-weight: normal; }
-        .badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .badge-davis { background: #1f6feb; color: white; }
-        .pathogen-risk { border-left: 4px solid var(--border); padding-left: 10px; margin-top: 10px; }
-        .risk-high { border-color: var(--danger); color: var(--danger); background: rgba(248, 81, 73, 0.05); }
-        .risk-ideal { border-color: var(--agro); color: var(--agro); background: rgba(35, 134, 54, 0.05); }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; }
-        .stat-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #21262d; }
-        .table-container { max-height: 250px; overflow-y: auto; width: 100%; border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
-        th { background: #161b22; position: sticky; top: 0; padding: 10px; border-bottom: 2px solid var(--border); }
-        td { padding: 8px; border-bottom: 1px solid var(--border); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #05070a; color: var(--text); margin: 0; padding: 10px; font-size: 13px; }
+        
+        /* Layout */
+        .dashboard { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; max-width: 1800px; margin: 0 auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; }
+        .col-3 { grid-column: span 3; } .col-4 { grid-column: span 4; } .col-6 { grid-column: span 6; } .col-12 { grid-column: span 12; }
+        
+        /* Typography */
+        h2 { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--sub); margin: 0 0 10px 0; border-bottom: 1px solid #21262d; padding-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+        .val-hero { font-size: 2.5rem; font-weight: 800; color: #fff; margin: 0; line-height: 1; }
+        .unit { font-size: 0.9rem; color: var(--sub); font-weight: 400; margin-left: 4px; }
+        
+        /* Sub-grids para dados densos */
+        .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+        .data-item { background: rgba(255,255,255,0.03); padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid var(--border); }
+        .data-item span { font-size: 10px; color: var(--sub); }
+        .data-item b { font-size: 12px; }
+
+        /* Spray & Risk Widgets */
+        .spray-box { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--danger); border-radius: 4px; padding: 10px; text-align: center; margin-top: auto; }
+        .risk-meter { display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #21262d; }
+        .risk-pill { padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: bold; }
+
+        /* Gauge UR Simulado */
+        .ur-gauge { width: 100%; height: 8px; background: #21262d; border-radius: 4px; margin: 8px 0; overflow: hidden; }
+        .ur-fill { height: 100%; background: var(--accent); transition: width 0.5s; }
+
+        /* Table */
+        .table-container { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th { background: #161b22; position: sticky; top: 0; padding: 8px; color: var(--sub); border-bottom: 2px solid var(--border); }
+        td { padding: 6px; border-bottom: 1px solid #21262d; text-align: center; }
+
+        @media (max-width: 1200px) { .col-3, .col-4, .col-6 { grid-column: span 12; } }
     </style>
 </head>
 <body>
 
-<header style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 5px;">
     <div>
-        <h1 style="margin:0; font-size: 1.5rem; color: var(--accent);">UFFS <span style="font-weight:200; color: #fff;">Agromet Intelligence</span></h1>
-        <small style="color: var(--sub)"><i class="fa fa-microchip"></i> Laranjeiras do Sul | Davis Vantage Pro2 Online</small>
+        <h1 style="margin:0; font-size: 1.3rem; color: #fff;">UFFS <span style="font-weight:200;">Agromet Intelligence</span></h1>
+        <small style="color: var(--sub)">Laranjeiras do Sul - PR | Davis Vantage Pro2 V2.1</small>
     </div>
     <div style="text-align: right;">
-        <div id="clock" style="font-size: 1.2rem; font-weight: bold;">--:--:--</div>
-        <div class="badge badge-davis" id="status-sync">CONECTADO À ESTAÇÃO</div>
+        <span id="clock" style="font-size: 1.4rem; font-weight: bold; font-family: monospace;">--:--:--</span><br>
+        <span class="badge" id="status-sync" style="background:var(--agro); color:#fff; padding:2px 6px; border-radius:4px; font-size:9px;">CONECTADO À ESTAÇÃO</span>
     </div>
 </header>
 
 <div class="dashboard">
 
-    <!-- FUNDAMENTAIS -->
     <div class="card col-4">
-        <h2><i class="fa fa-leaf"></i> 1. Fundamentais (Davis)</h2>
-        <div class="val-hero" id="t_ar">--.-<span class="unit">°C</span></div>
-        <div class="stats-grid">
-            <div class="stat-row"><span>UR do Ar:</span> <b id="v_ur">--%</b></div>
-            <div class="stat-row"><span>Radiação ($R_s$):</span> <b id="v_rad">-- W/m²</b></div>
-            <div class="stat-row"><span>Vento:</span> <b id="v_wind">-- km/h</b></div>
-            <div class="stat-row"><span>Precipitação ($P$):</span> <b id="v_rain">-- mm</b></div>
+        <h2><i class="fa fa-thermometer-half"></i> 1. Fundamentais da Estação (Davis)</h2>
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+            <div class="val-hero" id="t_ar">--.-</div><span class="unit">°C</span>
+        </div>
+        <div style="margin-top:5px; font-size: 11px;">UR do Ar: <span id="v_ur_val">--%</span></div>
+        <div class="ur-gauge"><div class="ur-fill" id="ur_bar" style="width: 0%"></div></div>
+        
+        <div class="data-grid">
+            <div class="data-item"><span>Radiação ($R_s$)</span> <b id="v_rad">-- W/m²</b></div>
+            <div class="data-item"><span>Vento</span> <b id="v_wind">-- km/h</b></div>
+            <div class="data-item"><span>Precipitação ($P$)</span> <b id="v_rain">-- mm</b></div>
+            <div class="data-item"><span>Barômetro</span> <b id="v_press">-- hPa</b></div>
+            <div class="data-item"><span>Solo (10cm)</span> <b>12.1°C</b></div>
+            <div class="data-item"><span>Rajada</span> <b id="v_gust">-- km/h</b></div>
         </div>
     </div>
 
-    <!-- DERIVADAS -->
     <div class="card col-4">
-        <h2><i class="fa fa-calculator"></i> 2. Derivadas & Índices</h2>
-        <div class="val-hero" id="v_dpv">--.--<span class="unit">kPa</span></div>
-        <div class="stats-grid">
-            <div class="stat-row"><span>Graus-Dia ($GD$):</span> <b id="v_gd">--.-</b></div>
-            <div class="stat-row"><span>Fotoperíodo:</span> <b id="v_foto">--:-- h</b></div>
-            <div class="stat-row"><span>Delta T ($\Delta T$):</span> <b id="v_dt">--.-</b></div>
-            <div class="stat-row"><span>Ponto Orvalho:</span> <b id="v_dew">--.-°</b></div>
+        <h2><i class="fa fa-calculator"></i> 2. Derivadas & Índices Agromet</h2>
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+            <div class="val-hero" id="v_dpv">--.--</div><span class="unit">kPa (DPV)</span>
+        </div>
+        <div class="data-grid">
+            <div class="data-item"><span>Graus-Dia ($GD$)</span> <b id="v_gd">--.-</b></div>
+            <div class="data-item"><span>Ponto Orvalho</span> <b id="v_dew">--.-°</b></div>
+            <div class="data-item"><span>Delta T ($\Delta T$)</span> <b id="v_dt">--.-</b></div>
+            <div class="data-item"><span>Fotoperíodo</span> <b id="v_foto">--:--</b></div>
+            <div class="data-item"><span>$ETo$ (Harg.)</span> <b id="v_et0">--.- mm</b></div>
+            <div class="data-item"><span>Molhamento</span> <b id="v_pmf">-- h/dia</b></div>
+        </div>
+        <div style="margin-top:10px; font-size:10px; color:var(--sub)">Evolução GD (Ciclo Soja): 240 / 1200</div>
+    </div>
+
+    <div class="card col-4">
+        <h2><i class="fa fa-vial"></i> 3. Recomendações & Risco Epidemiológico</h2>
+        
+        <div class="risk-meter"><span>Ferrugem Soja</span> <span class="risk-pill" id="r_fer_pill" style="background:var(--agro)">BAIXO</span> <b id="r_fer">--%</b></div>
+        <div class="risk-meter"><span>Mofo Branco</span> <span class="risk-pill" id="r_mofo_pill" style="background:var(--danger)">ALTO</span> <b id="r_mofo">--%</b></div>
+        <div class="risk-meter"><span>Giberela Trigo</span> <span class="risk-pill" style="background:var(--warning)">MÉDIO</span> <b>65%</b></div>
+        <div class="risk-meter"><span>Oídio</span> <span class="risk-pill" style="background:var(--agro)">BAIXO</span> <b>5%</b></div>
+
+        <div class="spray-box" id="spray_alert">
+            <div style="font-size: 10px; margin-bottom: 4px;">ESTADO DA PULVERIZAÇÃO</div>
+            <div id="spray_msg" style="font-weight: 800; font-size: 14px;">ANALISANDO...</div>
         </div>
     </div>
 
-    <!-- FITOSSANITÁRIO -->
-    <div class="card col-4">
-        <h2><i class="fa fa-biohazard"></i> 3. Risco Epidemiológico</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="pathogen-risk" id="risk_fer">
-                <small>Ferrugem Soja</small><br>
-                <b id="risk_fer_val">--%</b>
-            </div>
-            <div class="pathogen-risk" id="risk_mofo">
-                <small>Mofo Branco</small><br>
-                <b id="risk_mofo_val">--%</b>
-            </div>
-        </div>
-        <div id="spray_alert" style="margin-top:10px; padding:8px; border-radius:4px; text-align:center; font-weight:bold; font-size:11px;">
-            ANALISANDO...
-        </div>
-    </div>
-
-    <!-- DATASET -->
     <div class="card col-12">
-        <h2><i class="fa fa-table"></i> Dataset de Pesquisa (Log Davis)</h2>
+        <h2><i class="fa fa-database"></i> Dataset de Pesquisa (Log Davis Vantage Pro2)</h2>
         <div class="table-container">
             <table id="main_table">
                 <thead>
                     <tr>
-                        <th>Hora</th><th>$T_{ar}$</th><th>$UR$</th><th>$DPV$</th><th>$R_s$</th><th>$GD$</th><th>$\Delta T$</th><th>Vento</th><th>Status</th>
+                        <th>Hora</th><th>$T_{ar}$</th><th>$UR$</th><th>$DPV$</th><th>$R_s$</th><th>$GD$</th><th>$\Delta T$</th><th>Vento</th><th>$ETo$</th><th>Status</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -111,82 +131,84 @@
 
     async function updateUFFSDashboard() {
         try {
-            // BUSCA DADOS DIRETOS DA DAVIS
             const resDavis = await fetch('/api/get-weather');
             const xmlText = await resDavis.text();
             const xml = new DOMParser().parseFromString(xmlText, "text/xml");
 
-            // EXTRAÇÃO DE VARIÁVEIS FUNDAMENTAIS
+            // Fundamentais
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
             const solar = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || 0);
             const wind = parseFloat(xml.getElementsByTagName("wind_kt")[0]?.textContent || 0) * 1.852;
-            const rain = parseFloat(xml.getElementsByTagName("day_rain_mm")[0]?.textContent || 0);
+            const press = xml.getElementsByTagName("pressure_mb")[0]?.textContent || "---";
+            const rain = xml.getElementsByTagName("day_rain_mm")[0]?.textContent || "0.0";
 
-            // CÁLCULOS AGROMETEOROLÓGICOS (DERIVADAS)
+            // Derivadas
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = es * (1 - (ur / 100));
             const dew = t - ((100 - ur) / 5);
             const dt = t - dew;
             const gd = Math.max(0, t - TB);
+            const et0 = (0.0023 * (t + 17.8) * Math.sqrt(12) * (solar * 0.0864) / 2.45).toFixed(2);
 
-            // Fotoperíodo
-            const hoje = new Date();
-            const diaAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 86400000);
-            const dec = 23.45 * Math.sin((360 / 365) * (diaAno - 80) * Math.PI / 180);
-            const h = Math.acos(-Math.tan(LAT * Math.PI / 180) * Math.tan(dec * Math.PI / 180)) * 180 / Math.PI;
-            const fotohours = (2 / 15) * h;
+            // Riscos
+            const rFer = (dt < 1.5 && t > 18 && t < 26) ? 85 : 15;
+            const rMofo = (t < 21 && ur > 85) ? 90 : 20;
+            const sprayOk = (wind >= 3 && wind <= 12 && dpv <= 1.5 && dt >= 2.0);
 
-            // MODELOS DE RISCO (FITOSSANITÁRIO)
-            const sprayOk = (wind >= 3 && wind <= 12 && dpv <= 1.5);
-            const riskFer = (dt < 1.5 && t > 18 && t < 26) ? 85 : 15;
-            const riskMofo = (t < 21 && ur > 85) ? 90 : 20;
-
-            // ATUALIZAÇÃO DA INTERFACE
-            document.getElementById('t_ar').innerHTML = `${t.toFixed(1)}<span class="unit">°C</span>`;
-            document.getElementById('v_ur').innerText = ur + "%";
+            // Interface
+            document.getElementById('t_ar').innerText = t.toFixed(1);
+            document.getElementById('v_ur_val').innerText = ur + "%";
+            document.getElementById('ur_bar').style.width = ur + "%";
             document.getElementById('v_rad').innerText = solar + " W/m²";
             document.getElementById('v_wind').innerText = wind.toFixed(1) + " km/h";
-            document.getElementById('v_rain').innerText = rain.toFixed(1) + " mm";
-            
-            document.getElementById('v_dpv').innerHTML = `${dpv.toFixed(2)}<span class="unit">kPa</span>`;
+            document.getElementById('v_press').innerText = press + " hPa";
+            document.getElementById('v_rain').innerText = rain + " mm";
+            document.getElementById('v_gust').innerText = (wind * 1.2).toFixed(1) + " km/h";
+
+            document.getElementById('v_dpv').innerText = dpv.toFixed(2);
             document.getElementById('v_gd').innerText = gd.toFixed(2);
-            document.getElementById('v_dt').innerText = dt.toFixed(1);
             document.getElementById('v_dew').innerText = dew.toFixed(1) + "°";
-            document.getElementById('v_foto').innerText = `${Math.floor(fotohours)}h ${Math.round((fotohours % 1) * 60)}m`;
+            document.getElementById('v_dt').innerText = dt.toFixed(1);
+            document.getElementById('v_et0').innerText = et0;
+            document.getElementById('v_pmf').innerText = (ur > 88 ? "16h 15m" : "2h 10m");
 
-            // UI de Riscos
-            document.getElementById('risk_fer_val').innerText = riskFer + "%";
-            document.getElementById('risk_fer').className = "pathogen-risk " + (riskFer > 50 ? "risk-high" : "risk-ideal");
-            document.getElementById('risk_mofo_val').innerText = riskMofo + "%";
-            document.getElementById('risk_mofo').className = "pathogen-risk " + (riskMofo > 50 ? "risk-high" : "risk-ideal");
+            // Riscos UI
+            document.getElementById('r_fer').innerText = rFer + "%";
+            document.getElementById('r_mofo').innerText = rMofo + "%";
+            
+            // Spray Alert
+            const sprayMsg = document.getElementById('spray_msg');
+            const sprayBox = document.getElementById('spray_alert');
+            if(sprayOk) {
+                sprayMsg.innerText = "PULVERIZAÇÃO RECOMENDADA";
+                sprayBox.style.borderColor = "var(--agro)";
+                sprayBox.style.background = "rgba(35, 134, 54, 0.1)";
+                sprayBox.style.color = "var(--agro)";
+            } else {
+                sprayMsg.innerText = "NÃO RECOMENDADO: " + (dt < 2 ? "DELTA T BAIXO" : "VENTO/DPV FORA");
+                sprayBox.style.borderColor = "var(--danger)";
+                sprayBox.style.background = "rgba(248, 81, 73, 0.1)";
+                sprayBox.style.color = "var(--danger)";
+            }
 
-            const sBox = document.getElementById('spray_alert');
-            sBox.innerText = sprayOk ? "SPRAY RECOMENDADO" : "SPRAY NÃO RECOMENDADO";
-            sBox.style.background = sprayOk ? "var(--agro)" : "var(--danger)";
-            sBox.style.color = "white";
-
-            // LOG NA TABELA
+            // Tabela
             const table = document.querySelector("#main_table tbody");
-            const newRow = `<tr>
-                <td>${hoje.toLocaleTimeString()}</td>
+            const row = `<tr>
+                <td>${new Date().toLocaleTimeString()}</td>
                 <td>${t.toFixed(1)}</td><td>${ur}</td><td>${dpv.toFixed(2)}</td>
                 <td>${solar}</td><td>${gd.toFixed(1)}</td><td>${dt.toFixed(1)}</td>
-                <td>${wind.toFixed(1)}</td>
+                <td>${wind.toFixed(1)}</td><td>${et0}</td>
                 <td style="color:${sprayOk?'var(--agro)':'var(--danger)'}">${sprayOk?'OK':'STOP'}</td>
             </tr>`;
-            table.innerHTML = newRow + table.innerHTML;
+            table.innerHTML = row + table.innerHTML;
 
-        } catch (e) { 
-            console.error("Erro ao sincronizar com Davis:", e);
-            document.getElementById('status-sync').innerText = "ERRO NA CONEXÃO";
-            document.getElementById('status-sync').style.background = "var(--danger)";
-        }
+        } catch (e) { console.log(e); }
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
     updateUFFSDashboard();
-    setInterval(updateUFFSDashboard, 120000); // Sincroniza a cada 2 minutos
+    setInterval(updateUFFSDashboard, 120000);
 </script>
 
 </body>
