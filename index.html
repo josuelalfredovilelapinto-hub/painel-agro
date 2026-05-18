@@ -3,227 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Full Agro-Intelligence System</title>
+    <title>UFFS | Agro-Data Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #238636; }
-        body { background-color: var(--bg); color: #c9d1d9; font-family: 'Inter', system-ui, sans-serif; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
-        .stat-card { background: var(--card); border: 1px solid var(--border); padding: 1rem; border-radius: 0.75rem; transition: 0.2s; }
-        .stat-card:hover { border-color: #58a6ff; transform: translateY(-2px); }
-        .label { font-size: 0.7rem; color: #8b949e; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.25rem; }
-        .value { font-size: 1.25rem; font-weight: 700; color: #f0f6fc; }
-        .unit { font-size: 0.8rem; color: #8b949e; margin-left: 2px; }
-        .critical { color: #f85149; }
-        .optimal { color: #3fb950; }
+        :root { --bg: #05070a; --card: #0d1117; --border: #30363d; }
+        body { background-color: var(--bg); color: #c9d1d9; font-family: 'Inter', sans-serif; }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+        .syncing { animation: pulse 1.5s infinite; color: #d29922; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        tr:first-child { background: rgba(35, 134, 54, 0.1); border-left: 3px solid #238636; }
     </style>
 </head>
-<body class="p-4 lg:p-8">
+<body class="p-4 lg:p-6">
 
-<header class="max-w-[1600px] mx-auto mb-8 border-b border-slate-800 pb-6 flex justify-between items-end">
-    <div>
-        <h1 class="text-3xl font-black text-white tracking-tighter">UFFS AGRO <span class="text-green-500 underline decoration-2 underline-offset-8">360°</span></h1>
-        <p class="text-slate-500 text-sm mt-2 font-mono">ESTAÇÃO: LARANJEIRAS DO SUL-PR | DATASET INTEGRADO: DAVIS + NASA + OWM</p>
+<header class="max-w-[1600px] mx-auto mb-6 flex flex-col md:flex-row justify-between items-center bg-[#0d1117] p-6 rounded-2xl border border-[#30363d] gap-4">
+    <div class="flex items-center gap-4">
+        <img src="https://www.uffs.edu.br/++theme++athena.uffs/images/logo-uffs.png" alt="UFFS" class="h-10 brightness-0 invert">
+        <div>
+            <h1 class="text-xl font-bold text-white tracking-tight">AGRO-INTELLIGENCE <span class="text-green-500 underline decoration-green-500/30">LRS</span></h1>
+            <p id="status-sync" class="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500">Aguardando primeira leitura...</p>
+        </div>
     </div>
-    <div class="hidden md:block text-right text-xs text-slate-500 font-mono">
-        SISTEMA DE PRECISÃO V24.1<br>LAT: -25.41 LON: -52.41
+    <div class="flex gap-4 items-center">
+        <div class="text-right">
+            <div id="clock" class="text-2xl font-mono font-black text-white">--:--:--</div>
+            <div class="text-[10px] text-slate-500 font-bold uppercase">18 de Maio, 2026</div>
+        </div>
+        <button onclick="downloadCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all">
+            <i class="fa fa-download"></i> BAIXAR DATASET (.CSV)
+        </button>
     </div>
 </header>
 
-<nav class="max-w-[1600px] mx-auto mb-6 flex flex-wrap gap-2 overflow-x-auto pb-2">
-    <button onclick="openTab(event, 'atmosfera')" class="tab-btn px-4 py-2 bg-slate-800 rounded-md font-bold text-xs active">ATMOSFERA</button>
-    <button onclick="openTab(event, 'solo')" class="tab-btn px-4 py-2 bg-slate-800 rounded-md font-bold text-xs">SOLO & ÁGUA</button>
-    <button onclick="openTab(event, 'bioclimatica')" class="tab-btn px-4 py-2 bg-slate-800 rounded-md font-bold text-xs">BIOCLIMÁTICA & PRODUTIVIDADE</button>
-    <button onclick="openTab(event, 'especificas')" class="tab-btn px-4 py-2 bg-slate-800 rounded-md font-bold text-xs text-yellow-500">SOJA/MILHO/TRIGO</button>
-    <button onclick="openTab(event, 'fitossanidade')" class="tab-btn px-4 py-2 bg-slate-800 rounded-md font-bold text-xs text-red-400">FITOSSANIDADE</button>
-</nav>
-
-<main class="max-w-[1600px] mx-auto">
-    
-    <!-- ABA 1: ATMOSFERA -->
-    <section id="atmosfera" class="tab-content active space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="stat-card md:col-span-1 flex flex-col justify-center items-center py-8">
-                <span class="label">Temperatura Ar</span>
-                <div class="text-6xl font-black" id="t-ar">24.5<span class="unit">°C</span></div>
-                <div class="mt-4 flex gap-4 text-xs font-mono">
-                    <span class="text-red-400">MAX: 28.1°</span>
-                    <span class="text-blue-400">MIN: 16.5°</span>
-                </div>
-            </div>
-            <div class="stat-card md:col-span-2">
-                <canvas id="chartTemp" height="120"></canvas>
-            </div>
-        </div>
-
-        <div class="grid-stats">
-            <div class="stat-card"><span class="label">Amplitude Térmica</span><div class="value">11.6<span class="unit">°C</span></div></div>
-            <div class="stat-card"><span class="label">Sensação Térmica</span><div class="value">26.1<span class="unit">°C</span></div></div>
-            <div class="stat-card"><span class="label">Bulbo Seco</span><div class="value">24.5<span class="unit">°C</span></div></div>
-            <div class="stat-card"><span class="label">Bulbo Úmido</span><div class="value">19.2<span class="unit">°C</span></div></div>
-            <div class="stat-card"><span class="label">Ponto Orvalho</span><div class="value">15.8<span class="unit">°C</span></div></div>
-            <div class="stat-card"><span class="label">UR Relativa</span><div class="value">68<span class="unit">%</span></div></div>
-            <div class="stat-card"><span class="label">Umidade Absoluta</span><div class="value">14.2<span class="unit">g/m³</span></div></div>
-            <div class="stat-card"><span class="label">DPV (VPD)</span><div class="value text-blue-400">0.98<span class="unit">kPa</span></div></div>
-            <div class="stat-card"><span class="label">Pressão Atm</span><div class="value">1014<span class="unit">hPa</span></div></div>
-            <div class="stat-card"><span class="label">Tendência</span><div class="value text-green-400"><i class="fa fa-arrow-trend-up"></i></div></div>
-            <div class="stat-card"><span class="label">Vento Real</span><div class="value">12<span class="unit">km/h</span></div></div>
-            <div class="stat-card"><span class="label">Direção</span><div class="value">SSE 160°</div></div>
-            <div class="stat-card"><span class="label">Rajada Máx</span><div class="value">24<span class="unit">km/h</span></div></div>
-            <div class="stat-card"><span class="label">Escala Beaufort</span><div class="value">F2</div></div>
-            <div class="stat-card"><span class="label">Chuva Diária</span><div class="value text-blue-400">12.4<span class="unit">mm</span></div></div>
-            <div class="stat-card"><span class="label">Acum. Mensal</span><div class="value">148<span class="unit">mm</span></div></div>
-            <div class="stat-card"><span class="label">Rad. Global</span><div class="value">650<span class="unit">W/m²</span></div></div>
-            <div class="stat-card"><span class="label">PAR (Fotossint.)</span><div class="value">1240<span class="unit">µmol</span></div></div>
-            <div class="stat-card"><span class="label">Índice UV</span><div class="value text-orange-500">8.2</div></div>
-            <div class="stat-card"><span class="label">AQI (Ar)</span><div class="value text-green-400">24</div></div>
-        </div>
-    </section>
-
-    <!-- ABA 2: SOLO -->
-    <section id="solo" class="tab-content space-y-6">
-        <div class="grid-stats">
-            <div class="stat-card border-l-4 border-brown-600"><span class="label">Temp. Solo 10cm</span><div class="value">22.1<span class="unit">°C</span></div></div>
-            <div class="stat-card"><span class="label">Umidade Solo (VWC)</span><div class="value">34<span class="unit">%</span></div></div>
-            <div class="stat-card"><span class="label">Água Disponível</span><div class="value">82<span class="unit">%</span></div></div>
-            <div class="stat-card"><span class="label">Capacidade Campo</span><div class="value">38<span class="unit">%</span></div></div>
-            <div class="stat-card"><span class="label">Ponto de Murcha</span><div class="value">14<span class="unit">%</span></div></div>
-            <div class="stat-card"><span class="label">Condutividade Elét.</span><div class="value">1.2<span class="unit">dS/m</span></div></div>
-            <div class="stat-card"><span class="label">Salinidade</span><div class="value">0.4<span class="unit">g/L</span></div></div>
-            <div class="stat-card"><span class="label">Porosidade Solo</span><div class="value">45<span class="unit">%</span></div></div>
-            <div class="stat-card"><span class="label">Compactação</span><div class="value">1.4<span class="unit">MPa</span></div></div>
-            <div class="stat-card"><span class="label">Fluxo Calor Solo</span><div class="value">42<span class="unit">W/m²</span></div></div>
-        </div>
-    </section>
-
-    <!-- ABA 3: BIOCLIMÁTICA -->
-    <section id="bioclimatica" class="tab-content space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="stat-card">
-                <h4 class="label mb-4">Balanço Hídrico (mm)</h4>
-                <div class="grid grid-cols-3 gap-4">
-                    <div><span class="label">ET0 (Ref)</span><div class="value">4.2</div></div>
-                    <div><span class="label">ETC (Cultura)</span><div class="value">3.8</div></div>
-                    <div><span class="label">Déficit Hídrico</span><div class="value text-red-400">-1.2</div></div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <h4 class="label mb-4">Soma Térmica & Frio</h4>
-                <div class="grid grid-cols-3 gap-4">
-                    <div><span class="label">Graus-Dia (GD)</span><div class="value">14.5</div></div>
-                    <div><span class="label">Soma Acum.</span><div class="value">1240.2</div></div>
-                    <div><span class="label">Horas Frio (<7°)</span><div class="value">12h</div></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ABA 4: ESPECÍFICAS -->
-    <section id="especificas" class="tab-content space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- SOJA -->
-            <div class="stat-card bg-green-900/10 border-green-500/30">
-                <h3 class="font-bold text-green-500 mb-4 border-b border-green-500/20 pb-2">SOJA</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between"><span class="label text-slate-300">Temp. Noturna</span><span class="value text-sm">18.2°C</span></div>
-                    <div class="flex justify-between"><span class="label text-slate-300">Fotoperíodo</span><span class="value text-sm">13.4h</span></div>
-                    <div class="flex justify-between"><span class="label text-slate-300">DPV Crítico</span><span class="value text-sm text-green-400">Normal</span></div>
-                </div>
-            </div>
-            <!-- MILHO -->
-            <div class="stat-card bg-yellow-900/10 border-yellow-500/30">
-                <h3 class="font-bold text-yellow-500 mb-4 border-b border-yellow-500/20 pb-2">MILHO</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between"><span class="label text-slate-300">Estresse Hídrico</span><span class="value text-sm">Nulo</span></div>
-                    <div class="flex justify-between"><span class="label text-slate-300">Temp Solo (Semeio)</span><span class="value text-sm">21°C</span></div>
-                    <div class="flex justify-between"><span class="label text-slate-300">Evapotranspiração</span><span class="value text-sm">4.5mm/d</span></div>
-                </div>
-            </div>
-            <!-- TRIGO -->
-            <div class="stat-card bg-blue-900/10 border-blue-500/30">
-                <h3 class="font-bold text-blue-400 mb-4 border-b border-blue-500/20 pb-2">TRIGO</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between"><span class="label text-slate-300">Horas Vernaliz.</span><span class="value text-sm">450h</span></div>
-                    <div class="flex justify-between"><span class="label text-slate-300">Risco Geada</span><span class="value text-sm text-green-400">Baixo</span></div>
-                    <div class="flex justify-between"><span class="label text-slate-300">Molhamento Foliar</span><span class="value text-sm">2h/dia</span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ABA 5: FITOSSANIDADE -->
-    <section id="fitossanidade" class="tab-content space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="stat-card border-l-4 border-red-500">
-                <h3 class="label text-red-500 mb-4 font-bold">Risco Fitossanitário Atual</h3>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center bg-slate-800 p-2 rounded">
-                        <span class="text-xs">Ferrugem Asiática</span>
-                        <span class="px-2 py-1 bg-red-500 text-[10px] rounded font-black">ALTO RISCO</span>
-                    </div>
-                    <div class="flex justify-between items-center bg-slate-800 p-2 rounded">
-                        <span class="text-xs">Giberela (Trigo)</span>
-                        <span class="px-2 py-1 bg-green-500 text-[10px] rounded font-black">INÓSPITO</span>
-                    </div>
-                </div>
-            </div>
-            <div class="stat-card border-l-4 border-blue-500">
-                <h3 class="label text-blue-400 mb-4 font-bold">Janela de Operação</h3>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center bg-slate-800 p-2 rounded text-xs">
-                        <span>Aplicação de Defensivos</span>
-                        <span class="text-blue-400 font-bold">RECOMENDADO</span>
-                    </div>
-                    <div class="flex justify-between items-center bg-slate-800 p-2 rounded text-xs">
-                        <span>Janela de Plantio</span>
-                        <span class="text-yellow-500 font-bold">ATENÇÃO (Umidade Solo)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
+<main class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Principais Variáveis -->
+    <div class="stat-card">
+        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Temperatura Ar</span>
+        <div class="text-4xl font-black text-white mt-1"><span id="val-temp">--.-</span><span class="text-lg font-light">°C</span></div>
+    </div>
+    <div class="stat-card border-b-2 border-blue-500">
+        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Umidade Relativa</span>
+        <div class="text-4xl font-black text-blue-400 mt-1"><span id="val-ur">--</span><span class="text-lg font-light">%</span></div>
+    </div>
+    <div class="stat-card border-b-2 border-yellow-500">
+        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Vento Real</span>
+        <div class="text-4xl font-black text-yellow-500 mt-1"><span id="val-wind">--.-</span><span class="text-lg font-light">km/h</span></div>
+    </div>
+    <div class="stat-card border-b-2 border-red-500">
+        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">DPV (kPa)</span>
+        <div class="text-4xl font-black text-white mt-1"><span id="val-dpv">-.--</span></div>
+    </div>
 </main>
 
+<!-- TABELA DE LOGS -->
+<div class="max-w-[1600px] mx-auto bg-[#0d1117] border border-[#30363d] rounded-2xl overflow-hidden shadow-2xl">
+    <div class="p-4 border-b border-[#30363d] flex justify-between items-center bg-[#161b22]">
+        <h2 class="text-xs font-black uppercase tracking-tighter text-slate-400">Histórico Sequencial de Pesquisa (Intervalo: 120s)</h2>
+        <span class="text-[10px] px-2 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">ESTAÇÃO ATIVA</span>
+    </div>
+    <div class="overflow-x-auto max-h-[500px]">
+        <table id="agro-table" class="w-full text-left text-[11px] border-collapse">
+            <thead class="sticky top-0 bg-[#0d1117] text-slate-500 border-b border-slate-800 uppercase font-mono">
+                <tr>
+                    <th class="p-4">Data/Hora</th>
+                    <th class="p-4 text-white">Temp (°C)</th>
+                    <th class="p-4">UR (%)</th>
+                    <th class="p-4">Vento (km/h)</th>
+                    <th class="p-4">DPV (kPa)</th>
+                    <th class="p-4">Delta T</th>
+                    <th class="p-4 text-orange-400">ETo (mm)</th>
+                    <th class="p-4">Molhamento</th>
+                    <th class="p-4">Status</th>
+                </tr>
+            </thead>
+            <tbody id="table-body" class="divide-y divide-slate-800">
+                <!-- Dados via JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script>
-    function openTab(evt, tabName) {
-        var i, tabContent, tabBtns;
-        tabContent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabContent.length; i++) { tabContent[i].classList.remove("active"); }
-        tabBtns = document.getElementsByClassName("tab-btn");
-        for (i = 0; i < tabBtns.length; i++) { 
-            tabBtns[i].classList.remove("bg-green-600", "text-white"); 
-            tabBtns[i].classList.add("bg-slate-800");
+    const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
+    const LAT = -25.41;
+    const LON = -52.41;
+    let dataLogs = []; // Array para armazenar os dados para o CSV
+
+    function updateClock() {
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+
+    async function runAgroUpdate() {
+        const statusLbl = document.getElementById('status-sync');
+        statusLbl.innerText = "Sincronizando...";
+        statusLbl.classList.add('syncing');
+
+        try {
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`);
+            const d = await res.json();
+
+            // Cálculos Científicos
+            const t = d.main.temp;
+            const ur = d.main.humidity;
+            const wind = (d.wind.speed * 3.6).toFixed(1);
+            const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
+            const dpv = (es * (1 - (ur / 100))).toFixed(2);
+            const dt = (t * (1 - (0.45 + 0.006 * ur) * 0.7)).toFixed(1); // Estimativa Delta T
+            const eto = (0.0023 * (t + 17.8) * 4 * 0.45).toFixed(2); // Estimativa ETo
+            const timestamp = new Date().toLocaleString();
+
+            // Update UI Cards
+            document.getElementById('val-temp').innerText = t.toFixed(1);
+            document.getElementById('val-ur').innerText = ur;
+            document.getElementById('val-wind').innerText = wind;
+            document.getElementById('val-dpv').innerText = dpv;
+
+            // Log de Dados
+            const entry = {
+                timestamp, t, ur, wind, dpv, dt, eto,
+                molhamento: ur > 85 ? 'ALTO' : 'BAIXO',
+                status: (wind >= 3 && wind <= 12 && dt < 8) ? 'OK' : 'ALERTA'
+            };
+            dataLogs.push(entry);
+
+            // Update Table
+            const row = `<tr>
+                <td class="p-4 font-mono text-slate-500">${entry.timestamp}</td>
+                <td class="p-4 font-bold text-white">${entry.t.toFixed(1)}</td>
+                <td class="p-4">${entry.ur}%</td>
+                <td class="p-4">${entry.wind}</td>
+                <td class="p-4 font-mono">${entry.dpv}</td>
+                <td class="p-4">${entry.dt}</td>
+                <td class="p-4 text-orange-400 font-bold">${entry.eto}</td>
+                <td class="p-4">${entry.molhamento}</td>
+                <td class="p-4 font-black ${entry.status === 'OK' ? 'text-green-500' : 'text-red-500'}">${entry.status}</td>
+            </tr>`;
+            document.getElementById('table-body').insertAdjacentHTML('afterbegin', row);
+
+            statusLbl.innerText = "Sincronizado com Sucesso";
+            statusLbl.classList.remove('syncing');
+
+        } catch (e) {
+            statusLbl.innerText = "Erro na Leitura";
+            console.error(e);
         }
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("bg-green-600", "text-white");
     }
 
-    // Gráfico de Temperatura (Demo)
-    const ctx = document.getElementById('chartTemp').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['06h', '09h', '12h', '15h', '18h', '21h'],
-            datasets: [{
-                label: 'Temperatura do Ar (°C)',
-                data: [16, 21, 26, 28, 24, 19],
-                borderColor: '#58a6ff',
-                backgroundColor: 'rgba(88, 166, 255, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { grid: { color: '#21262d' } }, x: { grid: { display: false } } }
-        }
-    });
+    function downloadCSV() {
+        if (dataLogs.length === 0) return alert("Sem dados para baixar!");
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Data/Hora,Temp_C,Umidade_UR,Vento_kmh,DPV_kPa,Delta_T,ETo_mm,Molhamento,Status\n";
+        
+        dataLogs.forEach(log => {
+            csvContent += `${log.timestamp},${log.t},${log.ur},${log.wind},${log.dpv},${log.dt},${log.eto},${log.molhamento},${log.status}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "UFFS_AGRO_DATASET.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Execução a cada 2 minutos (120.000 ms)
+    runAgroUpdate();
+    setInterval(runAgroUpdate, 120000);
 </script>
+
 </body>
 </html>
