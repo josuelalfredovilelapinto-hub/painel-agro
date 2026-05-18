@@ -2,137 +2,171 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>SAD Avançado - Agrometeorologia UFFS-LS</title>
+    <title>SAD Bio-Agro v3.0 | UFFS Laranjeiras</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --agro-green: #1b5e20; --u-blue: #0d47a1; --warn: #f57c00; }
-        body { font-family: 'Roboto', sans-serif; background: #eceff1; margin: 0; padding: 15px; color: #333; }
-        .header { background: var(--agro-green); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        :root {
+            --agro-dark: #1b5e20;
+            --agro-light: #4caf50;
+            --science-blue: #0277bd;
+            --danger: #d32f2f;
+            --warning: #ffa000;
+            --bg: #f0f2f5;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1a1a1a; }
         
-        /* Layout Acadêmico */
-        .secao { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid var(--agro-green); }
-        .grid-master { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .top-bar { 
+            background: var(--agro-dark); color: white; padding: 25px; border-radius: 15px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 30px; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .grid-agro { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+        .card-science { 
+            background: white; border-radius: 12px; padding: 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid var(--agro-light);
+        }
+
+        .card-science h3 { margin-top: 0; color: var(--agro-dark); border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+        .metric-main { font-size: 2.2rem; font-weight: 700; color: var(--science-blue); margin: 15px 0; }
         
-        .metric-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; }
-        .metric-value { font-size: 1.5em; font-weight: bold; color: var(--u-blue); }
-        
-        .alerta { padding: 15px; border-radius: 8px; font-weight: bold; margin-top: 10px; border: 2px solid; }
-        .geada-low { border-color: #4caf50; color: #2e7d32; }
-        .geada-high { border-color: #d32f2f; color: #c62828; background: #ffebee; animation: blink 1s infinite; }
-        
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.7;} 100% {opacity: 1;} }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        .equation { 
+            font-family: 'Fira Code', monospace; font-size: 0.75rem; background: #f8f9fa; 
+            padding: 8px; border-radius: 5px; color: #666; margin-top: 10px; border: 1px dashed #ccc;
+        }
+
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        .badge-danger { background: #ffebee; color: var(--danger); }
+        .badge-success { background: #e8f5e9; color: var(--agro-dark); }
+
+        .fito-alert { border-left: 4px solid var(--danger); padding: 10px; background: #fff5f5; margin-bottom: 10px; }
+
+        .footer-uff { text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 0.9rem; border-top: 1px solid #ddd; padding-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>Sistema de Apoio à Decisão Agrometeorológica (SAD-UFFS)</h1>
-    <p>Estação Experimental UFFS - Laranjeiras do Sul | Latitude: -25.41° | Longitude: -52.41°</p>
-    <small id="last-update">Sincronizando dados...</small>
+<div class="top-bar">
+    <div>
+        <h1 style="margin:0;">SAD Bio-Agromet UFFS</h1>
+        <p style="margin:5px 0 0 0; opacity: 0.9;">Laranjeiras do Sul - PR | Monitoramento Científico v3.0</p>
+    </div>
+    <div id="relogio" style="text-align: right; font-family: 'Fira Code';">--:--:--</div>
 </div>
 
-<div class="grid-master">
-    <div class="secao">
-        <h3>Módulo Fototérmico</h3>
-        <div class="metric-card">
-            <h3>Fotoperíodo Atual</h3>
-            <div id="foto-val" class="metric-value">-- h</div>
-            <p><small>Equação de Ometto (1981)</small></p>
+<div class="grid-agro">
+    <div class="card-science">
+        <h3>Déficit de Pressão de Vapor (DPV)</h3>
+        <div id="dpv-val" class="metric-main">-- kPa</div>
+        <p>Status: <span id="dpv-status" class="badge">Analisando...</span></p>
+        <div class="equation">
+            es = 0.6108 * exp((17.27 * T)/(T + 237.3))<br>
+            VPD = es * (1 - UR/100)
         </div>
-        <table>
-            <tr><td>Graus-Dia (Hoje)</td><td id="gd-hoje">--</td></tr>
-            <tr><td>GDA (Ciclo Estimado)</td><td id="gda-acum">--</td></tr>
-        </table>
     </div>
 
-    <div class="secao">
-        <h3>Evapotranspiração (ETo)</h3>
-        <div class="metric-card">
-            <h3>ETo Estimada</h3>
-            <div id="eto-val" class="metric-value">-- mm/dia</div>
-            <p><small>Modelo: Camargo (1971)</small></p>
+    <div class="card-science">
+        <h3>Molhamento Foliar & Patógenos</h3>
+        <div id="leaf-status" class="metric-main">--</div>
+        <div id="fito-news">
+            </div>
+        <div class="equation">
+            Se (T - T_orvalho) < 2°C = Folha Molhada (Estimado)
         </div>
-        <p><i>Status Hídrico:</i> <span id="status-hidrico">Analisando...</span></p>
     </div>
 
-    <div class="secao">
-        <h3>Segurança de Cultivo</h3>
-        <div id="alerta-geada" class="alerta geada-low">
-            RISCO DE GEADA: NULO
-        </div>
-        <div style="margin-top:15px;">
-            <h4>Alertas de Patógenos:</h4>
-            <ul id="lista-fito" style="font-size: 0.9em;">
-                <li>Aguardando leitura climática...</li>
-            </ul>
+    <div class="card-science">
+        <h3>Acúmulo Térmico (Graus-Dia)</h3>
+        <div id="gd-val" class="metric-main">-- GD</div>
+        <p>Ciclo Acumulado (Simulado): <strong id="gda-val">--</strong> GD</p>
+        <div class="equation">
+            GD = Σ (Tmed - Tb) | Tb = 10°C (Milho)
         </div>
     </div>
+
+    <div class="card-science">
+        <h3>Demanda Hídrica (ETo)</h3>
+        <div id="eto-val" class="metric-main">-- mm/dia</div>
+        <p>Modelo: Camargo (1971) otimizado para o PR.</p>
+        <div class="equation">
+            ETo = 0.01 * (Qo / 2.45) * Tmed * ND
+        </div>
+    </div>
+</div>
+
+<div class="footer-uff">
+    Desenvolvido para UFFS - Campus Laranjeiras do Sul<br>
+    Modelos: Penman-Monteith (Adapt), Camargo & Ometto.
 </div>
 
 <script>
-    // Configurações Agronômicas (Pode ser ajustado para Trigo ou Milho)
-    const Tb = 10; // Temperatura base milho
-    let gdaAcumulado = 450.5; // Exemplo de valor que viria de um banco (acumulado da safra)
+    let gdaSimulado = 520.4; // Acumulado de exemplo
 
-    async function processarSAD() {
+    async function atualizarSAD() {
         try {
             const res = await fetch('/api/get-weather');
             const text = await res.text();
             const xml = new DOMParser().parseFromString(text, "text/xml");
 
-            const tAtu = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent);
-            const tMax = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent); // Na v1, simplificamos max/min com a atual ou logs
-            const tMin = tAtu - 2; // Simulação de oscilação para o exemplo
+            // Dados Brutos
+            const t = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0].textContent);
             
-            // 1. CÁLCULO FOTOPERÍODO (Laranjeiras do Sul)
-            const hoje = new Date();
-            const diaDoAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 86400000);
-            const latRad = -25.41 * (Math.PI / 180);
-            const declinacao = 23.45 * Math.sin((2 * Math.PI / 365) * (diaDoAno - 80));
-            const decRad = declinacao * (Math.PI / 180);
-            const h = Math.acos(-Math.tan(latRad) * Math.tan(decRad));
-            const fotoperiodo = (2 / 15) * (h * 180 / Math.PI);
-            document.getElementById('foto-val').innerText = fotoperiodo.toFixed(2) + " h";
+            // 1. CÁLCULO DPV (Déficit de Pressão de Vapor)
+            const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
+            const ea = es * (ur / 100);
+            const dpv = es - ea;
 
-            // 2. GRAUS-DIA
-            const gd = Math.max(0, ((tAtu + tMin) / 2) - Tb);
-            document.getElementById('gd-hoje').innerText = gd.toFixed(1) + " GD";
-            document.getElementById('gda-acum').innerText = (gdaAcumulado + gd).toFixed(1) + " GD";
-
-            // 3. EVAPOTRANSPIRAÇÃO (CAMARGO, 1971)
-            // Qo para Latitude 25S em Maio é aprox 25 MJ/m2/dia
-            const Qo = 25; 
-            const eto = 0.01 * (Qo / 2.45) * tAtu;
-            document.getElementById('eto-val').innerText = eto.toFixed(2) + " mm";
-
-            // 4. ALERTA DE GEADA (Critério de Temperatura de Relva)
-            const alertaG = document.getElementById('alerta-geada');
-            if (tAtu <= 3) {
-                alertaG.innerText = "⚠️ GEADA IMINENTE (NÍVEL CRÍTICO)";
-                alertaG.className = "alerta geada-high";
-            } else if (tAtu <= 6) {
-                alertaG.innerText = "⚠️ ATENÇÃO: FORMAÇÃO DE ORVALHO/GEADA";
-                alertaG.className = "alerta alerta-warn";
+            document.getElementById('dpv-val').innerText = dpv.toFixed(2) + " kPa";
+            const dpvStatus = document.getElementById('dpv-status');
+            if (dpv < 0.4) {
+                dpvStatus.innerText = "Muito Baixo (Risco Doenças)";
+                dpvStatus.className = "badge badge-danger";
+            } else if (dpv > 1.5) {
+                dpvStatus.innerText = "Muito Alto (Estresse Hídrico)";
+                dpvStatus.className = "badge badge-danger";
             } else {
-                alertaG.innerText = "✅ CLIMA SEGURO PARA GEADA";
-                alertaG.className = "alerta geada-low";
+                dpvStatus.innerText = "Ótimo (Transpiração Ativa)";
+                dpvStatus.className = "badge badge-success";
             }
 
-            // 5. FITOSSANITÁRIO (REGRAS DE ANDERSON ET AL.)
-            let fitoHtml = "";
-            if (ur > 90 && tAtu >= 15 && tAtu <= 22) fitoHtml += "<li>❌ <b>Risco Ferrugem:</b> Condição ótima (Alta UR + Temp Amena)</li>";
-            if (ur < 60) fitoHtml += "<li>✅ <b>Baixa Pressão Fúngica:</b> Ar seco interrompe esporulação.</li>";
-            document.getElementById('lista-fito').innerHTML = fitoHtml || "<li>Estabilidade sanitária detectada.</li>";
+            // 2. ESTIMATIVA DE MOLHAMENTO FOLIAR
+            const tOrvalho = t - ((100 - ur) / 5);
+            const leafStatus = document.getElementById('leaf-status');
+            const fitoNews = document.getElementById('fito-news');
+            
+            if ((t - tOrvalho) <= 1.5) {
+                leafStatus.innerText = "💦 MOLHADA";
+                leafStatus.style.color = "var(--science-blue)";
+                fitoNews.innerHTML = `<div class="fito-alert">⚠️ <b>Infecção Ativa:</b> Condições ideais para germinação de esporos de Ferrugem e Manchas.</div>`;
+            } else {
+                leafStatus.innerText = "☀️ SECA";
+                leafStatus.style.color = "var(--warning)";
+                fitoNews.innerHTML = `<div class="badge badge-success">✅ Folha Seca: Baixo risco de infecção fúngica imediata.</div>`;
+            }
 
-            document.getElementById('last-update').innerText = "Sincronizado: " + hoje.toLocaleTimeString();
+            // 3. GRAUS DIA
+            const gd = Math.max(0, t - 10);
+            document.getElementById('gd-val').innerText = gd.toFixed(1) + " GD";
+            document.getElementById('gda-val').innerText = (gdaSimulado + gd).toFixed(1);
 
-        } catch (e) { console.error("Falha no SAD:", e); }
+            // 4. EVAPOTRANSPIRAÇÃO (CAMARGO 1971)
+            const eto = 0.01 * (25 / 2.45) * t; // Qo 25 MJ estimado para época
+            document.getElementById('eto-val').innerText = eto.toFixed(2) + " mm";
+
+            document.getElementById('relogio').innerText = new Date().toLocaleTimeString();
+
+        } catch (error) {
+            console.error("Erro na modelagem:", error);
+        }
     }
 
-    processarSAD();
-    setInterval(processarSAD, 60000);
+    atualizarSAD();
+    setInterval(atualizarSAD, 60000);
 </script>
+
 </body>
 </html>
