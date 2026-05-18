@@ -1,887 +1,622 @@
-```html
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>UFFS AgroClimate AI Platform</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-:root{
-    --bg:#050816;
-    --card:#0b1220;
-    --card2:#111827;
-    --line:#1f2937;
-    --text:#f3f4f6;
-    --sub:#9ca3af;
-
-    --green:#22c55e;
-    --blue:#38bdf8;
-    --orange:#f59e0b;
-    --red:#ef4444;
-    --purple:#8b5cf6;
-    --cyan:#06b6d4;
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    background:
-        radial-gradient(circle at top left,#0f172a 0%,#050816 60%);
-    color:var(--text);
-    font-family:Inter,Segoe UI,sans-serif;
-    min-height:100vh;
-    overflow-x:hidden;
-}
-
-.container{
-    width:100%;
-    max-width:1800px;
-    margin:auto;
-    padding:20px;
-}
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-    gap:20px;
-}
-
-.brand{
-    display:flex;
-    align-items:center;
-    gap:15px;
-}
-
-.logo{
-    width:60px;
-    height:60px;
-    border-radius:18px;
-    background:linear-gradient(135deg,#16a34a,#0ea5e9);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:28px;
-    box-shadow:0 0 30px rgba(14,165,233,.35);
-}
-
-.brand h1{
-    font-size:1.8rem;
-    font-weight:800;
-}
-
-.brand span{
-    color:var(--sub);
-    font-size:.95rem;
-}
-
-.live-box{
-    display:flex;
-    gap:15px;
-    align-items:center;
-}
-
-.live-card{
-    background:rgba(17,24,39,.7);
-    border:1px solid rgba(255,255,255,.05);
-    backdrop-filter:blur(10px);
-    border-radius:16px;
-    padding:12px 18px;
-}
-
-.live-card h4{
-    color:var(--sub);
-    font-size:.75rem;
-    margin-bottom:4px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-}
-
-.live-card div{
-    font-size:1.2rem;
-    font-weight:700;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(12,1fr);
-    gap:18px;
-}
-
-.card{
-    background:rgba(11,18,32,.75);
-    border:1px solid rgba(255,255,255,.06);
-    backdrop-filter:blur(16px);
-    border-radius:24px;
-    padding:22px;
-    position:relative;
-    overflow:hidden;
-}
-
-.card::before{
-    content:'';
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:2px;
-    background:linear-gradient(90deg,#22c55e,#0ea5e9,#8b5cf6);
-}
-
-.col-3{grid-column:span 3;}
-.col-4{grid-column:span 4;}
-.col-6{grid-column:span 6;}
-.col-8{grid-column:span 8;}
-.col-12{grid-column:span 12;}
-
-.card-title{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-.card-title h3{
-    font-size:.85rem;
-    color:var(--sub);
-    letter-spacing:1px;
-    text-transform:uppercase;
-}
-
-.icon{
-    width:42px;
-    height:42px;
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:rgba(255,255,255,.05);
-    font-size:18px;
-}
-
-.hero-value{
-    font-size:3.2rem;
-    font-weight:900;
-    line-height:1;
-    margin-bottom:12px;
-}
-
-.unit{
-    font-size:1rem;
-    color:var(--sub);
-    font-weight:500;
-}
-
-.mini-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-.metric{
-    background:rgba(255,255,255,.03);
-    border-radius:14px;
-    padding:12px;
-}
-
-.metric small{
-    color:var(--sub);
-    display:block;
-    margin-bottom:6px;
-}
-
-.metric strong{
-    font-size:1rem;
-}
-
-.status{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:18px;
-    border-radius:18px;
-    margin-top:15px;
-    font-weight:700;
-}
-
-.status.good{
-    background:rgba(34,197,94,.12);
-    border:1px solid rgba(34,197,94,.35);
-    color:#4ade80;
-}
-
-.status.bad{
-    background:rgba(239,68,68,.12);
-    border:1px solid rgba(239,68,68,.35);
-    color:#f87171;
-}
-
-.risk-box{
-    margin-top:14px;
-    padding:18px;
-    border-radius:18px;
-    background:rgba(255,255,255,.03);
-}
-
-.risk-title{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:10px;
-}
-
-.progress{
-    width:100%;
-    height:10px;
-    border-radius:30px;
-    background:#1f2937;
-    overflow:hidden;
-}
-
-.progress div{
-    height:100%;
-    border-radius:30px;
-}
-
-.chart-box{
-    height:320px;
-}
-
-.table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-}
-
-.table th{
-    text-align:left;
-    padding:14px;
-    color:var(--sub);
-    font-size:.8rem;
-    border-bottom:1px solid var(--line);
-}
-
-.table td{
-    padding:14px;
-    border-bottom:1px solid rgba(255,255,255,.05);
-    font-size:.9rem;
-}
-
-.badge{
-    padding:6px 12px;
-    border-radius:999px;
-    font-size:.75rem;
-    font-weight:700;
-}
-
-.ok{
-    background:rgba(34,197,94,.12);
-    color:#4ade80;
-}
-
-.stop{
-    background:rgba(239,68,68,.12);
-    color:#f87171;
-}
-
-.footer{
-    margin-top:20px;
-    color:var(--sub);
-    text-align:center;
-    font-size:.85rem;
-}
-
-.glow-green{
-    box-shadow:0 0 35px rgba(34,197,94,.15);
-}
-
-.glow-blue{
-    box-shadow:0 0 35px rgba(56,189,248,.15);
-}
-
-.glow-purple{
-    box-shadow:0 0 35px rgba(139,92,246,.15);
-}
-
-@media(max-width:1200px){
-    .col-3,.col-4,.col-6,.col-8{
-        grid-column:span 12;
-    }
-
-    .topbar{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <div class="topbar">
-
-        <div class="brand">
-            <div class="logo">
-                <i class="fa-solid fa-seedling"></i>
-            </div>
-
-            <div>
-                <h1>UFFS AgroClimate AI Platform</h1>
-                <span>
-                    Laranjeiras do Sul • Paraná • Sistema Inteligente Agrometeorológico
-                </span>
-            </div>
-        </div>
-
-        <div class="live-box">
-
-            <div class="live-card">
-                <h4>Status</h4>
-                <div style="color:#4ade80">
-                    ● ONLINE
-                </div>
-            </div>
-
-            <div class="live-card">
-                <h4>Atualização</h4>
-                <div id="clock">--:--:--</div>
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="grid">
-
-        <!-- TEMPERATURA -->
-        <div class="card col-3 glow-red">
-
-            <div class="card-title">
-                <h3>Atmosfera</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-temperature-half"></i>
-                </div>
-            </div>
-
-            <div class="hero-value" id="temp">
-                24.8<span class="unit">°C</span>
-            </div>
-
-            <div class="mini-grid">
-
-                <div class="metric">
-                    <small>Umidade</small>
-                    <strong id="ur">78%</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Ponto Orvalho</small>
-                    <strong id="dew">18.4°C</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Pressão</small>
-                    <strong id="press">1013 hPa</strong>
-                </div>
-
-                <div class="metric">
-                    <small>DPV</small>
-                    <strong id="dpv">0.74 kPa</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- VENTO -->
-        <div class="card col-3 glow-blue">
-
-            <div class="card-title">
-                <h3>Dinâmica do Vento</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-wind"></i>
-                </div>
-            </div>
-
-            <div class="hero-value" id="wind">
-                7.8<span class="unit">km/h</span>
-            </div>
-
-            <div class="mini-grid">
-
-                <div class="metric">
-                    <small>Direção</small>
-                    <strong>245° SW</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Rajada</small>
-                    <strong>12 km/h</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Delta T</small>
-                    <strong>3.4</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Deriva</small>
-                    <strong>Baixa</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- SOLO -->
-        <div class="card col-3 glow-green">
-
-            <div class="card-title">
-                <h3>Solo</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-leaf"></i>
-                </div>
-            </div>
-
-            <div class="hero-value">
-                31<span class="unit">% VWC</span>
-            </div>
-
-            <div class="mini-grid">
-
-                <div class="metric">
-                    <small>T. Solo</small>
-                    <strong>21.2°C</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Condutividade</small>
-                    <strong>1.2 dS/m</strong>
-                </div>
-
-                <div class="metric">
-                    <small>pH</small>
-                    <strong>6.1</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Água Disponível</small>
-                    <strong>72%</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- RADIAÇÃO -->
-        <div class="card col-3 glow-purple">
-
-            <div class="card-title">
-                <h3>Radiação</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-sun"></i>
-                </div>
-            </div>
-
-            <div class="hero-value">
-                842<span class="unit">W/m²</span>
-            </div>
-
-            <div class="mini-grid">
-
-                <div class="metric">
-                    <small>PAR</small>
-                    <strong>1768</strong>
-                </div>
-
-                <div class="metric">
-                    <small>UV</small>
-                    <strong>8</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Fotoperíodo</small>
-                    <strong>11h42m</strong>
-                </div>
-
-                <div class="metric">
-                    <small>ET0</small>
-                    <strong>4.2 mm</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- SPRAY -->
-        <div class="card col-4">
-
-            <div class="card-title">
-                <h3>Condição de Pulverização</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-spray-can-sparkles"></i>
-                </div>
-            </div>
-
-            <div class="status good">
-                <i class="fa-solid fa-circle-check"></i>
-                PULVERIZAÇÃO RECOMENDADA
-            </div>
-
-            <div class="mini-grid" style="margin-top:15px">
-
-                <div class="metric">
-                    <small>Evaporação</small>
-                    <strong>Baixa</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Janela Operacional</small>
-                    <strong>Ideal</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Classe Gota</small>
-                    <strong>Média</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Risco Deriva</small>
-                    <strong>Baixo</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- DOENÇAS -->
-        <div class="card col-4">
-
-            <div class="card-title">
-                <h3>Epidemiologia</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-bacteria"></i>
-                </div>
-            </div>
-
-            <div class="risk-box">
-
-                <div class="risk-title">
-                    <span>Ferrugem Asiática</span>
-                    <strong style="color:#ef4444">84%</strong>
-                </div>
-
-                <div class="progress">
-                    <div style="width:84%; background:#ef4444"></div>
-                </div>
-
-            </div>
-
-            <div class="risk-box">
-
-                <div class="risk-title">
-                    <span>Mofo Branco</span>
-                    <strong style="color:#f59e0b">62%</strong>
-                </div>
-
-                <div class="progress">
-                    <div style="width:62%; background:#f59e0b"></div>
-                </div>
-
-            </div>
-
-            <div class="risk-box">
-
-                <div class="risk-title">
-                    <span>Cercospora</span>
-                    <strong style="color:#22c55e">22%</strong>
-                </div>
-
-                <div class="progress">
-                    <div style="width:22%; background:#22c55e"></div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- IA -->
-        <div class="card col-4">
-
-            <div class="card-title">
-                <h3>Agro AI Insights</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-brain"></i>
-                </div>
-            </div>
-
-            <div class="risk-box">
-                🌧️ Probabilidade de chuva nas próximas 6h: <strong>72%</strong>
-            </div>
-
-            <div class="risk-box">
-                🌱 Condição fenológica estimada: <strong>V6</strong>
-            </div>
-
-            <div class="risk-box">
-                ⚠️ Recomendação: monitorar ferrugem asiática.
-            </div>
-
-            <div class="risk-box">
-                🚜 Janela operacional ideal até 17:30.
-            </div>
-
-        </div>
-
-        <!-- GRÁFICO -->
-        <div class="card col-8">
-
-            <div class="card-title">
-                <h3>Monitoramento Climático</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-            </div>
-
-            <div class="chart-box">
-                <canvas id="climateChart"></canvas>
-            </div>
-
-        </div>
-
-        <!-- KPIs -->
-        <div class="card col-4">
-
-            <div class="card-title">
-                <h3>Indicadores Agronômicos</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-flask"></i>
-                </div>
-            </div>
-
-            <div class="mini-grid">
-
-                <div class="metric">
-                    <small>Graus-dia</small>
-                    <strong>14.8</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Molhamento</small>
-                    <strong>6.2 h</strong>
-                </div>
-
-                <div class="metric">
-                    <small>ETc</small>
-                    <strong>5.8 mm</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Biomassa</small>
-                    <strong>4.2 t/ha</strong>
-                </div>
-
-                <div class="metric">
-                    <small>NDVI</small>
-                    <strong>0.82</strong>
-                </div>
-
-                <div class="metric">
-                    <small>Stress Hídrico</small>
-                    <strong>Baixo</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- TABELA -->
-        <div class="card col-12">
-
-            <div class="card-title">
-                <h3>Dataset Científico em Tempo Real</h3>
-
-                <div class="icon">
-                    <i class="fa-solid fa-database"></i>
-                </div>
-            </div>
-
-            <table class="table">
-
-                <thead>
-                    <tr>
-                        <th>Hora</th>
-                        <th>T. Ar</th>
-                        <th>UR</th>
-                        <th>DPV</th>
-                        <th>ET0</th>
-                        <th>PAR</th>
-                        <th>Molhamento</th>
-                        <th>Doença</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    <tr>
-                        <td>14:00</td>
-                        <td>24.8°C</td>
-                        <td>78%</td>
-                        <td>0.74</td>
-                        <td>4.2</td>
-                        <td>1768</td>
-                        <td>6.2h</td>
-                        <td>Ferrugem</td>
-                        <td>
-                            <span class="badge ok">
-                                NORMAL
-                            </span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>13:00</td>
-                        <td>25.1°C</td>
-                        <td>74%</td>
-                        <td>0.92</td>
-                        <td>4.0</td>
-                        <td>1682</td>
-                        <td>5.8h</td>
-                        <td>Mofo Branco</td>
-                        <td>
-                            <span class="badge stop">
-                                ALERTA
-                            </span>
-                        </td>
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <div class="footer">
-        UFFS AgroClimate AI Platform • Sistema Inteligente de Suporte à Decisão Agrícola • v30.0
-    </div>
-
-</div>
+<!-- ========================= -->
+<!-- UFFS AGROCLIMATE AI v40 -->
+<!-- FRONTEND PROFISSIONAL -->
+<!-- ATUALIZAÇÃO EM TEMPO REAL -->
+<!-- ========================= -->
 
 <script>
 
-document.getElementById('clock').innerText =
-    new Date().toLocaleTimeString();
+const CONFIG = {
 
-setInterval(()=>{
+    API_KEY: 'SUA_API_KEY',
+    LAT: -25.41,
+    LON: -52.41,
+
+    TEMP_BASE: 10,
+
+    UPDATE_INTERVAL: 60000
+
+};
+
+let climateChart;
+
+/* =========================================
+   CLOCK
+========================================= */
+
+function updateClock(){
+
     document.getElementById('clock').innerText =
-        new Date().toLocaleTimeString();
-},1000);
+        new Date().toLocaleTimeString('pt-BR');
 
-const ctx = document.getElementById('climateChart');
+}
 
-new Chart(ctx,{
+setInterval(updateClock,1000);
 
-    type:'line',
+/* =========================================
+   UTILIDADES
+========================================= */
 
-    data:{
-        labels:[
-            '08h','09h','10h','11h','12h',
-            '13h','14h','15h','16h'
-        ],
+function safe(id,val){
 
-        datasets:[
-            {
-                label:'Temperatura',
-                data:[18,19,21,23,24,25,24,23,22],
-                borderColor:'#22c55e',
-                backgroundColor:'rgba(34,197,94,.1)',
-                tension:.4,
-                fill:true
-            },
+    const el = document.getElementById(id);
 
-            {
-                label:'Umidade',
-                data:[92,88,84,81,79,74,78,82,86],
-                borderColor:'#38bdf8',
-                backgroundColor:'rgba(56,189,248,.08)',
-                tension:.4,
-                fill:true
-            },
+    if(el){
 
-            {
-                label:'DPV',
-                data:[0.2,0.3,0.5,0.6,0.8,1.1,0.7,0.5,0.3],
-                borderColor:'#f59e0b',
-                tension:.4
-            }
-        ]
-    },
+        el.innerHTML = val;
 
-    options:{
+    }
 
-        responsive:true,
-        maintainAspectRatio:false,
+}
 
-        plugins:{
-            legend:{
-                labels:{
-                    color:'#fff'
+function calcDPV(temp,ur){
+
+    const es =
+        0.6108 *
+        Math.exp((17.27 * temp) / (temp + 237.3));
+
+    return es * (1 - (ur / 100));
+
+}
+
+function calcDew(temp,ur){
+
+    return temp - ((100 - ur) / 5);
+
+}
+
+function calcET0(temp,ur,wind,solar){
+
+    return (
+        (
+            0.408 * solar +
+            (900 / (temp + 273)) *
+            wind *
+            (1 - ur/100)
+        ) /
+        (
+            1 + 0.34 * wind
+        )
+    ).toFixed(2);
+
+}
+
+function calcGD(temp){
+
+    return Math.max(
+        0,
+        temp - CONFIG.TEMP_BASE
+    );
+
+}
+
+/* =========================================
+   ALERTAS IA
+========================================= */
+
+function generateAIInsights(data){
+
+    let insights = [];
+
+    if(data.dpv > 2){
+
+        insights.push(
+            "⚠️ Alto risco de evaporação em pulverização"
+        );
+
+    }
+
+    if(data.ur > 90){
+
+        insights.push(
+            "🦠 Alta favorabilidade para doenças fúngicas"
+        );
+
+    }
+
+    if(data.wind > 15){
+
+        insights.push(
+            "🌬️ Risco elevado de deriva"
+        );
+
+    }
+
+    if(data.temp > 32){
+
+        insights.push(
+            "🔥 Estresse térmico detectado"
+        );
+
+    }
+
+    if(insights.length === 0){
+
+        insights.push(
+            "✅ Condições ambientais estáveis"
+        );
+
+    }
+
+    return insights;
+
+}
+
+/* =========================================
+   CHART
+========================================= */
+
+function initChart(){
+
+    const ctx =
+        document
+            .getElementById('climateChart');
+
+    climateChart = new Chart(ctx,{
+
+        type:'line',
+
+        data:{
+
+            labels:[],
+
+            datasets:[
+
+                {
+                    label:'Temperatura',
+                    data:[],
+                    borderColor:'#22c55e',
+                    tension:.4
+                },
+
+                {
+                    label:'Umidade',
+                    data:[],
+                    borderColor:'#38bdf8',
+                    tension:.4
+                },
+
+                {
+                    label:'DPV',
+                    data:[],
+                    borderColor:'#f59e0b',
+                    tension:.4
                 }
-            }
+
+            ]
+
         },
 
-        scales:{
+        options:{
 
-            x:{
-                ticks:{
-                    color:'#9ca3af'
-                },
-                grid:{
-                    color:'rgba(255,255,255,.05)'
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+
+                    labels:{
+                        color:'#fff'
+                    }
+
                 }
+
             },
 
-            y:{
-                ticks:{
-                    color:'#9ca3af'
+            scales:{
+
+                x:{
+
+                    ticks:{
+                        color:'#9ca3af'
+                    },
+
+                    grid:{
+                        color:'rgba(255,255,255,.05)'
+                    }
+
                 },
-                grid:{
-                    color:'rgba(255,255,255,.05)'
+
+                y:{
+
+                    ticks:{
+                        color:'#9ca3af'
+                    },
+
+                    grid:{
+                        color:'rgba(255,255,255,.05)'
+                    }
+
                 }
+
             }
 
         }
 
+    });
+
+}
+
+/* =========================================
+   UPDATE CHART
+========================================= */
+
+function updateChart(data){
+
+    const time =
+        new Date()
+            .toLocaleTimeString('pt-BR');
+
+    climateChart.data.labels.push(time);
+
+    climateChart.data.datasets[0]
+        .data.push(data.temp);
+
+    climateChart.data.datasets[1]
+        .data.push(data.ur);
+
+    climateChart.data.datasets[2]
+        .data.push(data.dpv);
+
+    if(climateChart.data.labels.length > 20){
+
+        climateChart.data.labels.shift();
+
+        climateChart.data.datasets.forEach(ds => {
+
+            ds.data.shift();
+
+        });
+
     }
 
-});
+    climateChart.update();
+
+}
+
+/* =========================================
+   TABELA HISTÓRICA
+========================================= */
+
+function updateTable(data){
+
+    const table =
+        document.querySelector('.table tbody');
+
+    const row = `
+        <tr>
+
+            <td>
+                ${new Date()
+                    .toLocaleTimeString('pt-BR')}
+            </td>
+
+            <td>${data.temp}°C</td>
+
+            <td>${data.ur}%</td>
+
+            <td>${data.dpv}</td>
+
+            <td>${data.et0}</td>
+
+            <td>${data.par}</td>
+
+            <td>${data.leaf}</td>
+
+            <td>${data.disease}</td>
+
+            <td>
+                <span class="badge ${
+                    data.spray
+                        ? 'ok'
+                        : 'stop'
+                }">
+
+                    ${
+                        data.spray
+                            ? 'OK'
+                            : 'RISCO'
+                    }
+
+                </span>
+            </td>
+
+        </tr>
+    `;
+
+    table.innerHTML =
+        row + table.innerHTML;
+
+}
+
+/* =========================================
+   UPDATE DASHBOARD
+========================================= */
+
+async function updateDashboard(){
+
+    try{
+
+        /* ===============================
+           DAVIS API
+        =============================== */
+
+        const davis =
+            await fetch('/api/get-weather');
+
+        const xmlText =
+            await davis.text();
+
+        const xml =
+            new DOMParser()
+                .parseFromString(
+                    xmlText,
+                    "text/xml"
+                );
+
+        const temp =
+            parseFloat(
+                xml.getElementsByTagName("temp_c")[0]
+                    ?.textContent || 0
+            );
+
+        const ur =
+            parseFloat(
+                xml.getElementsByTagName("relative_humidity")[0]
+                    ?.textContent || 0
+            );
+
+        const solar =
+            parseFloat(
+                xml.getElementsByTagName("solar_radiation")[0]
+                    ?.textContent || 0
+            );
+
+        const pressure =
+            parseFloat(
+                xml.getElementsByTagName("pressure_mb")[0]
+                    ?.textContent || 1013
+            );
+
+        /* ===============================
+           OPEN WEATHER
+        =============================== */
+
+        const weather =
+            await fetch(
+                `https://api.openweathermap.org/data/2.5/weather?lat=${CONFIG.LAT}&lon=${CONFIG.LON}&appid=${CONFIG.API_KEY}&units=metric`
+            );
+
+        const w =
+            await weather.json();
+
+        /* ===============================
+           AGROCALCULOS
+        =============================== */
+
+        const wind =
+            (w.wind.speed * 3.6)
+                .toFixed(1);
+
+        const gust =
+            (
+                (w.wind.gust || 0) * 3.6
+            ).toFixed(1);
+
+        const dpv =
+            calcDPV(temp,ur)
+                .toFixed(2);
+
+        const dew =
+            calcDew(temp,ur)
+                .toFixed(1);
+
+        const et0 =
+            calcET0(
+                temp,
+                ur,
+                wind,
+                solar
+            );
+
+        const gd =
+            calcGD(temp)
+                .toFixed(1);
+
+        const deltaT =
+            (temp - dew)
+                .toFixed(1);
+
+        const par =
+            (solar * 2.1)
+                .toFixed(0);
+
+        /* ===============================
+           EPIDEMIOLOGIA
+        =============================== */
+
+        const ferrugem =
+            (
+                ur > 80 &&
+                temp > 18 &&
+                temp < 26
+            )
+                ? 84
+                : 22;
+
+        const mofo =
+            (
+                ur > 85 &&
+                temp < 22
+            )
+                ? 76
+                : 18;
+
+        const spray =
+            (
+                wind >= 3 &&
+                wind <= 12 &&
+                dpv <= 1.5
+            );
+
+        /* ===============================
+           UI UPDATE
+        =============================== */
+
+        safe(
+            'temp',
+            `${temp.toFixed(1)}
+             <span class="unit">°C</span>`
+        );
+
+        safe(
+            'ur',
+            `${ur}%`
+        );
+
+        safe(
+            'dew',
+            `${dew}°C`
+        );
+
+        safe(
+            'press',
+            `${pressure} hPa`
+        );
+
+        safe(
+            'dpv',
+            `${dpv} kPa`
+        );
+
+        safe(
+            'wind',
+            `${wind}
+             <span class="unit">km/h</span>`
+        );
+
+        /* ===============================
+           AI INSIGHTS
+        =============================== */
+
+        const insights =
+            generateAIInsights({
+
+                temp,
+                ur,
+                dpv,
+                wind
+
+            });
+
+        const aiBox =
+            document.getElementById(
+                'ai-insights'
+            );
+
+        if(aiBox){
+
+            aiBox.innerHTML =
+                insights
+                    .map(i => `
+                        <div class="risk-box">
+                            ${i}
+                        </div>
+                    `)
+                    .join('');
+
+        }
+
+        /* ===============================
+           UPDATE CHART
+        =============================== */
+
+        updateChart({
+
+            temp,
+            ur,
+            dpv
+
+        });
+
+        /* ===============================
+           UPDATE TABLE
+        =============================== */
+
+        updateTable({
+
+            temp,
+            ur,
+            dpv,
+            et0,
+            par,
+            leaf:'6.2h',
+            disease:
+                ferrugem > 50
+                    ? 'Ferrugem'
+                    : 'Baixo',
+
+            spray
+
+        });
+
+        /* ===============================
+           STATUS SPRAY
+        =============================== */
+
+        const sprayBox =
+            document.querySelector('.status');
+
+        if(sprayBox){
+
+            sprayBox.className =
+                spray
+                    ? 'status good'
+                    : 'status bad';
+
+            sprayBox.innerHTML =
+                spray
+                    ? `
+                        <i class="fa-solid fa-circle-check"></i>
+                        PULVERIZAÇÃO RECOMENDADA
+                      `
+                    : `
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        PULVERIZAÇÃO NÃO RECOMENDADA
+                      `;
+        }
+
+        console.log(
+            'UFFS AgroClimate atualizado'
+        );
+
+    }catch(err){
+
+        console.error(
+            'Erro AgroClimate:',
+            err
+        );
+
+    }
+
+}
+
+/* =========================================
+   START
+========================================= */
+
+initChart();
+
+updateDashboard();
+
+setInterval(
+
+    updateDashboard,
+
+    CONFIG.UPDATE_INTERVAL
+
+);
 
 </script>
-
-</body>
-</html>
-```
