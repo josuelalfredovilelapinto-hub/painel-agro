@@ -2,106 +2,137 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Agro UFFS-LS</title>
+    <title>SAD Avançado - Agrometeorologia UFFS-LS</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #eef2f3; color: #333; text-align: center; }
-        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
-        .card { background: white; border-radius: 15px; padding: 20px; width: 250px; shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .alerta { padding: 15px; margin: 20px; border-radius: 10px; font-weight: bold; }
-        .bom { background: #2ecc71; color: white; }
-        .ruim { background: #e74c3c; color: white; }
-        h1 { color: #2c3e50; }
+        :root { --agro-green: #1b5e20; --u-blue: #0d47a1; --warn: #f57c00; }
+        body { font-family: 'Roboto', sans-serif; background: #eceff1; margin: 0; padding: 15px; color: #333; }
+        .header { background: var(--agro-green); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
+        /* Layout Acadêmico */
+        .secao { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid var(--agro-green); }
+        .grid-master { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        
+        .metric-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; }
+        .metric-value { font-size: 1.5em; font-weight: bold; color: var(--u-blue); }
+        
+        .alerta { padding: 15px; border-radius: 8px; font-weight: bold; margin-top: 10px; border: 2px solid; }
+        .geada-low { border-color: #4caf50; color: #2e7d32; }
+        .geada-high { border-color: #d32f2f; color: #c62828; background: #ffebee; animation: blink 1s infinite; }
+        
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.7;} 100% {opacity: 1;} }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
-    <h1>Monitoramento Agromet - UFFS Laranjeiras</h1>
-    <p id="data-hora">Carregando dados...</p>
+<div class="header">
+    <h1>Sistema de Apoio à Decisão Agrometeorológica (SAD-UFFS)</h1>
+    <p>Estação Experimental UFFS - Laranjeiras do Sul | Latitude: -25.41° | Longitude: -52.41°</p>
+    <small id="last-update">Sincronizando dados...</small>
+</div>
 
-    <div id="status-pulverizacao" class="alerta">Verificando Delta T...</div>
-
-    <div class="container">
-        <div class="card">
-            <h3>Temperatura</h3>
-            <h2 id="temp">--</h2>
+<div class="grid-master">
+    <div class="secao">
+        <h3>Módulo Fototérmico</h3>
+        <div class="metric-card">
+            <h3>Fotoperíodo Atual</h3>
+            <div id="foto-val" class="metric-value">-- h</div>
+            <p><small>Equação de Ometto (1981)</small></p>
         </div>
-        <div class="card">
-            <h3>Umidade</h3>
-            <h2 id="hum">--</h2>
-        </div>
-        <div class="card">
-            <h3>Vento</h3>
-            <h2 id="vento">--</h2>
-        </div>
-        <div class="card">
-            <h3>Ponto de Orvalho</h3>
-            <h2 id="orvalho">--</h2>
-        </div>
+        <table>
+            <tr><td>Graus-Dia (Hoje)</td><td id="gd-hoje">--</td></tr>
+            <tr><td>GDA (Ciclo Estimado)</td><td id="gda-acum">--</td></tr>
+        </table>
     </div>
 
-    <div class="card" style="width: 80%; margin: auto;">
-        <h3>Alerta Fitossanitário (Região LS)</h3>
-        <p id="alerta-texto">Analisando risco de doenças...</p>
+    <div class="secao">
+        <h3>Evapotranspiração (ETo)</h3>
+        <div class="metric-card">
+            <h3>ETo Estimada</h3>
+            <div id="eto-val" class="metric-value">-- mm/dia</div>
+            <p><small>Modelo: Camargo (1971)</small></p>
+        </div>
+        <p><i>Status Hídrico:</i> <span id="status-hidrico">Analisando...</span></p>
     </div>
 
-    <script>
-        async function buscarDados() {
-            try {
-                const response = await fetch('/api/get-weather');
-                const text = await response.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(text, "text/xml");
+    <div class="secao">
+        <h3>Segurança de Cultivo</h3>
+        <div id="alerta-geada" class="alerta geada-low">
+            RISCO DE GEADA: NULO
+        </div>
+        <div style="margin-top:15px;">
+            <h4>Alertas de Patógenos:</h4>
+            <ul id="lista-fito" style="font-size: 0.9em;">
+                <li>Aguardando leitura climática...</li>
+            </ul>
+        </div>
+    </div>
+</div>
 
-                // Pegando dados do XML
-                const temp = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent);
-                const hum = parseFloat(xml.getElementsByTagName("relative_humidity")[0].textContent);
-                const ventoKts = parseFloat(xml.getElementsByTagName("wind_kt")[0].textContent);
-                const ventoKm = (ventoKts * 1.852).toFixed(1);
-                const dataObj = xml.getElementsByTagName("observation_time")[0].textContent;
+<script>
+    // Configurações Agronômicas (Pode ser ajustado para Trigo ou Milho)
+    const Tb = 10; // Temperatura base milho
+    let gdaAcumulado = 450.5; // Exemplo de valor que viria de um banco (acumulado da safra)
 
-                // 1. Cálculo do Ponto de Orvalho (Simplificado)
-                const orvalho = (temp - ((100 - hum) / 5)).toFixed(1);
+    async function processarSAD() {
+        try {
+            const res = await fetch('/api/get-weather');
+            const text = await res.text();
+            const xml = new DOMParser().parseFromString(text, "text/xml");
 
-                // 2. Cálculo Delta T (Importante para pulverização)
-                // Delta T = Temp Seca - Temp Úmida. 
-                // Uma aproximação rápida:
-                const deltaT = (temp - orvalho).toFixed(1);
+            const tAtu = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent);
+            const tMax = parseFloat(xml.getElementsByTagName("temp_c")[0].textContent); // Na v1, simplificamos max/min com a atual ou logs
+            const tMin = tAtu - 2; // Simulação de oscilação para o exemplo
+            const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0].textContent);
+            
+            // 1. CÁLCULO FOTOPERÍODO (Laranjeiras do Sul)
+            const hoje = new Date();
+            const diaDoAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 86400000);
+            const latRad = -25.41 * (Math.PI / 180);
+            const declinacao = 23.45 * Math.sin((2 * Math.PI / 365) * (diaDoAno - 80));
+            const decRad = declinacao * (Math.PI / 180);
+            const h = Math.acos(-Math.tan(latRad) * Math.tan(decRad));
+            const fotoperiodo = (2 / 15) * (h * 180 / Math.PI);
+            document.getElementById('foto-val').innerText = fotoperiodo.toFixed(2) + " h";
 
-                // Exibir na tela
-                document.getElementById('temp').innerText = temp + "°C";
-                document.getElementById('hum').innerText = hum + "%";
-                document.getElementById('vento').innerText = ventoKm + " km/h";
-                document.getElementById('orvalho').innerText = orvalho + "°C";
-                document.getElementById('data-hora').innerText = "Última leitura: " + dataObj;
+            // 2. GRAUS-DIA
+            const gd = Math.max(0, ((tAtu + tMin) / 2) - Tb);
+            document.getElementById('gd-hoje').innerText = gd.toFixed(1) + " GD";
+            document.getElementById('gda-acum').innerText = (gdaAcumulado + gd).toFixed(1) + " GD";
 
-                // Lógica de Pulverização
-                const statusDiv = document.getElementById('status-pulverizacao');
-                if (deltaT >= 2 && deltaT <= 8) {
-                    statusDiv.innerText = "CONDIÇÃO IDEAL PARA PULVERIZAÇÃO (Delta T: " + deltaT + ")";
-                    statusDiv.className = "alerta bom";
-                } else {
-                    statusDiv.innerText = "EVITAR PULVERIZAÇÃO (Delta T fora do ideal: " + deltaT + ")";
-                    statusDiv.className = "alerta ruim";
-                }
+            // 3. EVAPOTRANSPIRAÇÃO (CAMARGO, 1971)
+            // Qo para Latitude 25S em Maio é aprox 25 MJ/m2/dia
+            const Qo = 25; 
+            const eto = 0.01 * (Qo / 2.45) * tAtu;
+            document.getElementById('eto-val').innerText = eto.toFixed(2) + " mm";
 
-                // Alerta Fitossanitário Simples (Ex: Ferrugem Soja)
-                const alertaTexto = document.getElementById('alerta-texto');
-                if (hum > 85 && temp >= 18 && temp <= 24) {
-                    alertaTexto.innerText = "ALERTA: Condições favoráveis para fungos (Alta umidade e temp. média).";
-                    alertaTexto.style.color = "red";
-                } else {
-                    alertaTexto.innerText = "Baixo risco de doenças fúngicas nas últimas horas.";
-                    alertaTexto.style.color = "green";
-                }
-
-            } catch (e) {
-                console.error("Erro:", e);
+            // 4. ALERTA DE GEADA (Critério de Temperatura de Relva)
+            const alertaG = document.getElementById('alerta-geada');
+            if (tAtu <= 3) {
+                alertaG.innerText = "⚠️ GEADA IMINENTE (NÍVEL CRÍTICO)";
+                alertaG.className = "alerta geada-high";
+            } else if (tAtu <= 6) {
+                alertaG.innerText = "⚠️ ATENÇÃO: FORMAÇÃO DE ORVALHO/GEADA";
+                alertaG.className = "alerta alerta-warn";
+            } else {
+                alertaG.innerText = "✅ CLIMA SEGURO PARA GEADA";
+                alertaG.className = "alerta geada-low";
             }
-        }
 
-        buscarDados();
-        setInterval(buscarDados, 300000); // Atualiza a cada 5 min
-    </script>
+            // 5. FITOSSANITÁRIO (REGRAS DE ANDERSON ET AL.)
+            let fitoHtml = "";
+            if (ur > 90 && tAtu >= 15 && tAtu <= 22) fitoHtml += "<li>❌ <b>Risco Ferrugem:</b> Condição ótima (Alta UR + Temp Amena)</li>";
+            if (ur < 60) fitoHtml += "<li>✅ <b>Baixa Pressão Fúngica:</b> Ar seco interrompe esporulação.</li>";
+            document.getElementById('lista-fito').innerHTML = fitoHtml || "<li>Estabilidade sanitária detectada.</li>";
+
+            document.getElementById('last-update').innerText = "Sincronizado: " + hoje.toLocaleTimeString();
+
+        } catch (e) { console.error("Falha no SAD:", e); }
+    }
+
+    processarSAD();
+    setInterval(processarSAD, 60000);
+</script>
 </body>
 </html>
