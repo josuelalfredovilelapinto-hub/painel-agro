@@ -2,96 +2,122 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>UFFS Agromet | Multi-Cultura Intelligence</title>
+    <title>UFFS | Agromet Intelligence - Advanced Dataset Station</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #05070a; --card: #0d1117; --border: #30363d; --accent: #58a6ff; --agro: #238636; --warning: #d29922; --danger: #f85149; --text: #c9d1d9; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; font-size: 11px; }
-        .dashboard { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; max-width: 1800px; margin: 0 auto; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
-        .col-3 { grid-column: span 3; } .col-4 { grid-column: span 4; } .col-6 { grid-column: span 6; } .col-12 { grid-column: span 12; }
+        :root { --bg: #05070a; --card: #0d1117; --border: #30363d; --accent: #58a6ff; --agro: #238636; --warning: #d29922; --danger: #f85149; --text: #c9d1d9; --sub: #8b949e; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; font-size: 11px; }
         
-        h2 { font-size: 10px; text-transform: uppercase; color: var(--accent); margin: 0 0 12px 0; border-bottom: 1px solid #21262d; padding-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        .hero-val { font-size: 2.5rem; font-weight: 800; color: #fff; line-height: 1; }
+        .dashboard { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; max-width: 1900px; margin: 0 auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; position: relative; overflow: hidden; }
         
-        select { background: #161b22; color: #fff; border: 1px solid var(--accent); padding: 5px; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 15px; }
-        .risk-bar { height: 6px; background: #21262d; border-radius: 3px; margin: 5px 0 12px 0; overflow: hidden; }
-        .risk-fill { height: 100%; transition: width 0.5s; }
+        /* Cabeçalhos de Seção */
+        h2 { font-size: 10px; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px; border-bottom: 1px solid #21262d; padding-bottom: 8px; margin: 0 0 15px 0; display: flex; align-items: center; gap: 8px; }
+        .hero-val { font-size: 2.4rem; font-weight: 800; color: #fff; line-height: 1; margin: 10px 0; }
         
-        .table-wrap { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        th { background: #161b22; padding: 10px; position: sticky; top: 0; color: var(--sub); }
-        td { padding: 8px; border-bottom: 1px solid #21262d; }
+        /* Grid de Variáveis */
+        .var-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+        .var-item { background: rgba(255,255,255,0.03); border: 1px solid #21262d; padding: 12px; border-radius: 8px; }
+        .var-item label { font-size: 9px; color: var(--sub); display: block; margin-bottom: 5px; text-transform: uppercase; }
+        .var-item b { font-size: 14px; color: #fff; }
+
+        /* Status de Spray e Cultura */
+        .status-box { padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 9px; }
+
+        /* Tabela Gigante de Dados */
+        .table-container { max-height: 350px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th { background: #161b22; color: var(--sub); padding: 12px; font-size: 10px; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid #21262d; text-align: center; font-family: 'Roboto Mono', monospace; }
+
+        .tab-btn { background: #161b22; color: var(--sub); border: 1px solid var(--border); padding: 8px 15px; cursor: pointer; border-radius: 5px 5px 0 0; }
+        .tab-btn.active { background: var(--accent); color: #000; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div>
-        <h1 style="margin:0; font-size: 1.5rem;">UFFS <span style="font-weight:200;">Agromet Multi-Cultura</span></h1>
-        <small style="color: var(--accent)">Laranjeiras do Sul | Sistema de Apoio à Decisão (SAD)</small>
+        <h1 style="margin:0; font-size: 1.6rem; color: #fff;">UFFS <span style="font-weight:200;">Research Lab | Agromet Station</span></h1>
+        <div style="margin-top: 5px;">
+            <select id="sel_cultura" onchange="initSystem()" style="background:#161b22; color:var(--accent); border:1px solid var(--accent); padding:4px; border-radius:4px;">
+                <option value="soja">SOJA (Tb: 10°C)</option>
+                <option value="milho">MILHO (Tb: 10°C)</option>
+                <option value="trigo">TRIGO (Tb: 4°C)</option>
+                <option value="feijao">FEIJÃO (Tb: 10°C)</option>
+            </select>
+            <span class="badge" style="background:var(--agro); margin-left:10px;">ZARC: Janela Aberta</span>
+        </div>
     </div>
     <div style="text-align: right;">
-        <div id="clock" style="font-size: 1.3rem; font-weight: bold; font-family: monospace;">--:--:--</div>
-        <span style="color: var(--agro); font-size: 9px;"><i class="fa fa-check-circle"></i> CONECTADO À DAVIS + OPENWEATHER</span>
+        <div id="clock" style="font-size: 1.5rem; font-weight: 800; font-family: monospace;">--:--:--</div>
+        <div style="color: var(--sub); font-size: 9px;">CONECTADO: DAVIS VANTAGE PRO 2 + OPENWEATHER API</div>
     </div>
 </header>
 
 <div class="dashboard">
-    
-    <div class="card col-3">
-        <h2><i class="fa fa-seedling"></i> Selecionar Cultura</h2>
-        <select id="cultura_select" onchange="updateSystem()">
-            <option value="soja">SOJA (Tb: 10°C)</option>
-            <option value="milho">MILHO (Tb: 10°C)</option>
-            <option value="feijao">FEIJÃO (Tb: 10°C)</option>
-            <option value="trigo">TRIGO (Tb: 4°C)</option>
-        </select>
-        
-        <div id="zarc_box" style="padding: 10px; border-radius: 6px; background: rgba(35, 134, 54, 0.1); border: 1px solid var(--agro);">
-            <div style="font-weight: bold; color: var(--agro);">ZARC: JANELA FAVORÁVEL</div>
-            <small style="font-size: 9px;">Risco Climático < 20% para a região.</small>
+
+    <div class="card" style="grid-column: span 12;">
+        <h2><i class="fa fa-microchip"></i> Painel de Variáveis Meteorológicas Brutas e Sensores</h2>
+        <div class="var-grid">
+            <div class="var-item"><label>Temp. Ar</label><b id="v_t">--.-</b>°C</div>
+            <div class="var-item"><label>Umidade Rel.</label><b id="v_ur">--</b>%</div>
+            <div class="var-item"><label>Ponto Orvalho</label><b id="v_dew">--.-</b>°C</div>
+            <div class="var-item"><label>Pressão Atm.</label><b id="v_press">--</b> hPa</div>
+            <div class="var-item"><label>Radiação Solar</label><b id="v_rad">--</b> W/m²</div>
+            <div class="var-item"><label>Chuva Acum.</label><b id="v_rain">--</b> mm</div>
+            <div class="var-item" style="border: 1px solid var(--warning);"><label>Vento Virtual</label><b id="v_wind" style="color:var(--warning)">--.-</b> km/h</div>
+            <div class="var-item"><label>Direção Vento</label><b id="v_dir">--</b>°</div>
         </div>
     </div>
 
-    <div class="card col-3">
-        <h2><i class="fa fa-droplet"></i> ETo & Manejo Hídrico</h2>
-        <div class="hero-val" id="eto_val">--.- <small style="font-size:12px;">mm</small></div>
-        <div style="margin-top:10px;">
-            <div style="display:flex; justify-content:space-between"><span>ETo Acumulada (7d):</span> <b id="eto_7d">18.4 mm</b></div>
-            <div style="display:flex; justify-content:space-between"><span>BHC (Solo):</span> <b id="bhc_val">82%</b></div>
+    <div class="card" style="grid-column: span 6;">
+        <h2><i class="fa fa-calculator"></i> Variáveis Agrometeorológicas (Cálculo)</h2>
+        <div class="var-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="var-item"><label>ETo (Penman-Harg.)</label><b id="v_eto">--.--</b> mm/dia</div>
+            <div class="var-item"><label>Déficit Vapor (DPV)</label><b id="v_dpv">--.--</b> kPa</div>
+            <div class="var-item"><label>Delta T (ΔT)</label><b id="v_dt">--.-</b> °C</div>
+            <div class="var-item"><label>Graus-Dia (GD)</label><b id="v_gd">--.-</b></div>
+            <div class="var-item"><label>Molhamento Foliar</label><b id="v_molh">--</b></div>
+            <div class="var-item"><label>Fotoperíodo</label><b id="v_foto">--:--</b> h</div>
         </div>
     </div>
 
-    <div class="card col-3">
-        <h2><i class="fa fa-clock"></i> Fenologia (Graus-Dia)</h2>
-        <div class="hero-val" id="gd_val">--.-</div>
-        <div style="margin-top:10px;">
-            <div style="display:flex; justify-content:space-between"><span>Acúmulo Safra:</span> <b id="gd_sum">--.-</b></div>
-            <div style="display:flex; justify-content:space-between"><span>Fase Estimada:</span> <b id="fase_est" style="color:var(--warning)">--</b></div>
+    <div class="card" style="grid-column: span 6;">
+        <h2><i class="fa fa-seedling"></i> Manejo Hídrico e Fitossanitário</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <div class="status-box" style="flex:1; background: rgba(35, 134, 54, 0.1); border-color: var(--agro);">
+                <small>DISPONIBILIDADE HÍDRICA</small><br>
+                <b id="v_bhc" style="font-size: 1.5rem; color:var(--agro)">--%</b>
+            </div>
+            <div id="spray_box" class="status-box" style="flex:1;">
+                <small>STATUS PULVERIZAÇÃO</small><br>
+                <b id="v_spray" style="font-size: 1.2rem;">ANALISANDO</b>
+            </div>
+        </div>
+        <div class="var-grid">
+            <div class="var-item"><label>Risco Ferrugem</label><b id="r_fer">--%</b></div>
+            <div class="var-item"><label>Risco Mofo</label><b id="r_mofo">--%</b></div>
         </div>
     </div>
 
-    <div class="card col-3">
-        <h2><i class="fa fa-biohazard"></i> Alertas Fitossanitários</h2>
-        <span>Ferrugem / Antracnose</span>
-        <div class="risk-bar"><div id="risk_f" class="risk-fill" style="width: 0%; background: var(--danger);"></div></div>
-        <span>Giberela / Oídio</span>
-        <div class="risk-bar"><div id="risk_g" class="risk-fill" style="width: 0%; background: var(--warning);"></div></div>
-    </div>
-
-    <div class="card col-12">
+    <div class="card" style="grid-column: span 12;">
+        <h2><i class="fa fa-chart-line"></i> Tendências Multivariáveis (Dataset 24h)</h2>
         <div style="height: 250px;"><canvas id="agroChart"></canvas></div>
     </div>
 
-    <div class="card col-12">
-        <h2><i class="fa fa-table"></i> Log de Dados para Pesquisa (Dataset Local)</h2>
-        <div class="table-wrap">
-            <table id="main_table">
+    <div class="card" style="grid-column: span 12;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2><i class="fa fa-database"></i> Registro Completo do Banco de Dados (CSV Export Ready)</h2>
+            <button onclick="exportTableToCSV('agromet_data.csv')" style="background:var(--agro); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:10px;">BAIXAR DATASET .CSV</button>
+        </div>
+        <div class="table-container">
+            <table id="full_table">
                 <thead>
                     <tr>
-                        <th>Hora</th><th>Cultura</th><th>Temp</th><th>UR%</th><th>ETo (mm)</th><th>GD</th><th>Delta T</th><th>Vento</th><th>Status</th>
+                        <th>Time</th><th>Cultura</th><th>T_ar</th><th>UR%</th><th>DewP</th><th>Rad_S</th><th>Rain</th><th>Vento</th><th>DPV</th><th>DeltaT</th><th>GD</th><th>ETo</th><th>BHC%</th><th>Status</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -104,76 +130,121 @@
 <script>
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const LAT = -25.41; const LON = -52.41;
-    let acúmuloGlobalGD = 0;
 
     const ctx = document.getElementById('agroChart').getContext('2d');
     const agroChart = new Chart(ctx, {
         type: 'line',
         data: { labels: [], datasets: [
-            { label: 'ETo (mm)', borderColor: '#58a6ff', data: [], tension: 0.3 },
-            { label: 'Graus-Dia', borderColor: '#d29922', data: [], tension: 0.3 }
+            { label: 'DPV (kPa)', borderColor: '#f85149', data: [], tension: 0.3, yAxisID: 'y' },
+            { label: 'ETo (mm)', borderColor: '#58a6ff', data: [], tension: 0.3, yAxisID: 'y1' }
         ]},
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: '#21262d' } } } }
+        options: { responsive: true, maintainAspectRatio: false, scales: { 
+            y: { position: 'left', grid: { color: '#21262d' } },
+            y1: { position: 'right', grid: { display: false } }
+        }}
     });
 
-    async function updateSystem() {
+    async function initSystem() {
         try {
-            const cultura = document.getElementById('cultura_select').value;
-            const tb = cultura === 'trigo' ? 4 : 10;
+            const cult = document.getElementById('sel_cultura').value;
+            const tb = cult === 'trigo' ? 4 : 10;
             
-            const resDavis = await fetch('/api/get-weather');
+            // Fetch Híbrido
+            const [resDavis, resOWM] = await Promise.all([
+                fetch('/api/get-weather'),
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`)
+            ]);
+            
             const xml = new DOMParser().parseFromString(await resDavis.text(), "text/xml");
-            const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`);
             const owm = await resOWM.json();
 
+            // 1. Variáveis Brutas
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
             const rad = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || 0);
+            const rain = xml.getElementsByTagName("day_rain_mm")[0]?.textContent || "0.0";
+            const press = xml.getElementsByTagName("pressure_mb")[0]?.textContent || "---";
             const wind = (owm.wind.speed * 3.6).toFixed(1);
+            const dir = owm.wind.deg;
 
-            // Cálculos Agromet
-            const eto = (0.0023 * (t + 17.8) * Math.sqrt(12) * (rad * 0.0864) / 2.45).toFixed(2);
-            const gd = Math.max(0, t - tb);
-            acúmuloGlobalGD += gd / 30; // Simulação de incremento por leitura
-
+            // 2. Variáveis Agromet Calculadas
+            const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
+            const dpv = es * (1 - (ur / 100));
             const dew = t - ((100 - ur) / 5);
             const dt = t - dew;
-
-            // Riscos Doença (Exemplo: Trigo sensível a t baixa + UR alta para Giberela)
-            const r1 = (ur > 85 && t > 18) ? 80 : 15;
-            const r2 = (cultura === 'trigo' && ur > 80 && t < 22) ? 70 : 10;
-
-            // UI Update
-            document.getElementById('eto_val').innerHTML = `${eto} <small style="font-size:12px;">mm/dia</small>`;
-            document.getElementById('gd_val').innerText = gd.toFixed(1);
-            document.getElementById('gd_sum').innerText = acúmuloGlobalGD.toFixed(1);
-            document.getElementById('fase_est').innerText = acúmuloGlobalGD < 100 ? "Emergência" : "Vegetativo";
+            const gd = Math.max(0, t - tb);
+            const eto = (0.0023 * (t + 17.8) * Math.sqrt(12) * (rad * 0.0864) / 2.45).toFixed(2);
             
-            document.getElementById('risk_f').style.width = r1 + "%";
-            document.getElementById('risk_g').style.width = r2 + "%";
+            // 3. SAD & Riscos
+            const molh = dt < 1.5;
+            const rFer = (molh && t > 18 && t < 26) ? 85 : 12;
+            const rMofo = (t < 21 && ur > 88) ? 90 : 15;
+            const bhc = Math.min(100, 75 + parseFloat(rain) - parseFloat(eto)).toFixed(1);
 
-            // Chart & Table
+            // 4. Lógica de Spray
+            const sprayOk = (dt >= 2 && dt <= 8 && wind >= 3 && wind <= 12);
+            const sBox = document.getElementById('spray_box');
+            sBox.style.background = sprayOk ? "rgba(35, 134, 54, 0.1)" : "rgba(248, 81, 73, 0.1)";
+            document.getElementById('v_spray').innerText = sprayOk ? "LIBERADO" : "BLOQUEADO";
+            document.getElementById('v_spray').style.color = sprayOk ? "var(--agro)" : "var(--danger)";
+
+            // 5. Update UI
+            document.getElementById('v_t').innerText = t.toFixed(1);
+            document.getElementById('v_ur').innerText = ur;
+            document.getElementById('v_rad').innerText = rad;
+            document.getElementById('v_rain').innerText = rain;
+            document.getElementById('v_press').innerText = press;
+            document.getElementById('v_wind').innerText = wind;
+            document.getElementById('v_dir').innerText = dir;
+            document.getElementById('v_dpv').innerText = dpv.toFixed(3);
+            document.getElementById('v_eto').innerText = eto;
+            document.getElementById('v_dt').innerText = dt.toFixed(1);
+            document.getElementById('v_gd').innerText = gd.toFixed(2);
+            document.getElementById('v_dew').innerText = dew.toFixed(1);
+            document.getElementById('v_bhc').innerText = bhc + "%";
+            document.getElementById('r_fer').innerText = rFer + "%";
+            document.getElementById('r_mofo').innerText = rMofo + "%";
+            document.getElementById('v_molh').innerText = molh ? "PRESENTE" : "AUSENTE";
+            document.getElementById('v_molh').style.color = molh ? "var(--accent)" : "var(--sub)";
+
+            // 6. Gráfico e Tabela
             const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            if(agroChart.data.labels.length > 15) { agroChart.data.labels.shift(); agroChart.data.datasets.forEach(d => d.data.shift()); }
+            if(agroChart.data.labels.length > 20) { agroChart.data.labels.shift(); agroChart.data.datasets.forEach(d => d.data.shift()); }
             agroChart.data.labels.push(hora);
-            agroChart.data.datasets[0].data.push(eto);
-            agroChart.data.datasets[1].data.push(gd);
+            agroChart.data.datasets[0].data.push(dpv.toFixed(3));
+            agroChart.data.datasets[1].data.push(eto);
             agroChart.update();
 
-            const sprayOk = (dt >= 2 && dt <= 8 && wind <= 12);
             const row = `<tr>
-                <td>${hora}</td><td>${cultura.toUpperCase()}</td><td>${t.toFixed(1)}°</td><td>${ur}%</td>
-                <td>${eto}</td><td>${gd.toFixed(1)}</td><td>${dt.toFixed(1)}</td><td>${wind}</td>
-                <td style="color:${sprayOk?'var(--agro)':'var(--danger)'}">${sprayOk?'OK':'STOP'}</td>
+                <td>${hora}</td><td>${cult.toUpperCase()}</td><td>${t.toFixed(1)}</td><td>${ur}</td>
+                <td>${dew.toFixed(1)}</td><td>${rad}</td><td>${rain}</td><td>${wind}</td>
+                <td>${dpv.toFixed(3)}</td><td>${dt.toFixed(1)}</td><td>${gd.toFixed(1)}</td>
+                <td>${eto}</td><td>${bhc}</td><td style="color:${sprayOk?'var(--agro)':'var(--danger)'}">${sprayOk?'OK':'STOP'}</td>
             </tr>`;
-            document.querySelector("#main_table tbody").insertAdjacentHTML('afterbegin', row);
+            document.querySelector("#full_table tbody").insertAdjacentHTML('afterbegin', row);
 
         } catch (e) { console.error(e); }
     }
 
+    // Exportação CSV Simples
+    function exportTableToCSV(filename) {
+        let csv = [];
+        let rows = document.querySelectorAll("table tr");
+        for (let i = 0; i < rows.length; i++) {
+            let row = [], cols = rows[i].querySelectorAll("td, th");
+            for (let j = 0; j < cols.length; j++) row.push(cols[j].innerText);
+            csv.push(row.join(","));
+        }
+        let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+        let downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.click();
+    }
+
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    updateSystem();
-    setInterval(updateSystem, 120000);
+    initSystem();
+    setInterval(initSystem, 120000);
 </script>
 
 </body>
