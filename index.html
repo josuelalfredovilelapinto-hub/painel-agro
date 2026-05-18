@@ -7,8 +7,6 @@ const LON = -52.41;
 
 const TB = 10;
 
-let chart;
-
 /* =========================
    CLOCK
 ========================= */
@@ -21,139 +19,7 @@ setInterval(() => {
 }, 1000);
 
 /* =========================
-   CHART
-========================= */
-
-function initChart(){
-
-    const ctx = document.createElement('canvas');
-
-    ctx.id = 'agroChart';
-
-    ctx.style.height = '300px';
-
-    document.querySelector('.dashboard')
-        .appendChild(ctx);
-
-    chart = new Chart(ctx, {
-
-        type: 'line',
-
-        data: {
-
-            labels: [],
-
-            datasets: [
-
-                {
-                    label: 'Temperatura',
-                    data: [],
-                    borderColor: '#58a6ff',
-                    tension: .4
-                },
-
-                {
-                    label: 'UR%',
-                    data: [],
-                    borderColor: '#238636',
-                    tension: .4
-                },
-
-                {
-                    label: 'DPV',
-                    data: [],
-                    borderColor: '#f85149',
-                    tension: .4
-                }
-
-            ]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            plugins: {
-
-                legend: {
-
-                    labels: {
-
-                        color: '#c9d1d9'
-
-                    }
-
-                }
-
-            },
-
-            scales: {
-
-                x: {
-
-                    ticks: {
-
-                        color: '#8b949e'
-
-                    }
-
-                },
-
-                y: {
-
-                    ticks: {
-
-                        color: '#8b949e'
-
-                    }
-
-                }
-
-            }
-
-        }
-
-    });
-
-}
-
-/* =========================
-   UPDATE CHART
-========================= */
-
-function updateChart(t, ur, dpv){
-
-    const hora =
-        new Date()
-            .toLocaleTimeString();
-
-    chart.data.labels.push(hora);
-
-    chart.data.datasets[0].data.push(t);
-    chart.data.datasets[1].data.push(ur);
-    chart.data.datasets[2].data.push(dpv);
-
-    if(chart.data.labels.length > 20){
-
-        chart.data.labels.shift();
-
-        chart.data.datasets.forEach(ds => {
-
-            ds.data.shift();
-
-        });
-
-    }
-
-    chart.update();
-
-}
-
-/* =========================
-   DASHBOARD
+   UPDATE
 ========================= */
 
 async function updateUFFSDashboard() {
@@ -161,17 +27,15 @@ async function updateUFFSDashboard() {
     try {
 
         /* =========================
-           DAVIS
+           DAVIS/XML
         ========================= */
 
         const resDavis =
             await fetch('/api/get-weather');
 
-        if(!resDavis.ok){
+        if (!resDavis.ok) {
 
-            throw new Error(
-                'API DAVIS OFFLINE'
-            );
+            throw new Error('Erro API DAVIS');
 
         }
 
@@ -208,7 +72,7 @@ async function updateUFFSDashboard() {
                 ?.textContent || "---";
 
         /* =========================
-           OPEN WEATHER
+           OPENWEATHER
         ========================= */
 
         const resOWM =
@@ -239,7 +103,7 @@ async function updateUFFSDashboard() {
             ((100 - ur) / 5);
 
         const dt =
-            (t - dew);
+            t - dew;
 
         const hoje =
             new Date();
@@ -290,10 +154,14 @@ async function updateUFFSDashboard() {
                 dpv <= 1.5
             );
 
+        /* =========================
+           DOENÇAS
+        ========================= */
+
         const leafWet =
             dt < 1.5;
 
-        let riskFerVal =
+        const riskFerVal =
             (
                 leafWet &&
                 t > 18 &&
@@ -302,7 +170,7 @@ async function updateUFFSDashboard() {
                 ? 85
                 : 15;
 
-        let riskMofoVal =
+        const riskMofoVal =
             (
                 t < 21 &&
                 ur > 85
@@ -348,6 +216,12 @@ async function updateUFFSDashboard() {
             .innerText =
             w.wind.deg + "°";
 
+        document.getElementById('w_gust')
+            .innerText =
+            (
+                (w.wind.gust || 0) * 3.6
+            ).toFixed(1);
+
         document.getElementById('v_foto')
             .innerHTML =
             `${Math.floor(fotohours)}h
@@ -364,9 +238,19 @@ async function updateUFFSDashboard() {
             .innerText =
             solar;
 
+        document.getElementById('v_uv')
+            .innerText =
+            w.uvi || "--";
+
         document.getElementById('v_par')
             .innerText =
             (solar * 2.1).toFixed(1);
+
+        document.getElementById('v_leaf')
+            .innerText =
+            leafWet
+                ? "MOLHADO"
+                : "SECO";
 
         /* =========================
            SPRAY
@@ -398,18 +282,13 @@ async function updateUFFSDashboard() {
                 : "BAIXA";
 
         /* =========================
-           EPIDEMIOLOGIA
+           FERRUGEM
         ========================= */
 
         const ferBox =
             document.getElementById(
                 'risk_fer'
             );
-
-        document.getElementById(
-            'risk_fer_val'
-        ).innerText =
-            riskFerVal + "%";
 
         ferBox.className =
             "pathogen-risk " +
@@ -418,6 +297,11 @@ async function updateUFFSDashboard() {
                     ? "risk-high"
                     : "risk-ideal"
             );
+
+        document.getElementById(
+            'risk_fer_val'
+        ).innerText =
+            riskFerVal + "%";
 
         document.getElementById(
             'risk_fer_msg'
@@ -430,6 +314,19 @@ async function updateUFFSDashboard() {
            MOFO
         ========================= */
 
+        const mofoBox =
+            document.getElementById(
+                'risk_mofo'
+            );
+
+        mofoBox.className =
+            "pathogen-risk " +
+            (
+                riskMofoVal > 50
+                    ? "risk-high"
+                    : "risk-ideal"
+            );
+
         document.getElementById(
             'risk_mofo_val'
         ).innerText =
@@ -441,17 +338,6 @@ async function updateUFFSDashboard() {
             riskMofoVal > 50
                 ? "Alta Favorabilidade"
                 : "Baixa Favorabilidade";
-
-        /* =========================
-           LEAF WETNESS
-        ========================= */
-
-        document.getElementById(
-            'v_leaf'
-        ).innerText =
-            leafWet
-                ? "MOLHADO"
-                : "SECO";
 
         /* =========================
            TABELA
@@ -470,7 +356,7 @@ async function updateUFFSDashboard() {
                     ${hoje.toLocaleTimeString()}
                 </td>
 
-                <td>${t}°</td>
+                <td>${t.toFixed(1)}°</td>
 
                 <td>${ur}%</td>
 
@@ -480,24 +366,23 @@ async function updateUFFSDashboard() {
 
                 <td>${solar}</td>
 
-                <td>${(t-TB).toFixed(1)}</td>
+                <td>${(t - TB).toFixed(1)}</td>
 
                 <td>${(solar * 2.1).toFixed(0)}</td>
 
                 <td style="
-                    color:${
+                    color:
+                    ${
                         sprayOk
                             ? 'var(--agro)'
                             : 'var(--danger)'
                     }
                 ">
-
                     ${
                         sprayOk
                             ? 'OK'
                             : 'STOP'
                     }
-
                 </td>
 
             </tr>
@@ -507,14 +392,14 @@ async function updateUFFSDashboard() {
             row + table.innerHTML;
 
         /* =========================
-           CHART
+           LIMITA TABELA
         ========================= */
 
-        updateChart(
-            t,
-            ur,
-            dpv
-        );
+        while (table.rows.length > 20) {
+
+            table.deleteRow(20);
+
+        }
 
     }
 
@@ -533,16 +418,11 @@ async function updateUFFSDashboard() {
    START
 ========================= */
 
-initChart();
-
 updateUFFSDashboard();
 
 setInterval(
-
     updateUFFSDashboard,
-
-    60000
-
+    300000
 );
 
 </script>
