@@ -1,232 +1,113 @@
-<!-- ========================= -->
-<!-- UFFS AGROCLIMATE AI v40 -->
-<!-- FRONTEND PROFISSIONAL -->
-<!-- ATUALIZAÇÃO EM TEMPO REAL -->
-<!-- ========================= -->
-
 <script>
 
-const CONFIG = {
+const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
 
-    API_KEY: 'SUA_API_KEY',
-    LAT: -25.41,
-    LON: -52.41,
+const LAT = -25.41;
+const LON = -52.41;
 
-    TEMP_BASE: 10,
+const TB = 10;
 
-    UPDATE_INTERVAL: 60000
+let chart;
 
-};
-
-let climateChart;
-
-/* =========================================
+/* =========================
    CLOCK
-========================================= */
+========================= */
 
-function updateClock(){
+setInterval(() => {
 
     document.getElementById('clock').innerText =
-        new Date().toLocaleTimeString('pt-BR');
+        new Date().toLocaleTimeString();
 
-}
+}, 1000);
 
-setInterval(updateClock,1000);
-
-/* =========================================
-   UTILIDADES
-========================================= */
-
-function safe(id,val){
-
-    const el = document.getElementById(id);
-
-    if(el){
-
-        el.innerHTML = val;
-
-    }
-
-}
-
-function calcDPV(temp,ur){
-
-    const es =
-        0.6108 *
-        Math.exp((17.27 * temp) / (temp + 237.3));
-
-    return es * (1 - (ur / 100));
-
-}
-
-function calcDew(temp,ur){
-
-    return temp - ((100 - ur) / 5);
-
-}
-
-function calcET0(temp,ur,wind,solar){
-
-    return (
-        (
-            0.408 * solar +
-            (900 / (temp + 273)) *
-            wind *
-            (1 - ur/100)
-        ) /
-        (
-            1 + 0.34 * wind
-        )
-    ).toFixed(2);
-
-}
-
-function calcGD(temp){
-
-    return Math.max(
-        0,
-        temp - CONFIG.TEMP_BASE
-    );
-
-}
-
-/* =========================================
-   ALERTAS IA
-========================================= */
-
-function generateAIInsights(data){
-
-    let insights = [];
-
-    if(data.dpv > 2){
-
-        insights.push(
-            "⚠️ Alto risco de evaporação em pulverização"
-        );
-
-    }
-
-    if(data.ur > 90){
-
-        insights.push(
-            "🦠 Alta favorabilidade para doenças fúngicas"
-        );
-
-    }
-
-    if(data.wind > 15){
-
-        insights.push(
-            "🌬️ Risco elevado de deriva"
-        );
-
-    }
-
-    if(data.temp > 32){
-
-        insights.push(
-            "🔥 Estresse térmico detectado"
-        );
-
-    }
-
-    if(insights.length === 0){
-
-        insights.push(
-            "✅ Condições ambientais estáveis"
-        );
-
-    }
-
-    return insights;
-
-}
-
-/* =========================================
+/* =========================
    CHART
-========================================= */
+========================= */
 
 function initChart(){
 
-    const ctx =
-        document
-            .getElementById('climateChart');
+    const ctx = document.createElement('canvas');
 
-    climateChart = new Chart(ctx,{
+    ctx.id = 'agroChart';
 
-        type:'line',
+    ctx.style.height = '300px';
 
-        data:{
+    document.querySelector('.dashboard')
+        .appendChild(ctx);
 
-            labels:[],
+    chart = new Chart(ctx, {
 
-            datasets:[
+        type: 'line',
+
+        data: {
+
+            labels: [],
+
+            datasets: [
 
                 {
-                    label:'Temperatura',
-                    data:[],
-                    borderColor:'#22c55e',
-                    tension:.4
+                    label: 'Temperatura',
+                    data: [],
+                    borderColor: '#58a6ff',
+                    tension: .4
                 },
 
                 {
-                    label:'Umidade',
-                    data:[],
-                    borderColor:'#38bdf8',
-                    tension:.4
+                    label: 'UR%',
+                    data: [],
+                    borderColor: '#238636',
+                    tension: .4
                 },
 
                 {
-                    label:'DPV',
-                    data:[],
-                    borderColor:'#f59e0b',
-                    tension:.4
+                    label: 'DPV',
+                    data: [],
+                    borderColor: '#f85149',
+                    tension: .4
                 }
 
             ]
 
         },
 
-        options:{
+        options: {
 
-            responsive:true,
+            responsive: true,
 
-            maintainAspectRatio:false,
+            maintainAspectRatio: false,
 
-            plugins:{
+            plugins: {
 
-                legend:{
+                legend: {
 
-                    labels:{
-                        color:'#fff'
+                    labels: {
+
+                        color: '#c9d1d9'
+
                     }
 
                 }
 
             },
 
-            scales:{
+            scales: {
 
-                x:{
+                x: {
 
-                    ticks:{
-                        color:'#9ca3af'
-                    },
+                    ticks: {
 
-                    grid:{
-                        color:'rgba(255,255,255,.05)'
+                        color: '#8b949e'
+
                     }
 
                 },
 
-                y:{
+                y: {
 
-                    ticks:{
-                        color:'#9ca3af'
-                    },
+                    ticks: {
 
-                    grid:{
-                        color:'rgba(255,255,255,.05)'
+                        color: '#8b949e'
+
                     }
 
                 }
@@ -239,32 +120,27 @@ function initChart(){
 
 }
 
-/* =========================================
+/* =========================
    UPDATE CHART
-========================================= */
+========================= */
 
-function updateChart(data){
+function updateChart(t, ur, dpv){
 
-    const time =
+    const hora =
         new Date()
-            .toLocaleTimeString('pt-BR');
+            .toLocaleTimeString();
 
-    climateChart.data.labels.push(time);
+    chart.data.labels.push(hora);
 
-    climateChart.data.datasets[0]
-        .data.push(data.temp);
+    chart.data.datasets[0].data.push(t);
+    chart.data.datasets[1].data.push(ur);
+    chart.data.datasets[2].data.push(dpv);
 
-    climateChart.data.datasets[1]
-        .data.push(data.ur);
+    if(chart.data.labels.length > 20){
 
-    climateChart.data.datasets[2]
-        .data.push(data.dpv);
+        chart.data.labels.shift();
 
-    if(climateChart.data.labels.length > 20){
-
-        climateChart.data.labels.shift();
-
-        climateChart.data.datasets.forEach(ds => {
+        chart.data.datasets.forEach(ds => {
 
             ds.data.shift();
 
@@ -272,82 +148,35 @@ function updateChart(data){
 
     }
 
-    climateChart.update();
+    chart.update();
 
 }
 
-/* =========================================
-   TABELA HISTÓRICA
-========================================= */
+/* =========================
+   DASHBOARD
+========================= */
 
-function updateTable(data){
+async function updateUFFSDashboard() {
 
-    const table =
-        document.querySelector('.table tbody');
+    try {
 
-    const row = `
-        <tr>
+        /* =========================
+           DAVIS
+        ========================= */
 
-            <td>
-                ${new Date()
-                    .toLocaleTimeString('pt-BR')}
-            </td>
-
-            <td>${data.temp}°C</td>
-
-            <td>${data.ur}%</td>
-
-            <td>${data.dpv}</td>
-
-            <td>${data.et0}</td>
-
-            <td>${data.par}</td>
-
-            <td>${data.leaf}</td>
-
-            <td>${data.disease}</td>
-
-            <td>
-                <span class="badge ${
-                    data.spray
-                        ? 'ok'
-                        : 'stop'
-                }">
-
-                    ${
-                        data.spray
-                            ? 'OK'
-                            : 'RISCO'
-                    }
-
-                </span>
-            </td>
-
-        </tr>
-    `;
-
-    table.innerHTML =
-        row + table.innerHTML;
-
-}
-
-/* =========================================
-   UPDATE DASHBOARD
-========================================= */
-
-async function updateDashboard(){
-
-    try{
-
-        /* ===============================
-           DAVIS API
-        =============================== */
-
-        const davis =
+        const resDavis =
             await fetch('/api/get-weather');
 
+        if(!resDavis.ok){
+
+            throw new Error(
+                'API DAVIS OFFLINE'
+            );
+
+        }
+
         const xmlText =
-            await davis.text();
+            await resDavis.text();
 
         const xml =
             new DOMParser()
@@ -356,7 +185,7 @@ async function updateDashboard(){
                     "text/xml"
                 );
 
-        const temp =
+        const t =
             parseFloat(
                 xml.getElementsByTagName("temp_c")[0]
                     ?.textContent || 0
@@ -374,248 +203,345 @@ async function updateDashboard(){
                     ?.textContent || 0
             );
 
-        const pressure =
-            parseFloat(
-                xml.getElementsByTagName("pressure_mb")[0]
-                    ?.textContent || 1013
-            );
+        const press =
+            xml.getElementsByTagName("pressure_mb")[0]
+                ?.textContent || "---";
 
-        /* ===============================
+        /* =========================
            OPEN WEATHER
-        =============================== */
+        ========================= */
 
-        const weather =
+        const resOWM =
             await fetch(
-                `https://api.openweathermap.org/data/2.5/weather?lat=${CONFIG.LAT}&lon=${CONFIG.LON}&appid=${CONFIG.API_KEY}&units=metric`
+                `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`
             );
 
         const w =
-            await weather.json();
+            await resOWM.json();
 
-        /* ===============================
-           AGROCALCULOS
-        =============================== */
+        /* =========================
+           CALCULOS
+        ========================= */
 
-        const wind =
-            (w.wind.speed * 3.6)
-                .toFixed(1);
-
-        const gust =
-            (
-                (w.wind.gust || 0) * 3.6
-            ).toFixed(1);
-
-        const dpv =
-            calcDPV(temp,ur)
-                .toFixed(2);
-
-        const dew =
-            calcDew(temp,ur)
-                .toFixed(1);
-
-        const et0 =
-            calcET0(
-                temp,
-                ur,
-                wind,
-                solar
+        const es =
+            0.6108 *
+            Math.exp(
+                (17.27 * t) /
+                (t + 237.3)
             );
 
-        const gd =
-            calcGD(temp)
-                .toFixed(1);
+        const dpv =
+            es *
+            (1 - (ur / 100));
 
-        const deltaT =
-            (temp - dew)
-                .toFixed(1);
+        const dew =
+            t -
+            ((100 - ur) / 5);
 
-        const par =
-            (solar * 2.1)
-                .toFixed(0);
+        const dt =
+            (t - dew);
 
-        /* ===============================
-           EPIDEMIOLOGIA
-        =============================== */
+        const hoje =
+            new Date();
 
-        const ferrugem =
+        const diaAno =
+            Math.floor(
+                (
+                    hoje -
+                    new Date(
+                        hoje.getFullYear(),
+                        0,
+                        0
+                    )
+                ) / 86400000
+            );
+
+        const dec =
+            23.45 *
+            Math.sin(
+                (360 / 365) *
+                (diaAno - 80) *
+                Math.PI / 180
+            );
+
+        const h =
+            Math.acos(
+                -Math.tan(
+                    LAT * Math.PI / 180
+                ) *
+                Math.tan(
+                    dec * Math.PI / 180
+                )
+            ) *
+            180 / Math.PI;
+
+        const fotohours =
+            (2 / 15) * h;
+
+        const wKm =
             (
-                ur > 80 &&
-                temp > 18 &&
-                temp < 26
-            )
-                ? 84
-                : 22;
+                w.wind.speed * 3.6
+            ).toFixed(1);
 
-        const mofo =
+        const sprayOk =
             (
-                ur > 85 &&
-                temp < 22
-            )
-                ? 76
-                : 18;
-
-        const spray =
-            (
-                wind >= 3 &&
-                wind <= 12 &&
+                wKm >= 3 &&
+                wKm <= 12 &&
                 dpv <= 1.5
             );
 
-        /* ===============================
-           UI UPDATE
-        =============================== */
+        const leafWet =
+            dt < 1.5;
 
-        safe(
-            'temp',
-            `${temp.toFixed(1)}
-             <span class="unit">°C</span>`
-        );
+        let riskFerVal =
+            (
+                leafWet &&
+                t > 18 &&
+                t < 26
+            )
+                ? 85
+                : 15;
 
-        safe(
-            'ur',
-            `${ur}%`
-        );
+        let riskMofoVal =
+            (
+                t < 21 &&
+                ur > 85
+            )
+                ? 90
+                : 20;
 
-        safe(
-            'dew',
-            `${dew}°C`
-        );
+        /* =========================
+           UI
+        ========================= */
 
-        safe(
-            'press',
-            `${pressure} hPa`
-        );
+        document.getElementById('t_ar')
+            .innerHTML =
+            `${t.toFixed(1)}
+             <span class="unit">°C</span>`;
 
-        safe(
-            'dpv',
-            `${dpv} kPa`
-        );
+        document.getElementById('v_ur')
+            .innerText =
+            ur + "%";
 
-        safe(
-            'wind',
-            `${wind}
-             <span class="unit">km/h</span>`
-        );
+        document.getElementById('v_dew')
+            .innerText =
+            dew.toFixed(1) + "°";
 
-        /* ===============================
-           AI INSIGHTS
-        =============================== */
+        document.getElementById('v_press')
+            .innerText =
+            press + " hPa";
 
-        const insights =
-            generateAIInsights({
+        document.getElementById('v_dpv')
+            .innerText =
+            dpv.toFixed(2);
 
-                temp,
-                ur,
-                dpv,
-                wind
+        document.getElementById('v_dt')
+            .innerText =
+            dt.toFixed(1);
 
-            });
+        document.getElementById('w_spd')
+            .innerHTML =
+            `${wKm}
+             <span class="unit">km/h</span>`;
 
-        const aiBox =
+        document.getElementById('w_dir')
+            .innerText =
+            w.wind.deg + "°";
+
+        document.getElementById('v_foto')
+            .innerHTML =
+            `${Math.floor(fotohours)}h
+             ${Math.round((fotohours % 1) * 60)}m`;
+
+        document.getElementById('v_gd')
+            .innerText =
+            Math.max(
+                0,
+                t - TB
+            ).toFixed(2);
+
+        document.getElementById('v_rad')
+            .innerText =
+            solar;
+
+        document.getElementById('v_par')
+            .innerText =
+            (solar * 2.1).toFixed(1);
+
+        /* =========================
+           SPRAY
+        ========================= */
+
+        const sBox =
             document.getElementById(
-                'ai-insights'
+                'spray_alert'
             );
 
-        if(aiBox){
+        sBox.innerText =
+            sprayOk
+                ? "PULVERIZAÇÃO RECOMENDADA"
+                : "PULVERIZAÇÃO NÃO RECOMENDADA";
 
-            aiBox.innerHTML =
-                insights
-                    .map(i => `
-                        <div class="risk-box">
-                            ${i}
-                        </div>
-                    `)
-                    .join('');
+        sBox.style.background =
+            sprayOk
+                ? "var(--agro)"
+                : "var(--danger)";
 
-        }
+        document.getElementById('s_wind')
+            .innerText =
+            wKm + " km/h";
 
-        /* ===============================
-           UPDATE CHART
-        =============================== */
+        document.getElementById('s_evap')
+            .innerText =
+            dpv > 1.2
+                ? "ALTA"
+                : "BAIXA";
 
-        updateChart({
+        /* =========================
+           EPIDEMIOLOGIA
+        ========================= */
 
-            temp,
+        const ferBox =
+            document.getElementById(
+                'risk_fer'
+            );
+
+        document.getElementById(
+            'risk_fer_val'
+        ).innerText =
+            riskFerVal + "%";
+
+        ferBox.className =
+            "pathogen-risk " +
+            (
+                riskFerVal > 50
+                    ? "risk-high"
+                    : "risk-ideal"
+            );
+
+        document.getElementById(
+            'risk_fer_msg'
+        ).innerText =
+            riskFerVal > 50
+                ? "Risco de Infecção"
+                : "Condição Inóspita";
+
+        /* =========================
+           MOFO
+        ========================= */
+
+        document.getElementById(
+            'risk_mofo_val'
+        ).innerText =
+            riskMofoVal + "%";
+
+        document.getElementById(
+            'risk_mofo_msg'
+        ).innerText =
+            riskMofoVal > 50
+                ? "Alta Favorabilidade"
+                : "Baixa Favorabilidade";
+
+        /* =========================
+           LEAF WETNESS
+        ========================= */
+
+        document.getElementById(
+            'v_leaf'
+        ).innerText =
+            leafWet
+                ? "MOLHADO"
+                : "SECO";
+
+        /* =========================
+           TABELA
+        ========================= */
+
+        const table =
+            document.querySelector(
+                "#main_table tbody"
+            );
+
+        const row =
+            `
+            <tr>
+
+                <td>
+                    ${hoje.toLocaleTimeString()}
+                </td>
+
+                <td>${t}°</td>
+
+                <td>${ur}%</td>
+
+                <td>${dpv.toFixed(2)}</td>
+
+                <td>${wKm}</td>
+
+                <td>${solar}</td>
+
+                <td>${(t-TB).toFixed(1)}</td>
+
+                <td>${(solar * 2.1).toFixed(0)}</td>
+
+                <td style="
+                    color:${
+                        sprayOk
+                            ? 'var(--agro)'
+                            : 'var(--danger)'
+                    }
+                ">
+
+                    ${
+                        sprayOk
+                            ? 'OK'
+                            : 'STOP'
+                    }
+
+                </td>
+
+            </tr>
+            `;
+
+        table.innerHTML =
+            row + table.innerHTML;
+
+        /* =========================
+           CHART
+        ========================= */
+
+        updateChart(
+            t,
             ur,
             dpv
-
-        });
-
-        /* ===============================
-           UPDATE TABLE
-        =============================== */
-
-        updateTable({
-
-            temp,
-            ur,
-            dpv,
-            et0,
-            par,
-            leaf:'6.2h',
-            disease:
-                ferrugem > 50
-                    ? 'Ferrugem'
-                    : 'Baixo',
-
-            spray
-
-        });
-
-        /* ===============================
-           STATUS SPRAY
-        =============================== */
-
-        const sprayBox =
-            document.querySelector('.status');
-
-        if(sprayBox){
-
-            sprayBox.className =
-                spray
-                    ? 'status good'
-                    : 'status bad';
-
-            sprayBox.innerHTML =
-                spray
-                    ? `
-                        <i class="fa-solid fa-circle-check"></i>
-                        PULVERIZAÇÃO RECOMENDADA
-                      `
-                    : `
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        PULVERIZAÇÃO NÃO RECOMENDADA
-                      `;
-        }
-
-        console.log(
-            'UFFS AgroClimate atualizado'
         );
 
-    }catch(err){
+    }
+
+    catch (e) {
 
         console.error(
-            'Erro AgroClimate:',
-            err
+            "Falha no SAD Agro:",
+            e
         );
 
     }
 
 }
 
-/* =========================================
+/* =========================
    START
-========================================= */
+========================= */
 
 initChart();
 
-updateDashboard();
+updateUFFSDashboard();
 
 setInterval(
 
-    updateDashboard,
+    updateUFFSDashboard,
 
-    CONFIG.UPDATE_INTERVAL
+    60000
 
 );
 
