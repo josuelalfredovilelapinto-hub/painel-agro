@@ -3,172 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v10.0</title>
+    <title>UFFS | Agromet v10.1</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #080a0f;
-            --glass-card: rgba(17, 25, 40, 0.75);
-            --border-color: rgba(255, 255, 255, 0.1);
+            --bg-body: #05070a;
+            --glass-card: rgba(13, 17, 23, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
             --accent: #00e5ff;
             --success: #00ff88;
-            --warning: #ffcc00;
+            --warning: #f1e05a;
             --danger: #ff4d4d;
-            --text-main: #f8f9fa;
-            --text-sub: #94a3b8;
+            --text-main: #f0f6fc;
+            --text-sub: #8b949e;
         }
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
+        * { box-sizing: border-box; transition: all 0.2s ease; }
         body { 
             font-family: 'Inter', sans-serif; 
-            background: radial-gradient(circle at top right, #0d1b2a, var(--bg-body)); 
+            background: radial-gradient(circle at top right, #0d1117, var(--bg-body)); 
             color: var(--text-main); 
-            margin: 0; padding: 20px; min-height: 100vh;
+            margin: 0; padding: 15px; font-size: 13px;
         }
 
-        /* Layout Grid */
         .dashboard {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: auto auto auto;
-            gap: 20px;
-            max-width: 1600px;
+            gap: 15px;
+            max-width: 1800px;
             margin: 0 auto;
         }
 
-        /* Header Estilizado */
         header {
             grid-column: span 4;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: var(--glass-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 25px; background: var(--glass-card);
+            backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 12px;
         }
 
-        .logo h1 { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
-        .logo span { color: var(--accent); }
-
-        /* Cards Gerais */
         .card {
             background: var(--glass-card);
-            backdrop-filter: blur(8px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
+            backdrop-filter: blur(8px); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 20px;
         }
 
-        .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--accent); opacity: 0.5;
+        h2 { 
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.2px; 
+            color: var(--accent); margin: 0 0 15px 0; border-bottom: 1px solid rgba(0,229,255,0.1);
+            padding-bottom: 8px; display: flex; align-items: center; gap: 8px;
         }
 
-        h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-sub); margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px; }
-        h2 i { color: var(--accent); font-size: 1rem; }
+        /* Widgets Específicos */
+        .spray-widget { grid-column: span 4; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; align-items: center; }
+        
+        .sensor-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .sensor-box { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .sensor-label { font-size: 0.6rem; color: var(--text-sub); display: block; margin-bottom: 4px; }
+        .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.4rem; font-weight: 700; color: #fff; }
+        .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
 
-        /* Widget de Pulverização */
-        .spray-widget { grid-column: span 4; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
-        .spray-status { padding: 12px 30px; border-radius: 50px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 0 20px rgba(0,0,0,0.3); }
+        /* Progress Bars */
+        .risk-row { margin-bottom: 12px; }
+        .risk-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
+        .bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
 
-        /* Sensores */
-        .sensor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .sensor-item { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
-        .sensor-val { font-size: 1.8rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; display: block; margin-top: 5px; }
-        .sensor-unit { font-size: 0.8rem; color: var(--text-sub); margin-left: 4px; }
-
-        /* Barras de Risco */
-        .risk-container { display: flex; flex-direction: column; gap: 15px; }
-        .risk-row { display: flex; flex-direction: column; gap: 6px; }
-        .risk-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; }
-        .progress-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; border-radius: 10px; box-shadow: 0 0 10px currentColor; }
-
-        /* Tabela */
+        /* Table */
         .history-card { grid-column: span 4; }
-        .table-container { overflow-x: auto; margin-top: 15px; border-radius: 12px; background: rgba(0,0,0,0.2); }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { text-align: left; padding: 15px; color: var(--text-sub); border-bottom: 1px solid var(--border-color); font-weight: 400; }
-        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono', monospace; }
+        .table-scroll { max-height: 250px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #161b22; padding: 12px; text-align: center; font-size: 0.7rem; color: var(--text-sub); position: sticky; top: 0; }
+        td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; }
 
-        .btn-export { background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .btn-export:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,229,255,0.4); }
-
-        @media (max-width: 1024px) { .dashboard { grid-template-columns: 1fr 1fr; } header, .spray-widget, .history-card { grid-column: span 2; } }
+        .badge { padding: 6px 15px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
     <header>
-        <div class="logo">
-            <h1>UFFS <span>AGROMET</span> <small style="font-weight: 300; font-size: 0.6rem; opacity: 0.5;">v10.0</small></h1>
-            <div id="status_io" style="font-size: 0.7rem; color: var(--success); margin-top: 5px;">
-                <i class="fa fa-circle-dot"></i> SISTEMA OPERACIONAL
-            </div>
+        <div>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.1</span></h1>
+            <small id="status_io" style="color:var(--success);"><i class="fa fa-sync-alt"></i> CONEXÃO ATIVA</small>
         </div>
-        <div id="clock" style="font-family: 'JetBrains Mono'; font-size: 1.8rem; font-weight: 700; color: var(--accent);">00:00:00</div>
+        <div id="clock" style="font-family: 'JetBrains Mono'; font-size: 1.5rem; font-weight: 700; color: var(--accent);">00:00:00</div>
     </header>
 
     <div class="card spray-widget">
-        <div style="flex: 1;">
-            <h2><i class="fa fa-droplet"></i> Aplicação (Monitor de Operação)</h2>
-            <div style="display: flex; gap: 40px;">
-                <div><label style="font-size: 0.6rem; color: var(--text-sub);">DELTA T</label><div class="sensor-val" id="s_dt">--</div></div>
-                <div><label style="font-size: 0.6rem; color: var(--text-sub);">VENTO</label><div class="sensor-val" id="s_wind">--</div></div>
-                <div><label style="font-size: 0.6rem; color: var(--text-sub);">INVERSÃO</label><div class="sensor-val" id="s_inv" style="font-size: 1.2rem; margin-top: 10px;">--</div></div>
+        <div>
+            <h2><i class="fa fa-spray-can"></i> Monitor de Aplicação</h2>
+            <div style="display:flex; gap:25px;">
+                <div class="sensor-box"><span class="sensor-label">DELTA T</span><span class="sensor-value" id="s_dt">--</span></div>
+                <div class="sensor-box"><span class="sensor-label">VENTO</span><span class="sensor-value" id="s_wind">--</span><span class="sensor-unit">km/h</span></div>
             </div>
         </div>
-        <div style="text-align: right;">
-            <div id="spray_badge" class="spray-status">ANALISANDO</div>
-            <p id="s_msg" style="font-size: 0.75rem; margin-top: 10px; color: var(--text-sub);">Aguardando telemetria...</p>
+        <div style="text-align: center;">
+            <div id="spray_badge" class="badge" style="background:var(--accent); color:#000;">ANALISANDO</div>
+            <p id="s_msg" style="font-size:0.7rem; color:var(--text-sub); margin-top:10px;">Processando parâmetros...</p>
+        </div>
+        <div>
+            <div class="sensor-box" style="text-align: center;">
+                <span class="sensor-label">INVERSÃO TÉRMICA</span>
+                <span class="sensor-value" id="s_inv" style="font-size:1rem;">--</span>
+            </div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 2;">
-        <h2><i class="fa fa-microchip"></i> Telemetria Atmosférica</h2>
+        <h2><i class="fa fa-microchip"></i> Sensores Atmosféricos</h2>
         <div class="sensor-grid">
-            <div class="sensor-item"><label style="font-size: 0.6rem;">TEMPERATURA</label><span class="sensor-val" id="v_t">--</span><span class="sensor-unit">°C</span></div>
-            <div class="sensor-item"><label style="font-size: 0.6rem;">UMIDADE REL.</label><span class="sensor-val" id="v_ur">--</span><span class="sensor-unit">%</span></div>
-            <div class="sensor-item"><label style="font-size: 0.6rem;">PRESSÃO</label><span class="sensor-val" id="v_press" style="font-size: 1.4rem;">--</span><span class="sensor-unit">hPa</span></div>
-            <div class="sensor-item"><label style="font-size: 0.6rem;">PONTO ORVALHO</label><span class="sensor-val" id="v_dew" style="font-size: 1.4rem;">--</span><span class="sensor-unit">°C</span></div>
+            <div class="sensor-box"><span class="sensor-label">TEMPERATURA</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
+            <div class="sensor-box"><span class="sensor-label">UMIDADE REL.</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
+            <div class="sensor-box"><span class="sensor-label">PRESSÃO</span><span class="sensor-value" id="v_press" style="font-size:1.1rem;">--</span><span class="sensor-unit">hPa</span></div>
+            <div class="sensor-box"><span class="sensor-label">ORVALHO</span><span class="sensor-value" id="v_dew">--</span><span class="sensor-unit">°C</span></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 2;">
-        <h2><i class="fa fa-shield-virus"></i> Riscos Epidemiológicos</h2>
-        <div class="risk-container">
+        <h2><i class="fa fa-calculator"></i> Variáveis Agroclimáticas</h2>
+        <div class="sensor-grid">
+            <div class="sensor-box"><span class="sensor-label">EVAPOTRANSPIRAÇÃO (ETo)</span><span class="sensor-value" id="v_eto">0.00</span><span class="sensor-unit">mm/d</span></div>
+            <div class="sensor-box"><span class="sensor-label">DPV (VAPOR)</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
+            <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span><span class="sensor-unit">GD</span></div>
+            <div class="sensor-box"><span class="sensor-label">HORAS FRIO (≤7.2°C)</span><span class="sensor-value" id="v_hf">0.0</span><span class="sensor-unit">HF</span></div>
+        </div>
+    </div>
+
+    <div class="card" style="grid-column: span 4;">
+        <h2><i class="fa fa-virus-covid"></i> Favorabilidade Epidemiológica</h2>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:20px;">
             <div class="risk-row">
-                <div class="risk-header"><span>Ferrugem Asiática</span><span id="p_fer">0%</span></div>
-                <div class="progress-bg"><div id="b_fer" class="progress-fill" style="background: #f44336; color: #f44336;"></div></div>
+                <div class="risk-info"><span>Ferrugem</span><b id="p_fer">0%</b></div>
+                <div class="bar-bg"><div id="b_fer" class="bar-fill" style="background:#ff4d4d;"></div></div>
             </div>
             <div class="risk-row">
-                <div class="risk-header"><span>Mofo Branco</span><span id="p_mofo">0%</span></div>
-                <div class="progress-bg"><div id="b_mofo" class="progress-fill" style="background: #9c27b0; color: #9c27b0;"></div></div>
+                <div class="risk-info"><span>Mofo Branco</span><b id="p_mofo">0%</b></div>
+                <div class="bar-bg"><div id="b_mofo" class="bar-fill" style="background:#9c27b0;"></div></div>
             </div>
             <div class="risk-row">
-                <div class="risk-header"><span>Míldio</span><span id="p_mildo">0%</span></div>
-                <div class="progress-bg"><div id="b_mildo" class="progress-fill" style="background: #2196f3; color: #2196f3;"></div></div>
+                <div class="risk-info"><span>Míldio</span><b id="p_mildo">0%</b></div>
+                <div class="bar-bg"><div id="b_mildo" class="bar-fill" style="background:#2196f3;"></div></div>
+            </div>
+            <div class="risk-row">
+                <div class="risk-info"><span>Cercospora</span><b id="p_cerco">0%</b></div>
+                <div class="bar-bg"><div id="b_cerco" class="bar-fill" style="background:#ff9800;"></div></div>
             </div>
         </div>
     </div>
 
     <div class="card history-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2><i class="fa fa-clock-rotate-left"></i> Registro Cronológico</h2>
-            <button class="btn-export" onclick="exportCSV()"><i class="fa fa-file-csv"></i> EXPORTAR DATASET</button>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2><i class="fa fa-list-ul"></i> Big Data Log (Sincronizado)</h2>
+            <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer;">BAIXAR CSV</button>
         </div>
-        <div class="table-container">
+        <div class="table-scroll">
             <table id="logTable">
-                <thead>
-                    <tr><th>HORÁRIO</th><th>TEMP (°C)</th><th>UR (%)</th><th>ORVALHO</th><th>ΔT</th><th>VENTO (km/h)</th></tr>
-                </thead>
+                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>DPV</th><th>ΔT</th><th>ETo</th><th>VENTO</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -178,6 +169,8 @@
 <script>
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyzZ9c6WilGHHPJzbnqfZbnhw6Ss4AgmQ3OCbH1Mdz7UCRNpzTQL8qQWO-IJ-xZxUOkvQ/exec"; 
+    
+    let totalHF = 0;
 
     async function updateSystem() {
         const statusIo = document.getElementById('status_io');
@@ -193,76 +186,65 @@
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
 
+            // CÁLCULOS AGRO
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
+            const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
+            const dpv = (es * (1 - (ur / 100))).toFixed(3);
+            if (t <= 7.2) totalHF += (2/60);
+            const gd = Math.max(0, t - 10).toFixed(1);
 
-            // ATUALIZAÇÃO UI
+            // UI
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_press').innerText = press;
             document.getElementById('v_dew').innerText = dew;
+            document.getElementById('v_dpv').innerText = dpv;
+            document.getElementById('v_gd').innerText = gd;
+            document.getElementById('v_hf').innerText = totalHF.toFixed(1);
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
 
-            // LÓGICA PULVERIZAÇÃO
+            // STATUS PULVERIZAÇÃO
             const badge = document.getElementById('spray_badge');
             const msgBox = document.getElementById('s_msg');
-            let statusText = "IDEAL", msg = "Condições favoráveis para aplicação.", color = "var(--success)";
-            
-            if (dt < 2 || dt > 8) { statusText = "STOP"; msg = "Delta T fora da faixa de segurança (2-8)."; color = "var(--danger)"; }
-            else if (wind < 3) { statusText = "ALERTA"; msg = "Risco alto de inversão térmica (Vento baixo)."; color = "var(--warning)"; }
-            else if (wind > 12) { statusText = "STOP"; msg = "Vento muito forte. Risco de deriva."; color = "var(--danger)"; }
-            
-            badge.innerText = statusText;
-            badge.style.background = color;
-            badge.style.color = (color === "var(--warning)") ? "#000" : "#fff";
-            msgBox.innerText = msg;
+            let st = "IDEAL", color = "var(--success)";
+            if (dt < 2 || dt > 8) { st = "STOP"; color = "var(--danger)"; msgBox.innerText = "ΔT fora da faixa."; }
+            else if (wind < 3) { st = "ALERTA"; color = "var(--warning)"; msgBox.innerText = "Risco de inversão."; }
+            else if (wind > 12) { st = "STOP"; color = "var(--danger)"; msgBox.innerText = "Vento forte."; }
+            else { msgBox.innerText = "Condições ideais."; }
+            badge.innerText = st; badge.style.background = color;
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
             document.getElementById('s_inv').style.color = wind < 3 ? "var(--danger)" : "var(--success)";
 
-            // RISCO DOENÇAS
-            const risks = {
-                fer: (t > 18 && t < 26 && ur > 80) ? 85 : 12,
-                mofo: (t < 21 && ur > 85) ? 90 : 18,
-                mildo: (t < 22 && ur > 90) ? 70 : 8
-            };
+            // DOENÇAS
+            const risks = { fer: (t>18 && t<26 && ur>80)?80:10, mofo: (t<21 && ur>85)?90:15, mildo: (t<22 && ur>90)?70:5, cerco: (t>24 && ur>85)?60:12 };
             Object.keys(risks).forEach(k => {
                 document.getElementById(`p_${k}`).innerText = risks[k] + "%";
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // SALVAR NO GOOGLE SHEETS
+            // SHEETS & LOG
             fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, dew: dew, dt: dt, wind: wind }) });
-
-            // LOG NA TABELA
             const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            const tableBody = document.querySelector("#logTable tbody");
-            const newRow = `<tr><td>${now}</td><td>${t.toFixed(1)}</td><td>${ur}%</td><td>${dew}°C</td><td>${dt}</td><td>${wind}</td></tr>`;
-            tableBody.insertAdjacentHTML('afterbegin', newRow);
-            if(tableBody.children.length > 15) tableBody.lastElementChild.remove();
+            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t.toFixed(1)}</td><td>${ur}%</td><td>${dpv}</td><td>${dt}</td><td>0.00</td><td>${wind}</td></tr>`);
 
-            statusIo.innerHTML = '<i class="fa fa-circle-dot"></i> ONLINE E SINCRONIZADO';
             statusIo.style.color = 'var(--success)';
-        } catch (e) { 
-            statusIo.innerHTML = '<i class="fa fa-triangle-exclamation"></i> FALHA NA TELEMETRIA'; 
-            statusIo.style.color = 'var(--danger)';
-        }
+        } catch (e) { statusIo.style.color = 'var(--danger)'; }
     }
 
     function exportCSV() {
-        let csv = "Hora,Temp,UR,Orvalho,DeltaT,Vento\n";
+        let csv = "Hora,Temp,UR,DPV,DeltaT,ETo,Vento\n";
         document.querySelectorAll("#logTable tr").forEach(tr => {
             const row = Array.from(tr.querySelectorAll("td")).map(td => td.innerText).join(",");
             if(row) csv += row + "\n";
         });
-        const blob = new Blob([csv], {type: 'text/csv'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = 'uffs_agromet_v10.csv'; a.click();
+        const blob = new Blob([csv], {type:'text/csv'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='uffs_agromet_full.csv'; a.click();
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    updateSystem();
-    setInterval(updateSystem, 120000);
+    updateSystem(); setInterval(updateSystem, 120000);
 </script>
 </body>
 </html>
