@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet Intelligence v9.0</title>
+    <title>UFFS | Agromet Intelligence v9.1</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -17,7 +17,6 @@
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 15px; position: relative; }
         h2 { font-size: 10px; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; border-left: 3px solid var(--accent); padding-left: 10px; margin: 0 0 15px 0; }
         
-        /* Tooltip Style */
         .metric-box label { 
             font-size: 8px; color: var(--sub); display: block; margin-bottom: 5px; 
             text-transform: uppercase; cursor: help; border-bottom: 1px dotted var(--sub); width: fit-content;
@@ -50,8 +49,8 @@
 
 <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px; background: #0a0d11; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
     <div>
-        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET ENGINE v9.0</span></h1>
-        <small style="color:var(--agro);"><i class="fa fa-snowflake"></i> MONITORAMENTO CIENTÍFICO ATIVO</small>
+        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET ENGINE v9.1</span></h1>
+        <small id="status_io" style="color:var(--agro);"><i class="fa fa-sync fa-spin"></i> SISTEMA OPERACIONAL</small>
     </div>
     <div id="clock" style="font-size:1.5rem; font-weight:bold; color:var(--accent);">--:--:--</div>
 </header>
@@ -69,7 +68,7 @@
                 <span id="s_dt">--</span>
             </div>
             <div class="metric-box">
-                <label data-formula="Vento > 12km/h causa arraste das gotas para fora do alvo.">Risco de Deriva</label>
+                <label data-formula="Vento > 12km/h causa arraste das gotas.">Risco de Deriva</label>
                 <span id="s_wind">--</span>
             </div>
             <div class="metric-box">
@@ -84,30 +83,30 @@
     </div>
 
     <div class="card" style="grid-column: span 12;">
-        <h2><i class="fa fa-calculator"></i> Variáveis Calculadas (Passe o mouse p/ ver a Equação)</h2>
+        <h2><i class="fa fa-calculator"></i> Variáveis Calculadas</h2>
         <div class="metric-matrix">
             <div class="metric-box">
-                <label data-formula="Σ(T_inst <= 7.2) / 60. Modelo de Weinberger.">Horas de Frio</label>
+                <label data-formula="Σ(T_inst <= 7.2) / 60. Weinberger.">Horas de Frio</label>
                 <span id="v_hf">0.00</span> <small>HF</small>
             </div>
             <div class="metric-box">
-                <label data-formula="ETo = 0.0023 * (T+17.8) * (Tmax-Tmin)^0.5 * Ra. (Hargreaves)">Evapotranspiração (ETo)</label>
+                <label data-formula="ETo (Hargreaves-Samani)">Evapotranspiração</label>
                 <span id="v_eto">--.--</span> <small>mm/d</small>
             </div>
             <div class="metric-box">
-                <label data-formula="DPV = es - ea. Diferença entre saturação e pressão real de vapor.">DPV (Vapor)</label>
+                <label data-formula="DPV = es - ea.">DPV (Vapor)</label>
                 <span id="v_dpv">--.---</span> <small>kPa</small>
             </div>
             <div class="metric-box">
-                <label data-formula="T_dew = T - ((100 - UR) / 5). Simplificação de Lawrence.">Ponto de Orvalho</label>
+                <label data-formula="T_dew (Aproximação de Magnus-Tetens)">Ponto de Orvalho</label>
                 <span id="v_dew">--.-</span> <small>°C</small>
             </div>
             <div class="metric-box">
-                <label data-formula="GD = T_média - T_base(10°C). Acúmulo térmico fenológico.">Graus-Dia (GD)</label>
+                <label data-formula="GD = T_média - T_base(10°C)">Graus-Dia (GD)</label>
                 <span id="v_gd">--.-</span> <small>GD</small>
             </div>
             <div class="metric-box">
-                <label data-formula="HMF est. pela depressão de orvalho (T - T_dew < 1.5°C).">Molhamento Foliar</label>
+                <label data-formula="HMF (T - T_dew < 1.5°C)">Molhamento Foliar</label>
                 <span id="v_hmf">0</span> <small>h</small>
             </div>
         </div>
@@ -126,10 +125,10 @@
     <div class="card" style="grid-column: span 6;">
         <h2><i class="fa fa-virus-covid"></i> Favorabilidade Epidemiológica</h2>
         <div class="risk-container">
-            <div class="risk-row"><small title="T: 18-26°C + UR > 80%">Ferrugem Asiática</small><div class="risk-bar-bg"><div id="b_fer" class="risk-fill" style="background:#f44336"></div></div><b id="p_fer">0%</b></div>
-            <div class="risk-row"><small title="T < 21°C + UR > 85%">Mofo Branco</small><div class="risk-bar-bg"><div id="b_mofo" class="risk-fill" style="background:#9c27b0"></div></div><b id="p_mofo">0%</b></div>
-            <div class="risk-row"><small title="T < 22°C + UR > 90%">Míldio</small><div class="risk-bar-bg"><div id="b_mildo" class="risk-fill" style="background:#2196f3"></div></div><b id="p_mildo">0%</b></div>
-            <div class="risk-row"><small title="T > 24°C + UR > 85%">Cercospora</small><div class="risk-bar-bg"><div id="b_cerco" class="risk-fill" style="background:#ff9800"></div></div><b id="p_cerco">0%</b></div>
+            <div class="risk-row"><small>Ferrugem Asiática</small><div class="risk-bar-bg"><div id="b_fer" class="risk-fill" style="background:#f44336"></div></div><b id="p_fer">0%</b></div>
+            <div class="risk-row"><small>Mofo Branco</small><div class="risk-bar-bg"><div id="b_mofo" class="risk-fill" style="background:#9c27b0"></div></div><b id="p_mofo">0%</b></div>
+            <div class="risk-row"><small>Míldio</small><div class="risk-bar-bg"><div id="b_mildo" class="risk-fill" style="background:#2196f3"></div></div><b id="p_mildo">0%</b></div>
+            <div class="risk-row"><small>Cercospora</small><div class="risk-bar-bg"><div id="b_cerco" class="risk-fill" style="background:#ff9800"></div></div><b id="p_cerco">0%</b></div>
         </div>
     </div>
 
@@ -156,78 +155,95 @@
     const updateIntervalMinutes = 2;
 
     async function updateSystem() {
+        const statusIo = document.getElementById('status_io');
         try {
+            statusIo.innerHTML = '<i class="fa fa-sync fa-spin"></i> ATUALIZANDO...';
+            
             const [resDavis, resOWM] = await Promise.all([
                 fetch('/api/get-weather'),
                 fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`)
             ]);
-            const xml = new DOMParser().parseFromString(await resDavis.text(), "text/xml");
+            
+            const textXml = await resDavis.text();
+            const xml = new DOMParser().parseFromString(textXml, "text/xml");
             const owm = await resOWM.json();
 
+            // CAPTURA SEGURA
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
-            const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
+            const ur = Math.min(100, parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0));
             const rad = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || 0);
-            const rain = xml.getElementsByTagName("day_rain_mm")[0]?.textContent || "0.0";
             const wind = (owm.wind.speed * 3.6).toFixed(1);
             
             const pressTag = xml.getElementsByTagName("pressure_mb")[0] || xml.getElementsByTagName("barometer")[0] || xml.getElementsByTagName("pressure_in")[0];
             const press = pressTag ? pressTag.textContent : "---";
 
+            // CÁLCULOS ROBUSTOS
+            // Ponto de Orvalho (Magnus-Tetens) - Mais estável que a simplificada
+            const a = 17.27, b = 237.7;
+            const gamma = ((a * t) / (b + t)) + Math.log(ur / 100);
+            const dew = ((b * gamma) / (a - gamma)).toFixed(1);
+            
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const ea = es * (ur / 100);
-            const dpv = es - ea;
-            const dew = t - ((100 - ur) / 5);
-            const dt = t - dew;
+            const dpv = Math.max(0, es - ea);
+            const dt = (t - dew).toFixed(1);
             const eto = (0.0023 * (t + 17.8) * Math.sqrt(12) * (rad * 0.0864) / 2.45).toFixed(2);
-            const gd = Math.max(0, t - 10);
+            const gd = Math.max(0, t - 10).toFixed(1);
 
             if (t <= 7.2) totalHF += (updateIntervalMinutes / 60);
 
-            const sprayCard = document.getElementById('spray_card');
-            const sprayBadge = document.getElementById('spray_badge');
-            let status = "OK"; let msg = "Condições ideais.";
-            if (dt < 2 || dt > 8) { status = "STOP"; msg = "ΔT fora da faixa."; }
-            else if (wind < 3) { status = "ALERTA"; msg = "Vento calmo (Inversão)."; }
-            else if (wind > 12) { status = "STOP"; msg = "Vento forte (Deriva)."; }
-
-            sprayBadge.innerText = status;
-            sprayBadge.style.background = status === "OK" ? "var(--agro)" : (status === "ALERTA" ? "var(--warning)" : "var(--danger)");
-            sprayCard.style.borderColor = status === "OK" ? "var(--agro)" : (status === "ALERTA" ? "var(--warning)" : "var(--danger)");
-            document.getElementById('s_dt').innerText = dt.toFixed(1);
-            document.getElementById('s_wind').innerText = wind + " km/h";
-            document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
-            document.getElementById('s_msg').innerText = msg;
-
-            const hmf = dt < 1.5 ? (ur/10).toFixed(1) : 0;
-            const risks = {
-                fer: (t > 18 && t < 26 && ur > 80) ? 80 : 15,
-                mofo: (t < 21 && ur > 85) ? 90 : 20,
-                mildo: (t < 22 && ur > 90) ? 70 : 10,
-                cerco: (t > 24 && ur > 85) ? 60 : 15
-            };
-
+            // UI UPDATES
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_press').innerText = press;
             document.getElementById('v_wind').innerText = wind;
             document.getElementById('v_eto').innerText = eto;
             document.getElementById('v_dpv').innerText = dpv.toFixed(3);
-            document.getElementById('v_dt').innerText = dt.toFixed(1);
-            document.getElementById('v_dew').innerText = dew.toFixed(1);
-            document.getElementById('v_gd').innerText = gd.toFixed(1);
+            document.getElementById('v_dt').innerText = dt;
+            document.getElementById('v_dew').innerText = dew;
+            document.getElementById('v_gd').innerText = gd;
             document.getElementById('v_hf').innerText = totalHF.toFixed(2);
-            document.getElementById('v_hmf').innerText = hmf;
+            document.getElementById('v_hmf').innerText = dt < 1.5 ? (ur/10).toFixed(1) : 0;
 
+            // SPRAY LOGIC
+            const sprayBadge = document.getElementById('spray_badge');
+            let status = "OK", msg = "Condições ideais.";
+            if (dt < 2 || dt > 8) { status = "STOP"; msg = "ΔT fora da faixa."; }
+            else if (wind < 3) { status = "ALERTA"; msg = "Vento calmo (Inversão)."; }
+            else if (wind > 12) { status = "STOP"; msg = "Vento forte (Deriva)."; }
+            
+            sprayBadge.innerText = status;
+            sprayBadge.style.background = status === "OK" ? "var(--agro)" : (status === "ALERTA" ? "var(--warning)" : "var(--danger)");
+            document.getElementById('s_dt').innerText = dt;
+            document.getElementById('s_wind').innerText = wind + " km/h";
+            document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
+            document.getElementById('s_msg').innerText = msg;
+
+            // RISKS
+            const risks = {
+                fer: (t > 18 && t < 26 && ur > 80) ? 85 : 10,
+                mofo: (t < 21 && ur > 85) ? 90 : 15,
+                mildo: (t < 22 && ur > 90) ? 75 : 5,
+                cerco: (t > 24 && ur > 85) ? 60 : 12
+            };
             Object.keys(risks).forEach(k => {
                 document.getElementById(`p_${k}`).innerText = risks[k] + "%";
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
+            // LOG
             const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            const row = `<tr><td>${time}</td><td>${t.toFixed(1)}</td><td>${ur}</td><td>${dpv.toFixed(3)}</td><td>${dt.toFixed(1)}</td><td>${eto}</td><td>${wind}</td><td>${totalHF.toFixed(2)}</td></tr>`;
+            const row = `<tr><td>${time}</td><td>${t.toFixed(1)}</td><td>${ur}</td><td>${dpv.toFixed(3)}</td><td>${dt}</td><td>${eto}</td><td>${wind}</td><td>${totalHF.toFixed(2)}</td></tr>`;
             document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', row);
 
-        } catch (e) { console.error("Erro:", e); }
+            statusIo.innerHTML = '<i class="fa fa-check-circle"></i> ONLINE';
+            statusIo.style.color = 'var(--agro)';
+
+        } catch (e) { 
+            console.error(e);
+            statusIo.innerHTML = '<i class="fa fa-exclamation-triangle"></i> ERRO DE CONEXÃO';
+            statusIo.style.color = 'var(--danger)';
+        }
     }
 
     function exportCSV() {
