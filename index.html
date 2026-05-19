@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v10.3</title>
+    <title>UFFS | Agromet v10.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -21,56 +21,23 @@
         }
 
         * { box-sizing: border-box; transition: all 0.2s ease; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: radial-gradient(circle at top right, #0d1117, var(--bg-body)); 
-            color: var(--text-main); 
-            margin: 0; padding: 15px; font-size: 13px;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            max-width: 1800px;
-            margin: 0 auto;
-        }
-
-        header {
-            grid-column: span 4;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 25px; background: var(--glass-card);
-            backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 12px;
-        }
-
-        .card {
-            background: var(--glass-card);
-            backdrop-filter: blur(8px); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 20px;
-        }
-
-        h2 { 
-            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.2px; 
-            color: var(--accent); margin: 0 0 15px 0; border-bottom: 1px solid rgba(0,229,255,0.1);
-            padding-bottom: 8px; display: flex; align-items: center; gap: 8px;
-        }
-
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top right, #0d1117, var(--bg-body)); color: var(--text-main); margin: 0; padding: 15px; font-size: 13px; }
+        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1800px; margin: 0 auto; }
+        header { grid-column: span 4; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: var(--glass-card); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 12px; }
+        .card { background: var(--glass-card); backdrop-filter: blur(8px); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        h2 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent); margin: 0 0 15px 0; border-bottom: 1px solid rgba(0,229,255,0.1); padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
         .sensor-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .sensor-box { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
         .sensor-label { font-size: 0.6rem; color: var(--text-sub); display: block; margin-bottom: 4px; }
         .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.4rem; font-weight: 700; color: #fff; }
         .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
-
-        /* Estilo para Doenças */
         .risk-container { display: flex; flex-direction: column; gap: 12px; }
         .risk-row { margin-bottom: 5px; }
         .risk-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; }
         .bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-
+        .bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
         .spray-widget { grid-column: span 4; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; align-items: center; }
         .badge { padding: 6px 15px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
-
         .history-card { grid-column: span 4; }
         .table-scroll { max-height: 250px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; }
@@ -83,7 +50,7 @@
 <div class="dashboard">
     <header>
         <div>
-            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.3</span></h1>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.4</span></h1>
             <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> SISTEMA FITOSSANITÁRIO ATIVO</small>
         </div>
         <div id="clock" style="font-family: 'JetBrains Mono'; font-size: 1.5rem; font-weight: 700; color: var(--accent);">00:00:00</div>
@@ -115,7 +82,7 @@
             <div class="sensor-box"><span class="sensor-label">TEMP. AR</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
             <div class="sensor-box"><span class="sensor-label">UMID. REL.</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
             <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)">RADIAÇÃO</span><span class="sensor-value" id="v_rad" style="color:var(--sun)">--</span><span class="sensor-unit">W/m²</span></div>
-            <div class="sensor-box"><span class="sensor-label">DPV VAPOR</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
+            <div class="sensor-box"><span class="sensor-label">PRECIPITAÇÃO</span><span class="sensor-value" id="v_rain" style="color:var(--accent)">--</span><span class="sensor-unit">mm/h</span></div>
         </div>
     </div>
 
@@ -123,41 +90,28 @@
         <h2><i class="fa fa-calculator"></i> Acúmulos</h2>
         <div class="risk-container">
             <div class="sensor-box"><span class="sensor-label">ETo ESTIMADA</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
-            <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span></div>
-            <div class="sensor-box"><span class="sensor-label">HORAS FRIO</span><span class="sensor-value" id="v_hf">0.0</span></div>
+            <div class="sensor-box"><span class="sensor-label">GD / H.FRIO</span><span class="sensor-value" id="v_gd" style="font-size:1rem;">--</span></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 1.5;">
         <h2><i class="fa fa-virus-covid"></i> Favorabilidade Epidemiológica</h2>
         <div class="risk-container">
-            <div class="risk-row">
-                <div class="risk-info"><span>Ferrugem Asiática</span><span id="p_fer">0%</span></div>
-                <div class="bar-bg"><div id="b_fer" class="bar-fill" style="background:#ff4d4d; width: 0%;"></div></div>
-            </div>
-            <div class="risk-row">
-                <div class="risk-info"><span>Mofo Branco</span><span id="p_mofo">0%</span></div>
-                <div class="bar-bg"><div id="b_mofo" class="bar-fill" style="background:#9c27b0; width: 0%;"></div></div>
-            </div>
-            <div class="risk-row">
-                <div class="risk-info"><span>Míldio</span><span id="p_mildo">0%</span></div>
-                <div class="bar-bg"><div id="b_mildo" class="bar-fill" style="background:#2196f3; width: 0%;"></div></div>
-            </div>
-            <div class="risk-row">
-                <div class="risk-info"><span>Cercospora</span><span id="p_cerco">0%</span></div>
-                <div class="bar-bg"><div id="b_cerco" class="bar-fill" style="background:#ff9800; width: 0%;"></div></div>
-            </div>
+            <div class="risk-row"><div class="risk-info"><span>Ferrugem Asiática</span><span id="p_fer">0%</span></div><div class="bar-bg"><div id="b_fer" class="bar-fill" style="background:#ff4d4d; width: 0%;"></div></div></div>
+            <div class="risk-row"><div class="risk-info"><span>Mofo Branco</span><span id="p_mofo">0%</span></div><div class="bar-bg"><div id="b_mofo" class="bar-fill" style="background:#9c27b0; width: 0%;"></div></div></div>
+            <div class="risk-row"><div class="risk-info"><span>Míldio</span><span id="p_mildo">0%</span></div><div class="bar-bg"><div id="b_mildo" class="bar-fill" style="background:#2196f3; width: 0%;"></div></div></div>
+            <div class="risk-row"><div class="risk-info"><span>Cercospora</span><span id="p_cerco">0%</span></div><div class="bar-bg"><div id="b_cerco" class="bar-fill" style="background:#ff9800; width: 0%;"></div></div></div>
         </div>
     </div>
 
     <div class="card history-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2><i class="fa fa-database"></i> Log de Dados Sincronizado</h2>
-            <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; color: #000;">BAIXAR DATASET (.CSV)</button>
+            <h2><i class="fa fa-database"></i> Log de Dados</h2>
+            <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; color: #000;">BAIXAR (.CSV)</button>
         </div>
         <div class="table-scroll">
             <table id="logTable">
-                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>RAD</th><th>DPV</th><th>ΔT</th><th>VENTO</th></tr></thead>
+                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>RAD</th><th>CHUVA</th><th>ΔT</th><th>VENTO</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -178,73 +132,60 @@
             
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
-            const rad = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || xml.getElementsByTagName("solarrad")[0]?.textContent || 0);
-            const pressTag = xml.getElementsByTagName("pressure_mb")[0] || xml.getElementsByTagName("barometer")[0];
-            const press = pressTag ? pressTag.textContent : "---";
+            
+            // Correção da Radiação: busca por várias variações possíveis
+            const rad = parseFloat(
+                xml.getElementsByTagName("solar_radiation")[0]?.textContent || 
+                xml.getElementsByTagName("solarrad")[0]?.textContent || 
+                xml.getElementsByTagName("solar_rad")[0]?.textContent || 0
+            );
+
+            // Adição da Precipitação
+            const rain = parseFloat(
+                xml.getElementsByTagName("rain_rate_in_hr")[0]?.textContent || 
+                xml.getElementsByTagName("daily_rain_in")[0]?.textContent || 0
+            );
 
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
 
-            // CÁLCULOS
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
-            const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
-            const dpv = (es * (1 - (ur / 100))).toFixed(3);
             if (t <= 7.2) totalHF += (2/60);
-            const eto = (rad > 0) ? (0.7 * (rad / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
 
-            // UI SENSORES
+            // Atualização UI
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
-            document.getElementById('v_rad').innerText = rad;
-            document.getElementById('v_dpv').innerText = dpv;
-            document.getElementById('v_eto').innerText = eto;
-            document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
-            document.getElementById('v_hf').innerText = totalHF.toFixed(1);
+            document.getElementById('v_rad').innerText = Math.round(rad);
+            document.getElementById('v_rain').innerText = rain.toFixed(1);
+            document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1) + " / " + totalHF.toFixed(1);
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
 
-            // PULVERIZAÇÃO
+            // Lógica Spray
             const badge = document.getElementById('spray_badge');
-            const msgBox = document.getElementById('s_msg');
             let st = "IDEAL", color = "var(--success)";
-            if (dt < 2 || dt > 8) { st = "STOP"; color = "var(--danger)"; msgBox.innerText = "ΔT Crítico."; }
-            else if (wind < 3) { st = "ALERTA"; color = "var(--warning)"; msgBox.innerText = "Risco Inversão."; }
-            else if (wind > 12) { st = "STOP"; color = "var(--danger)"; msgBox.innerText = "Vento Forte."; }
-            else { msgBox.innerText = "Condições ideais."; }
+            if (dt < 2 || dt > 8) { st = "STOP"; color = "var(--danger)"; }
+            else if (wind < 3) { st = "ALERTA"; color = "var(--warning)"; }
             badge.innerText = st; badge.style.background = color;
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
 
-            // LÓGICA DE DOENÇAS (Favorabilidade baseada em T e UR)
-            const risks = {
-                fer: (t > 18 && t < 26 && ur > 80) ? 85 : 12,
-                mofo: (t < 21 && ur > 85) ? 90 : 18,
-                mildo: (t < 22 && ur > 90) ? 70 : 8,
-                cerco: (t > 24 && ur > 85) ? 65 : 15
-            };
-            Object.keys(risks).forEach(k => {
-                document.getElementById(`p_${k}`).innerText = risks[k] + "%";
-                document.getElementById(`b_${k}`).style.width = risks[k] + "%";
-            });
-
-            // ENVIO PARA O GOOGLE SHEETS
-            fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, rad: rad, dt: dt, wind: wind, eto: eto }) });
-
+            // Log
             const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${rad}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td></tr>`);
+            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${Math.round(rad)}</td><td>${rain}</td><td>${dt}</td><td>${wind}</td></tr>`);
 
             statusIo.style.color = 'var(--success)';
         } catch (e) { statusIo.style.color = 'var(--danger)'; }
     }
 
     function exportCSV() {
-        let csv = "Hora,Temp,UR,Rad,DPV,DeltaT,Vento\n";
+        let csv = "Hora,Temp,UR,Rad,Chuva,DeltaT,Vento\n";
         document.querySelectorAll("#logTable tr").forEach(tr => {
             const row = Array.from(tr.querySelectorAll("td")).map(td => td.innerText).join(",");
             if(row) csv += row + "\n";
         });
         const blob = new Blob([csv], {type:'text/csv'});
-        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='uffs_agromet_master.csv'; a.click();
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='uffs_agromet_data.csv'; a.click();
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
