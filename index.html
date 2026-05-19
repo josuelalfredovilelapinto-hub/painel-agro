@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet Intelligence v9.1</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>UFFS | Agromet Intelligence v9.2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -17,18 +16,7 @@
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 15px; position: relative; }
         h2 { font-size: 10px; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; border-left: 3px solid var(--accent); padding-left: 10px; margin: 0 0 15px 0; }
         
-        .metric-box label { 
-            font-size: 8px; color: var(--sub); display: block; margin-bottom: 5px; 
-            text-transform: uppercase; cursor: help; border-bottom: 1px dotted var(--sub); width: fit-content;
-        }
-        .metric-box label:hover::after {
-            content: attr(data-formula);
-            position: absolute; background: #1c2128; color: var(--accent);
-            padding: 8px; border: 1px solid var(--accent); border-radius: 4px;
-            z-index: 100; font-size: 10px; width: 220px; white-space: normal;
-            margin-top: 20px; left: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
+        .metric-box label { font-size: 8px; color: var(--sub); display: block; margin-bottom: 5px; text-transform: uppercase; cursor: help; border-bottom: 1px dotted var(--sub); width: fit-content; }
         .metric-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
         .metric-box { background: #12171f; padding: 12px; border-radius: 4px; border: 1px solid #1f242c; min-height: 50px; }
         .metric-box span { font-size: 14px; font-weight: bold; color: #fff; }
@@ -42,73 +30,42 @@
         table { width: 100%; border-collapse: collapse; font-size: 10px; }
         th { background: #161b22; color: var(--accent); padding: 10px; position: sticky; top: 0; z-index: 10; }
         td { padding: 8px; border-bottom: 1px solid #0d1117; text-align: center; }
-        .btn-csv { background: var(--agro); color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; }
+        .btn-csv { background: var(--agro); color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px; background: #0a0d11; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
     <div>
-        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET ENGINE v9.1</span></h1>
-        <small id="status_io" style="color:var(--agro);"><i class="fa fa-sync fa-spin"></i> SISTEMA OPERACIONAL</small>
+        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET ENGINE v9.2</span></h1>
+        <small id="status_io" style="color:var(--agro);"><i class="fa fa-check-circle"></i> SISTEMA PRONTO</small>
     </div>
     <div id="clock" style="font-size:1.5rem; font-weight:bold; color:var(--accent);">--:--:--</div>
 </header>
 
 <div class="grid">
-    
     <div class="card" style="grid-column: span 12; border: 2px solid var(--border);" id="spray_card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2><i class="fa fa-spray-can-sparkles"></i> Monitor de Operação: Pulverização</h2>
             <div id="spray_badge">ANALISANDO...</div>
         </div>
         <div class="metric-matrix" style="grid-template-columns: repeat(4, 1fr); margin-top: 10px;">
-            <div class="metric-box">
-                <label data-formula="ΔT = T_ar - T_orvalho. Ideal entre 2 e 8.">Status Delta T</label>
-                <span id="s_dt">--</span>
-            </div>
-            <div class="metric-box">
-                <label data-formula="Vento > 12km/h causa arraste das gotas.">Risco de Deriva</label>
-                <span id="s_wind">--</span>
-            </div>
-            <div class="metric-box">
-                <label data-formula="Vento < 3km/h + Céu limpo. Massa de ar estável aprisiona gotas.">Inversão Térmica</label>
-                <span id="s_inv">--</span>
-            </div>
-            <div class="metric-box">
-                <label>Diagnóstico</label>
-                <span id="s_msg" style="font-size: 10px; color: var(--warning);">Aguardando...</span>
-            </div>
+            <div class="metric-box"><label>Status Delta T</label><span id="s_dt">--</span></div>
+            <div class="metric-box"><label>Vento</label><span id="s_wind">--</span></div>
+            <div class="metric-box"><label>Inversão Térmica</label><span id="s_inv">--</span></div>
+            <div class="metric-box"><label>Diagnóstico</label><span id="s_msg" style="font-size: 10px; color: var(--warning);">Aguardando...</span></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 12;">
-        <h2><i class="fa fa-calculator"></i> Variáveis Calculadas</h2>
+        <h2><i class="fa fa-calculator"></i> Variáveis Agrometeorológicas</h2>
         <div class="metric-matrix">
-            <div class="metric-box">
-                <label data-formula="Σ(T_inst <= 7.2) / 60. Weinberger.">Horas de Frio</label>
-                <span id="v_hf">0.00</span> <small>HF</small>
-            </div>
-            <div class="metric-box">
-                <label data-formula="ETo (Hargreaves-Samani)">Evapotranspiração</label>
-                <span id="v_eto">--.--</span> <small>mm/d</small>
-            </div>
-            <div class="metric-box">
-                <label data-formula="DPV = es - ea.">DPV (Vapor)</label>
-                <span id="v_dpv">--.---</span> <small>kPa</small>
-            </div>
-            <div class="metric-box">
-                <label data-formula="T_dew (Aproximação de Magnus-Tetens)">Ponto de Orvalho</label>
-                <span id="v_dew">--.-</span> <small>°C</small>
-            </div>
-            <div class="metric-box">
-                <label data-formula="GD = T_média - T_base(10°C)">Graus-Dia (GD)</label>
-                <span id="v_gd">--.-</span> <small>GD</small>
-            </div>
-            <div class="metric-box">
-                <label data-formula="HMF (T - T_dew < 1.5°C)">Molhamento Foliar</label>
-                <span id="v_hmf">0</span> <small>h</small>
-            </div>
+            <div class="metric-box"><label>Horas de Frio (≤7.2°C)</label><span id="v_hf">0.00</span></div>
+            <div class="metric-box"><label>Evapotranspiração (ETo)</label><span id="v_eto">--.--</span></div>
+            <div class="metric-box"><label>DPV (Vapor)</label><span id="v_dpv">--.---</span></div>
+            <div class="metric-box"><label>Ponto de Orvalho</label><span id="v_dew">--.-</span></div>
+            <div class="metric-box"><label>Graus-Dia (GD)</label><span id="v_gd">--.-</span></div>
+            <div class="metric-box"><label>Molhamento Foliar</label><span id="v_hmf">0</span> <small>h</small></div>
         </div>
     </div>
 
@@ -118,13 +75,13 @@
             <div class="metric-box"><label>Temp. Ar</label><span id="v_t">--.-</span> <small>°C</small></div>
             <div class="metric-box"><label>Umidade Rel.</label><span id="v_ur">--</span> <small>%</small></div>
             <div class="metric-box"><label>Pressão</label><span id="v_press">--</span> <small>hPa</small></div>
-            <div class="metric-box"><label>Vento</label><span id="v_wind" style="color:var(--warning)">--.-</span> <small>km/h</small></div>
+            <div class="metric-box"><label>Vento Virtual</label><span id="v_wind">--.-</span> <small>km/h</small></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 6;">
         <h2><i class="fa fa-virus-covid"></i> Favorabilidade Epidemiológica</h2>
-        <div class="risk-container">
+        <div id="risk_list" style="margin-top:10px;">
             <div class="risk-row"><small>Ferrugem Asiática</small><div class="risk-bar-bg"><div id="b_fer" class="risk-fill" style="background:#f44336"></div></div><b id="p_fer">0%</b></div>
             <div class="risk-row"><small>Mofo Branco</small><div class="risk-bar-bg"><div id="b_mofo" class="risk-fill" style="background:#9c27b0"></div></div><b id="p_mofo">0%</b></div>
             <div class="risk-row"><small>Míldio</small><div class="risk-bar-bg"><div id="b_mildo" class="risk-fill" style="background:#2196f3"></div></div><b id="p_mildo">0%</b></div>
@@ -134,7 +91,7 @@
 
     <div class="card" style="grid-column: span 12;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2><i class="fa fa-database"></i> Registro de Dados Agrometeorológicos</h2>
+            <h2><i class="fa fa-database"></i> Big Data Log</h2>
             <button class="btn-csv" onclick="exportCSV()">BAIXAR CSV</button>
         </div>
         <div class="table-wrap">
@@ -152,96 +109,87 @@
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const LAT = -25.41; const LON = -52.41;
     let totalHF = 0;
-    const updateIntervalMinutes = 2;
 
     async function updateSystem() {
         const statusIo = document.getElementById('status_io');
         try {
-            statusIo.innerHTML = '<i class="fa fa-sync fa-spin"></i> ATUALIZANDO...';
-            
             const [resDavis, resOWM] = await Promise.all([
-                fetch('/api/get-weather'),
-                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`)
+                fetch('/api/get-weather').then(r => r.text()),
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`).then(r => r.json())
             ]);
             
-            const textXml = await resDavis.text();
-            const xml = new DOMParser().parseFromString(textXml, "text/xml");
-            const owm = await resOWM.json();
+            const xml = new DOMParser().parseFromString(resDavis, "text/xml");
 
-            // CAPTURA SEGURA
+            // 1. EXTRAÇÃO DE DADOS
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
-            const ur = Math.min(100, parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0));
+            const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
             const rad = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || 0);
-            const wind = (owm.wind.speed * 3.6).toFixed(1);
+            const wind = (resOWM.wind.speed * 3.6).toFixed(1);
             
             const pressTag = xml.getElementsByTagName("pressure_mb")[0] || xml.getElementsByTagName("barometer")[0] || xml.getElementsByTagName("pressure_in")[0];
             const press = pressTag ? pressTag.textContent : "---";
 
-            // CÁLCULOS ROBUSTOS
-            // Ponto de Orvalho (Magnus-Tetens) - Mais estável que a simplificada
-            const a = 17.27, b = 237.7;
-            const gamma = ((a * t) / (b + t)) + Math.log(ur / 100);
-            const dew = ((b * gamma) / (a - gamma)).toFixed(1);
+            // 2. CÁLCULOS ULTRA-SEGUROS
+            // Orvalho Linear (Mais estável para UR alta)
+            const dewVal = (t - ((100 - ur) / 5));
+            const dew = dewVal.toFixed(1);
             
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const ea = es * (ur / 100);
-            const dpv = Math.max(0, es - ea);
-            const dt = (t - dew).toFixed(1);
+            const dpv = Math.max(0, es - ea).toFixed(3);
+            const dt = (t - dewVal).toFixed(1);
             const eto = (0.0023 * (t + 17.8) * Math.sqrt(12) * (rad * 0.0864) / 2.45).toFixed(2);
             const gd = Math.max(0, t - 10).toFixed(1);
 
-            if (t <= 7.2) totalHF += (updateIntervalMinutes / 60);
+            if (t <= 7.2) totalHF += (2 / 60);
 
-            // UI UPDATES
+            // 3. UPDATE UI
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_press').innerText = press;
             document.getElementById('v_wind').innerText = wind;
             document.getElementById('v_eto').innerText = eto;
-            document.getElementById('v_dpv').innerText = dpv.toFixed(3);
+            document.getElementById('v_dpv').innerText = dpv;
             document.getElementById('v_dt').innerText = dt;
             document.getElementById('v_dew').innerText = dew;
             document.getElementById('v_gd').innerText = gd;
             document.getElementById('v_hf').innerText = totalHF.toFixed(2);
             document.getElementById('v_hmf').innerText = dt < 1.5 ? (ur/10).toFixed(1) : 0;
 
-            // SPRAY LOGIC
+            // SPRAY
             const sprayBadge = document.getElementById('spray_badge');
-            let status = "OK", msg = "Condições ideais.";
-            if (dt < 2 || dt > 8) { status = "STOP"; msg = "ΔT fora da faixa."; }
-            else if (wind < 3) { status = "ALERTA"; msg = "Vento calmo (Inversão)."; }
-            else if (wind > 12) { status = "STOP"; msg = "Vento forte (Deriva)."; }
+            const sprayCard = document.getElementById('spray_card');
+            let s = "OK", m = "Ideal.";
+            if (dt < 2 || dt > 8) { s = "STOP"; m = "ΔT fora da faixa."; }
+            else if (wind < 3) { s = "ALERTA"; m = "Inversão Térmica."; }
+            else if (wind > 12) { s = "STOP"; m = "Vento forte."; }
             
-            sprayBadge.innerText = status;
-            sprayBadge.style.background = status === "OK" ? "var(--agro)" : (status === "ALERTA" ? "var(--warning)" : "var(--danger)");
+            sprayBadge.innerText = s;
+            sprayBadge.style.background = s === "OK" ? "var(--agro)" : (s === "ALERTA" ? "var(--warning)" : "var(--danger)");
+            sprayBadge.style.color = s === "ALERTA" ? "#000" : "#fff";
+            sprayCard.style.borderColor = s === "OK" ? "var(--agro)" : (s === "ALERTA" ? "var(--warning)" : "var(--danger)");
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind + " km/h";
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
-            document.getElementById('s_msg').innerText = msg;
+            document.getElementById('s_msg').innerText = m;
 
-            // RISKS
-            const risks = {
-                fer: (t > 18 && t < 26 && ur > 80) ? 85 : 10,
-                mofo: (t < 21 && ur > 85) ? 90 : 15,
-                mildo: (t < 22 && ur > 90) ? 75 : 5,
-                cerco: (t > 24 && ur > 85) ? 60 : 12
-            };
-            Object.keys(risks).forEach(k => {
-                document.getElementById(`p_${k}`).innerText = risks[k] + "%";
-                document.getElementById(`b_${k}`).style.width = risks[k] + "%";
+            // RISCOS
+            const rks = { fer: 15, mofo: 20, mildo: 10, cerco: 15 };
+            if (ur > 85) { rks.fer = 80; rks.mofo = 85; rks.mildo = 70; rks.cerco = 65; }
+            Object.keys(rks).forEach(k => {
+                document.getElementById(`p_${k}`).innerText = rks[k] + "%";
+                document.getElementById(`b_${k}`).style.width = rks[k] + "%";
             });
 
-            // LOG
+            // TABLE
             const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            const row = `<tr><td>${time}</td><td>${t.toFixed(1)}</td><td>${ur}</td><td>${dpv.toFixed(3)}</td><td>${dt}</td><td>${eto}</td><td>${wind}</td><td>${totalHF.toFixed(2)}</td></tr>`;
+            const row = `<tr><td>${time}</td><td>${t.toFixed(1)}</td><td>${ur}</td><td>${dpv}</td><td>${dt}</td><td>${eto}</td><td>${wind}</td><td>${totalHF.toFixed(2)}</td></tr>`;
             document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', row);
 
             statusIo.innerHTML = '<i class="fa fa-check-circle"></i> ONLINE';
             statusIo.style.color = 'var(--agro)';
-
-        } catch (e) { 
-            console.error(e);
-            statusIo.innerHTML = '<i class="fa fa-exclamation-triangle"></i> ERRO DE CONEXÃO';
+        } catch (e) {
+            statusIo.innerHTML = '<i class="fa fa-exclamation-triangle"></i> ERRO DE DADOS';
             statusIo.style.color = 'var(--danger)';
         }
     }
@@ -256,14 +204,14 @@
         }
         let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
         let dl = document.createElement("a");
-        dl.download = "dataset_agromet.csv";
+        dl.download = "dataset_uffs.csv";
         dl.href = window.URL.createObjectURL(csvFile);
         dl.click();
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
     updateSystem();
-    setInterval(updateSystem, updateIntervalMinutes * 60000);
+    setInterval(updateSystem, 120000);
 </script>
 </body>
 </html>
