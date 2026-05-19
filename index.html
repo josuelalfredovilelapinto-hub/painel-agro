@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v10.2</title>
+    <title>UFFS | Agromet v10.3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -61,6 +61,13 @@
         .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.4rem; font-weight: 700; color: #fff; }
         .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
 
+        /* Estilo para Doenças */
+        .risk-container { display: flex; flex-direction: column; gap: 12px; }
+        .risk-row { margin-bottom: 5px; }
+        .risk-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; }
+        .bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+
         .spray-widget { grid-column: span 4; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; align-items: center; }
         .badge { padding: 6px 15px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
 
@@ -76,8 +83,8 @@
 <div class="dashboard">
     <header>
         <div>
-            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.2</span></h1>
-            <small id="status_io" style="color:var(--success);"><i class="fa fa-sun"></i> MONITORAMENTO RADIOMÉTRICO ATIVO</small>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.3</span></h1>
+            <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> SISTEMA FITOSSANITÁRIO ATIVO</small>
         </div>
         <div id="clock" style="font-family: 'JetBrains Mono'; font-size: 1.5rem; font-weight: 700; color: var(--accent);">00:00:00</div>
     </header>
@@ -92,7 +99,7 @@
         </div>
         <div style="text-align: center;">
             <div id="spray_badge" class="badge" style="background:var(--accent); color:#000;">ANALISANDO</div>
-            <p id="s_msg" style="font-size:0.7rem; color:var(--text-sub); margin-top:10px;">Processando parâmetros...</p>
+            <p id="s_msg" style="font-size:0.7rem; color:var(--text-sub); margin-top:10px;">Aguardando dados...</p>
         </div>
         <div>
             <div class="sensor-box" style="text-align: center;">
@@ -102,34 +109,55 @@
         </div>
     </div>
 
-    <div class="card" style="grid-column: span 2;">
-        <h2><i class="fa fa-microchip"></i> Sensores Atmosféricos</h2>
+    <div class="card" style="grid-column: span 1.5;">
+        <h2><i class="fa fa-microchip"></i> Telemetria Atmosférica</h2>
         <div class="sensor-grid">
-            <div class="sensor-box"><span class="sensor-label">TEMPERATURA</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
-            <div class="sensor-box"><span class="sensor-label">UMIDADE REL.</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
-            <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)">RADIAÇÃO SOLAR</span><span class="sensor-value" id="v_rad" style="color:var(--sun)">--</span><span class="sensor-unit">W/m²</span></div>
-            <div class="sensor-box"><span class="sensor-label">PRESSÃO</span><span class="sensor-value" id="v_press" style="font-size:1.1rem;">--</span><span class="sensor-unit">hPa</span></div>
+            <div class="sensor-box"><span class="sensor-label">TEMP. AR</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
+            <div class="sensor-box"><span class="sensor-label">UMID. REL.</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
+            <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)">RADIAÇÃO</span><span class="sensor-value" id="v_rad" style="color:var(--sun)">--</span><span class="sensor-unit">W/m²</span></div>
+            <div class="sensor-box"><span class="sensor-label">DPV VAPOR</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
         </div>
     </div>
 
-    <div class="card" style="grid-column: span 2;">
-        <h2><i class="fa fa-calculator"></i> Variáveis Agroclimáticas</h2>
-        <div class="sensor-grid">
-            <div class="sensor-box"><span class="sensor-label">EVAPOTRANSPIRAÇÃO (ETo)</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
-            <div class="sensor-box"><span class="sensor-label">DPV (VAPOR)</span><span class="sensor-value" id="v_dpv">--</span><span class="sensor-unit">kPa</span></div>
-            <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span><span class="sensor-unit">GD</span></div>
-            <div class="sensor-box"><span class="sensor-label">HORAS FRIO (≤7.2°C)</span><span class="sensor-value" id="v_hf">0.0</span><span class="sensor-unit">HF</span></div>
+    <div class="card" style="grid-column: span 1;">
+        <h2><i class="fa fa-calculator"></i> Acúmulos</h2>
+        <div class="risk-container">
+            <div class="sensor-box"><span class="sensor-label">ETo ESTIMADA</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
+            <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span></div>
+            <div class="sensor-box"><span class="sensor-label">HORAS FRIO</span><span class="sensor-value" id="v_hf">0.0</span></div>
+        </div>
+    </div>
+
+    <div class="card" style="grid-column: span 1.5;">
+        <h2><i class="fa fa-virus-covid"></i> Favorabilidade Epidemiológica</h2>
+        <div class="risk-container">
+            <div class="risk-row">
+                <div class="risk-info"><span>Ferrugem Asiática</span><span id="p_fer">0%</span></div>
+                <div class="bar-bg"><div id="b_fer" class="bar-fill" style="background:#ff4d4d; width: 0%;"></div></div>
+            </div>
+            <div class="risk-row">
+                <div class="risk-info"><span>Mofo Branco</span><span id="p_mofo">0%</span></div>
+                <div class="bar-bg"><div id="b_mofo" class="bar-fill" style="background:#9c27b0; width: 0%;"></div></div>
+            </div>
+            <div class="risk-row">
+                <div class="risk-info"><span>Míldio</span><span id="p_mildo">0%</span></div>
+                <div class="bar-bg"><div id="b_mildo" class="bar-fill" style="background:#2196f3; width: 0%;"></div></div>
+            </div>
+            <div class="risk-row">
+                <div class="risk-info"><span>Cercospora</span><span id="p_cerco">0%</span></div>
+                <div class="bar-bg"><div id="b_cerco" class="bar-fill" style="background:#ff9800; width: 0%;"></div></div>
+            </div>
         </div>
     </div>
 
     <div class="card history-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2><i class="fa fa-list-ul"></i> Registro em Tempo Real</h2>
-            <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer;">BAIXAR CSV</button>
+            <h2><i class="fa fa-database"></i> Log de Dados Sincronizado</h2>
+            <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; color: #000;">BAIXAR DATASET (.CSV)</button>
         </div>
         <div class="table-scroll">
             <table id="logTable">
-                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>RADIAÇÃO</th><th>ΔT</th><th>ETo</th><th>VENTO</th></tr></thead>
+                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>RAD</th><th>DPV</th><th>ΔT</th><th>VENTO</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -157,29 +185,26 @@
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
 
-            // CÁLCULOS AGRO
+            // CÁLCULOS
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = (es * (1 - (ur / 100))).toFixed(3);
             if (t <= 7.2) totalHF += (2/60);
-            
-            // ESTIMATIVA DE ETo (Makkink simplificado para tempo real)
             const eto = (rad > 0) ? (0.7 * (rad / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
 
-            // UI ATUALIZAÇÃO
+            // UI SENSORES
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rad').innerText = rad;
-            document.getElementById('v_press').innerText = press;
-            document.getElementById('v_eto').innerText = eto;
             document.getElementById('v_dpv').innerText = dpv;
+            document.getElementById('v_eto').innerText = eto;
             document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
             document.getElementById('v_hf').innerText = totalHF.toFixed(1);
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
 
-            // LÓGICA PULVERIZAÇÃO
+            // PULVERIZAÇÃO
             const badge = document.getElementById('spray_badge');
             const msgBox = document.getElementById('s_msg');
             let st = "IDEAL", color = "var(--success)";
@@ -190,24 +215,36 @@
             badge.innerText = st; badge.style.background = color;
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
 
-            // ENVIAR PARA SHEETS
+            // LÓGICA DE DOENÇAS (Favorabilidade baseada em T e UR)
+            const risks = {
+                fer: (t > 18 && t < 26 && ur > 80) ? 85 : 12,
+                mofo: (t < 21 && ur > 85) ? 90 : 18,
+                mildo: (t < 22 && ur > 90) ? 70 : 8,
+                cerco: (t > 24 && ur > 85) ? 65 : 15
+            };
+            Object.keys(risks).forEach(k => {
+                document.getElementById(`p_${k}`).innerText = risks[k] + "%";
+                document.getElementById(`b_${k}`).style.width = risks[k] + "%";
+            });
+
+            // ENVIO PARA O GOOGLE SHEETS
             fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, rad: rad, dt: dt, wind: wind, eto: eto }) });
 
             const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${rad}</td><td>${dt}</td><td>${eto}</td><td>${wind}</td></tr>`);
+            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${rad}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td></tr>`);
 
             statusIo.style.color = 'var(--success)';
         } catch (e) { statusIo.style.color = 'var(--danger)'; }
     }
 
     function exportCSV() {
-        let csv = "Hora,Temp,UR,Rad,DeltaT,ETo,Vento\n";
+        let csv = "Hora,Temp,UR,Rad,DPV,DeltaT,Vento\n";
         document.querySelectorAll("#logTable tr").forEach(tr => {
             const row = Array.from(tr.querySelectorAll("td")).map(td => td.innerText).join(",");
             if(row) csv += row + "\n";
         });
         const blob = new Blob([csv], {type:'text/csv'});
-        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='uffs_agromet_rad.csv'; a.click();
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='uffs_agromet_master.csv'; a.click();
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
