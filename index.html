@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet Intelligence & Spray Decision System</title>
+    <title>UFFS | Agromet Intelligence v7.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -31,10 +31,10 @@
         .risk-bar-bg { flex-grow: 1; height: 6px; background: #1f242c; margin: 0 10px; border-radius: 3px; overflow: hidden; }
         .risk-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
 
-        /* Tabelas e Utils */
+        /* Tabelas */
         .table-wrap { max-height: 250px; overflow-y: auto; border: 1px solid var(--border); margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        th { background: #161b22; color: var(--accent); padding: 10px; position: sticky; top: 0; }
+        th { background: #161b22; color: var(--accent); padding: 10px; position: sticky; top: 0; z-index: 10; }
         td { padding: 8px; border-bottom: 1px solid #0d1117; text-align: center; }
         .btn-csv { background: var(--agro); color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; }
     </style>
@@ -43,7 +43,7 @@
 
 <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px; background: #0a0d11; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
     <div>
-        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET ENGINE v6.0</span></h1>
+        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET ENGINE v7.0</span></h1>
         <small style="color:var(--agro);"><i class="fa fa-microchip"></i> FULL STACK MONITORING SYSTEM</small>
     </div>
     <div id="clock" style="font-size:1.5rem; font-weight:bold; color:var(--accent);">--:--:--</div>
@@ -60,27 +60,27 @@
             <div class="metric-box"><label>Status Delta T</label><span id="s_dt">--</span></div>
             <div class="metric-box"><label>Risco de Deriva</label><span id="s_wind">--</span></div>
             <div class="metric-box"><label>Inversão Térmica</label><span id="s_inv">--</span></div>
-            <div class="metric-box"><label>Diagnóstico</label><span id="s_msg" style="font-size: 10px; color: var(--warning);">Aguardando...</span></div>
+            <div class="metric-box"><label>Diagnóstico</label><span id="s_msg" style="font-size: 10px; color: var(--warning);">Aguardando dados...</span></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 12;">
-        <h2><i class="fa fa-cloud-sun"></i> Sensores Atmosféricos</h2>
+        <h2><i class="fa fa-cloud-sun"></i> Sensores Atmosféricos (Davis Vantage Pro2)</h2>
         <div class="metric-matrix">
             <div class="metric-box"><label>Temp. Ar</label><span id="v_t">--.-</span> <small>°C</small></div>
             <div class="metric-box"><label>Umidade Rel.</label><span id="v_ur">--</span> <small>%</small></div>
             <div class="metric-box"><label>Pressão</label><span id="v_press">--</span> <small>hPa</small></div>
             <div class="metric-box"><label>Radiação Solar</label><span id="v_rad">--</span> <small>W/m²</small></div>
             <div class="metric-box"><label>Chuva Hoje</label><span id="v_rain">--.-</span> <small>mm</small></div>
-            <div class="metric-box"><label>Vento Virtual</label><span id="v_wind" style="color:var(--warning)">--.-</span> <small>km/h</small></div>
+            <div class="metric-box"><label>Vento</label><span id="v_wind" style="color:var(--warning)">--.-</span> <small>km/h</small></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 6;">
         <h2><i class="fa fa-calculator"></i> Variáveis Agroclimáticas</h2>
         <div class="metric-matrix" style="grid-template-columns: 1fr 1fr;">
-            <div class="metric-box"><label>ETo (Penman-H.)</label><span id="v_eto">--.--</span> <small>mm/d</small></div>
-            <div class="metric-box"><label>DPV (Vapor)</label><span id="v_dpv">--.---</span> <small>kPa</small></div>
+            <div class="metric-box"><label>ETo (Evapotranspiração)</label><span id="v_eto">--.--</span> <small>mm/d</small></div>
+            <div class="metric-box"><label>DPV (Déficit de Vapor)</label><span id="v_dpv">--.---</span> <small>kPa</small></div>
             <div class="metric-box"><label>Delta T (ΔT)</label><span id="v_dt">--.-</span> <small>°C</small></div>
             <div class="metric-box"><label>Ponto de Orvalho</label><span id="v_dew">--.-</span> <small>°C</small></div>
         </div>
@@ -99,13 +99,13 @@
 
     <div class="card" style="grid-column: span 12;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2><i class="fa fa-database"></i> Big Data Log</h2>
-            <button class="btn-csv" onclick="exportCSV()">BAIXAR CSV</button>
+            <h2><i class="fa fa-database"></i> Dataset de Pesquisa (Log Davis Vantage Pro2)</h2>
+            <button class="btn-csv" onclick="exportCSV()">BAIXAR DATASET (.CSV)</button>
         </div>
         <div class="table-wrap">
             <table id="logTable">
                 <thead>
-                    <tr><th>Hora</th><th>Temp</th><th>UR%</th><th>DPV</th><th>ΔT</th><th>ETo</th><th>Vento</th><th>Status Spray</th></tr>
+                    <tr><th>Hora</th><th>Temp</th><th>UR%</th><th>Pressão</th><th>DPV</th><th>ΔT</th><th>ETo</th><th>Vento</th><th>Status</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -119,21 +119,30 @@
 
     async function updateSystem() {
         try {
+            // Requisição Híbrida
             const [resDavis, resOWM] = await Promise.all([
                 fetch('/api/get-weather'),
                 fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`)
             ]);
+            
             const xml = new DOMParser().parseFromString(await resDavis.text(), "text/xml");
             const owm = await resOWM.json();
 
-            // 1. DADOS BRUTOS
+            // 1. CAPTURA DE DADOS BRUTOS
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
             const rad = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || 0);
             const rain = xml.getElementsByTagName("day_rain_mm")[0]?.textContent || "0.0";
+            
+            // CORREÇÃO DA PRESSÃO (Múltiplas Tags)
+            const pressTag = xml.getElementsByTagName("pressure_mb")[0] || 
+                             xml.getElementsByTagName("barometer")[0] || 
+                             xml.getElementsByTagName("pressure_in")[0];
+            const press = pressTag ? pressTag.textContent : "---";
+
             const wind = (owm.wind.speed * 3.6).toFixed(1);
 
-            // 2. CÁLCULOS AGROMET
+            // 2. CÁLCULOS AGROMETEOROLÓGICOS
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const ea = es * (ur / 100);
             const dpv = es - ea;
@@ -146,14 +155,24 @@
             const sprayBadge = document.getElementById('spray_badge');
             let status = "OK"; let msg = "Condições ideais.";
 
-            if (dt < 2 || dt > 8) { status = "BLOQUEADO"; msg = "Delta T fora da faixa (2-8)."; }
-            else if (wind < 3) { status = "ALERTA"; msg = "Vento baixo (Inversão Térmica)."; }
-            else if (wind > 12) { status = "BLOQUEADO"; msg = "Vento forte (Deriva)."; }
+            if (dt < 2 || dt > 8) { 
+                status = "STOP"; 
+                msg = dt < 2 ? "Risco de escorrimento (ΔT baixo)." : "Risco de evaporação (ΔT alto)."; 
+            }
+            else if (wind < 3) { 
+                status = "ATENÇÃO"; 
+                msg = "Vento calmo (Risco de Inversão Térmica)."; 
+            }
+            else if (wind > 12) { 
+                status = "STOP"; 
+                msg = "Vento forte (Risco de Deriva)."; 
+            }
 
             sprayBadge.innerText = status;
-            sprayBadge.style.background = status === "OK" ? "var(--agro)" : (status === "ALERTA" ? "var(--warning)" : "var(--danger)");
-            sprayBadge.style.color = status === "ALERTA" ? "#000" : "#fff";
-            sprayCard.style.borderColor = status === "OK" ? "var(--agro)" : (status === "ALERTA" ? "var(--warning)" : "var(--danger)");
+            sprayBadge.style.background = status === "OK" ? "var(--agro)" : (status === "ATENÇÃO" ? "var(--warning)" : "var(--danger)");
+            sprayBadge.style.color = status === "ATENÇÃO" ? "#000" : "#fff";
+            sprayCard.style.borderColor = status === "OK" ? "var(--agro)" : (status === "ATENÇÃO" ? "var(--warning)" : "var(--danger)");
+            
             document.getElementById('s_dt').innerText = dt.toFixed(1);
             document.getElementById('s_wind').innerText = wind + " km/h";
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
@@ -162,15 +181,16 @@
             // 4. RISCOS EPIDEMIOLÓGICOS
             const hmf = dt < 1.5 ? (ur/10).toFixed(1) : 0;
             const risks = {
-                fer: (t > 18 && t < 26 && ur > 80) ? 80 : 10,
-                mofo: (t < 21 && ur > 85) ? 90 : 15,
-                mildo: (t < 22 && ur > 90) ? 70 : 5,
-                cerco: (t > 24 && ur > 85) ? 60 : 12
+                fer: (t > 18 && t < 26 && ur > 80) ? 80 : 15,
+                mofo: (t < 21 && ur > 85) ? 90 : 20,
+                mildo: (t < 22 && ur > 90) ? 70 : 10,
+                cerco: (t > 24 && ur > 85) ? 60 : 15
             };
 
-            // 5. UPDATE UI
+            // 5. ATUALIZAÇÃO DA INTERFACE
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
+            document.getElementById('v_press').innerText = press;
             document.getElementById('v_rad').innerText = rad;
             document.getElementById('v_rain').innerText = rain;
             document.getElementById('v_wind').innerText = wind;
@@ -185,14 +205,25 @@
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // 6. LOG TABLE
+            // 6. ADICIONAR AO DATASET
             const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            const row = `<tr><td>${time}</td><td>${t.toFixed(1)}</td><td>${ur}</td><td>${dpv.toFixed(3)}</td><td>${dt.toFixed(1)}</td><td>${eto}</td><td>${wind}</td><td style="color:${status==='OK'?'var(--agro)':'var(--danger)'}">${status}</td></tr>`;
+            const row = `<tr>
+                <td>${time}</td>
+                <td>${t.toFixed(1)}</td>
+                <td>${ur}</td>
+                <td>${press}</td>
+                <td>${dpv.toFixed(3)}</td>
+                <td>${dt.toFixed(1)}</td>
+                <td>${eto}</td>
+                <td>${wind}</td>
+                <td style="color:${status==='OK'?'var(--agro)':'var(--danger)'}; font-weight:bold">${status}</td>
+            </tr>`;
             document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', row);
 
-        } catch (e) { console.error("Erro no processamento:", e); }
+        } catch (e) { console.error("Erro no processamento de dados:", e); }
     }
 
+    // Exportação CSV
     function exportCSV() {
         let csv = [];
         let rows = document.querySelectorAll("table tr");
@@ -203,14 +234,15 @@
         }
         let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
         let dl = document.createElement("a");
-        dl.download = "dataset_uffs.csv";
+        dl.download = "dataset_agromet_uffs.csv";
         dl.href = window.URL.createObjectURL(csvFile);
         dl.click();
     }
 
+    // Iniciar Relógio e Sistema
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
     updateSystem();
-    setInterval(updateSystem, 120000);
+    setInterval(updateSystem, 120000); // Atualiza a cada 2 minutos
 </script>
 </body>
 </html>
