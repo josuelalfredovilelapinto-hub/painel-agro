@@ -2,129 +2,104 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>UFFS | Agromet Intelligence - Advanced Dataset Station</title>
+    <title>UFFS | Agrometeorological Research Station</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #05070a; --card: #0d1117; --border: #30363d; --accent: #58a6ff; --agro: #238636; --warning: #d29922; --danger: #f85149; --text: #c9d1d9; --sub: #8b949e; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; font-size: 11px; }
+        :root { --bg: #030507; --card: #0a0d11; --border: #1f242c; --accent: #00d4ff; --agro: #2ea043; --warning: #f1e05a; --danger: #ff4444; --text: #e6edf3; --sub: #7d8590; }
+        body { font-family: 'JetBrains Mono', 'Inter', monospace; background: var(--bg); color: var(--text); margin: 0; padding: 10px; font-size: 11px; }
         
-        .dashboard { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; max-width: 1900px; margin: 0 auto; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; position: relative; overflow: hidden; }
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; max-width: 1900px; margin: 0 auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 12px; transition: border 0.3s; }
+        .card:hover { border-color: var(--accent); }
         
-        /* Cabeçalhos de Seção */
-        h2 { font-size: 10px; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px; border-bottom: 1px solid #21262d; padding-bottom: 8px; margin: 0 0 15px 0; display: flex; align-items: center; gap: 8px; }
-        .hero-val { font-size: 2.4rem; font-weight: 800; color: #fff; line-height: 1; margin: 10px 0; }
-        
-        /* Grid de Variáveis */
-        .var-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-        .var-item { background: rgba(255,255,255,0.03); border: 1px solid #21262d; padding: 12px; border-radius: 8px; }
-        .var-item label { font-size: 9px; color: var(--sub); display: block; margin-bottom: 5px; text-transform: uppercase; }
-        .var-item b { font-size: 14px; color: #fff; }
+        h2 { font-size: 9px; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; border-left: 3px solid var(--accent); padding-left: 10px; margin: 0 0 15px 0; }
+        .hero { font-size: 2.2rem; font-weight: 700; color: #fff; display: flex; align-items: baseline; gap: 5px; }
+        .unit { font-size: 10px; color: var(--sub); text-transform: none; }
 
-        /* Status de Spray e Cultura */
-        .status-box { padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .badge { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 9px; }
+        /* Matriz de Dados */
+        .metric-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+        .metric-box { background: #12171f; padding: 10px; border-radius: 4px; border: 1px solid #1f242c; }
+        .metric-box label { font-size: 8px; color: var(--sub); display: block; margin-bottom: 4px; }
+        .metric-box span { font-size: 13px; font-weight: bold; color: #fff; }
 
-        /* Tabela Gigante de Dados */
-        .table-container { max-height: 350px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
-        th { background: #161b22; color: var(--sub); padding: 12px; font-size: 10px; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); }
-        td { padding: 10px; border-bottom: 1px solid #21262d; text-align: center; font-family: 'Roboto Mono', monospace; }
+        /* Gráficos e Tabelas */
+        .chart-container { height: 280px; margin-top: 10px; }
+        .table-wrap { max-height: 400px; overflow-y: auto; margin-top: 15px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        th { background: #161b22; color: var(--accent); padding: 10px; position: sticky; top: 0; text-align: center; border-bottom: 1px solid var(--border); }
+        td { padding: 8px; border-bottom: 1px solid #0d1117; text-align: center; border-right: 1px solid #0d1117; }
+        tr:hover { background: #12171f; }
 
-        .tab-btn { background: #161b22; color: var(--sub); border: 1px solid var(--border); padding: 8px 15px; cursor: pointer; border-radius: 5px 5px 0 0; }
-        .tab-btn.active { background: var(--accent); color: #000; font-weight: bold; }
+        .btn-export { background: none; border: 1px solid var(--agro); color: var(--agro); padding: 5px 12px; border-radius: 3px; cursor: pointer; font-size: 10px; }
+        .btn-export:hover { background: var(--agro); color: #fff; }
     </style>
 </head>
 <body>
 
-<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<header style="display:flex; justify-content:space-between; align-items:center; padding: 10px 20px; background: #0a0d11; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
     <div>
-        <h1 style="margin:0; font-size: 1.6rem; color: #fff;">UFFS <span style="font-weight:200;">Research Lab | Agromet Station</span></h1>
-        <div style="margin-top: 5px;">
-            <select id="sel_cultura" onchange="initSystem()" style="background:#161b22; color:var(--accent); border:1px solid var(--accent); padding:4px; border-radius:4px;">
-                <option value="soja">SOJA (Tb: 10°C)</option>
-                <option value="milho">MILHO (Tb: 10°C)</option>
-                <option value="trigo">TRIGO (Tb: 4°C)</option>
-                <option value="feijao">FEIJÃO (Tb: 10°C)</option>
-            </select>
-            <span class="badge" style="background:var(--agro); margin-left:10px;">ZARC: Janela Aberta</span>
-        </div>
+        <h1 style="margin:0; font-size:1.2rem; letter-spacing:1px;">UFFS <span style="font-weight:200; color:var(--sub);">AGROCLIMATIC ENGINE</span></h1>
+        <small style="color:var(--agro); font-size:9px;"><i class="fa fa-terminal"></i> REAL-TIME DATA ACQUISITION ACTIVE</small>
     </div>
-    <div style="text-align: right;">
-        <div id="clock" style="font-size: 1.5rem; font-weight: 800; font-family: monospace;">--:--:--</div>
-        <div style="color: var(--sub); font-size: 9px;">CONECTADO: DAVIS VANTAGE PRO 2 + OPENWEATHER API</div>
-    </div>
+    <div id="clock" style="font-size:1.4rem; font-weight:bold; color:var(--accent);">--:--:--</div>
 </header>
 
-<div class="dashboard">
-
-    <div class="card" style="grid-column: span 12;">
-        <h2><i class="fa fa-microchip"></i> Painel de Variáveis Meteorológicas Brutas e Sensores</h2>
-        <div class="var-grid">
-            <div class="var-item"><label>Temp. Ar</label><b id="v_t">--.-</b>°C</div>
-            <div class="var-item"><label>Umidade Rel.</label><b id="v_ur">--</b>%</div>
-            <div class="var-item"><label>Ponto Orvalho</label><b id="v_dew">--.-</b>°C</div>
-            <div class="var-item"><label>Pressão Atm.</label><b id="v_press">--</b> hPa</div>
-            <div class="var-item"><label>Radiação Solar</label><b id="v_rad">--</b> W/m²</div>
-            <div class="var-item"><label>Chuva Acum.</label><b id="v_rain">--</b> mm</div>
-            <div class="var-item" style="border: 1px solid var(--warning);"><label>Vento Virtual</label><b id="v_wind" style="color:var(--warning)">--.-</b> km/h</div>
-            <div class="var-item"><label>Direção Vento</label><b id="v_dir">--</b>°</div>
+<div class="grid">
+    
+    <div class="card" style="grid-column: span 6;">
+        <h2><i class="fa fa-sun"></i> Fluxo de Energia e Radiação</h2>
+        <div class="metric-matrix">
+            <div class="metric-box"><label>Radiação Solar (Rs)</label><span id="v_rad">--</span> <small class="unit">W/m²</small></div>
+            <div class="metric-box"><label>Rad. Líquida (Rn) Est.</label><span id="v_rn">--</span> <small class="unit">MJ/m²/d</small></div>
+            <div class="metric-box"><label>Fotoperíodo Real</label><span id="v_foto">--:--</span> <small class="unit">h</small></div>
+            <div class="metric-box"><label>Temp. Ar (Instantânea)</label><span id="v_t">--.-</span> <small class="unit">°C</small></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 6;">
-        <h2><i class="fa fa-calculator"></i> Variáveis Agrometeorológicas (Cálculo)</h2>
-        <div class="var-grid" style="grid-template-columns: repeat(2, 1fr);">
-            <div class="var-item"><label>ETo (Penman-Harg.)</label><b id="v_eto">--.--</b> mm/dia</div>
-            <div class="var-item"><label>Déficit Vapor (DPV)</label><b id="v_dpv">--.--</b> kPa</div>
-            <div class="var-item"><label>Delta T (ΔT)</label><b id="v_dt">--.-</b> °C</div>
-            <div class="var-item"><label>Graus-Dia (GD)</label><b id="v_gd">--.-</b></div>
-            <div class="var-item"><label>Molhamento Foliar</label><b id="v_molh">--</b></div>
-            <div class="var-item"><label>Fotoperíodo</label><b id="v_foto">--:--</b> h</div>
-        </div>
-    </div>
-
-    <div class="card" style="grid-column: span 6;">
-        <h2><i class="fa fa-seedling"></i> Manejo Hídrico e Fitossanitário</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <div class="status-box" style="flex:1; background: rgba(35, 134, 54, 0.1); border-color: var(--agro);">
-                <small>DISPONIBILIDADE HÍDRICA</small><br>
-                <b id="v_bhc" style="font-size: 1.5rem; color:var(--agro)">--%</b>
-            </div>
-            <div id="spray_box" class="status-box" style="flex:1;">
-                <small>STATUS PULVERIZAÇÃO</small><br>
-                <b id="v_spray" style="font-size: 1.2rem;">ANALISANDO</b>
-            </div>
-        </div>
-        <div class="var-grid">
-            <div class="var-item"><label>Risco Ferrugem</label><b id="r_fer">--%</b></div>
-            <div class="var-item"><label>Risco Mofo</label><b id="r_mofo">--%</b></div>
+        <h2><i class="fa fa-droplet"></i> Psicrometria e Hidrologia</h2>
+        <div class="metric-matrix">
+            <div class="metric-box"><label>Umidade Relativa</label><span id="v_ur">--</span> <small class="unit">%</small></div>
+            <div class="metric-box"><label>DPV (Déficit de Vapor)</label><span id="v_dpv">--.---</span> <small class="unit">kPa</small></div>
+            <div class="metric-box"><label>Pressão Vapor Real (ea)</label><span id="v_ea">--.---</span> <small class="unit">kPa</small></div>
+            <div class="metric-box"><label>Ponto de Orvalho</label><span id="v_dew">--.-</span> <small class="unit">°C</small></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 12;">
-        <h2><i class="fa fa-chart-line"></i> Tendências Multivariáveis (Dataset 24h)</h2>
-        <div style="height: 250px;"><canvas id="agroChart"></canvas></div>
+        <h2><i class="fa fa-gears"></i> Variáveis Agroclimáticas Derivadas</h2>
+        <div class="metric-matrix" style="grid-template-columns: repeat(6, 1fr);">
+            <div class="metric-box"><label>ETo (Penman-Hargreaves)</label><span id="v_eto" style="color:var(--accent)">--.--</span> <small class="unit">mm/dia</small></div>
+            <div class="metric-box"><label>Delta T (ΔT)</label><span id="v_dt">--.-</span> <small class="unit">°C</small></div>
+            <div class="metric-box"><label>Vento (V. Virtual)</label><span id="v_wind" style="color:var(--warning)">--.-</span> <small class="unit">km/h</small></div>
+            <div class="metric-box"><label>Precipitação Acum.</label><span id="v_rain">--.-</span> <small class="unit">mm</small></div>
+            <div class="metric-box"><label>Graus-Dia (Base 10)</label><span id="v_gd">--.-</span> <small class="unit">GD</small></div>
+            <div class="metric-box"><label>Déficit de Saturação</label><span id="v_def_sat">--.---</span> <small class="unit">kPa</small></div>
+        </div>
     </div>
 
     <div class="card" style="grid-column: span 12;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2><i class="fa fa-database"></i> Registro Completo do Banco de Dados (CSV Export Ready)</h2>
-            <button onclick="exportTableToCSV('agromet_data.csv')" style="background:var(--agro); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:10px;">BAIXAR DATASET .CSV</button>
+        <h2><i class="fa fa-chart-area"></i> Dinâmica Atmosférica (Últimas Leituras)</h2>
+        <div class="chart-container"><canvas id="agroChart"></canvas></div>
+    </div>
+
+    <div class="card" style="grid-column: span 12;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2><i class="fa fa-table"></i> Agrometeorological Big Data Log</h2>
+            <button class="btn-export" onclick="downloadCSV()">EXPORTAR DATASET (.CSV)</button>
         </div>
-        <div class="table-container">
-            <table id="full_table">
+        <div class="table-wrap">
+            <table id="data_table">
                 <thead>
                     <tr>
-                        <th>Time</th><th>Cultura</th><th>T_ar</th><th>UR%</th><th>DewP</th><th>Rad_S</th><th>Rain</th><th>Vento</th><th>DPV</th><th>DeltaT</th><th>GD</th><th>ETo</th><th>BHC%</th><th>Status</th>
+                        <th>TIMESTAMP</th><th>TEMP</th><th>UR%</th><th>DPV</th><th>ΔT</th><th>ETo</th><th>RAD</th><th>RAIN</th><th>VENTO</th><th>ea</th><th>es</th><th>DEW</th><th>GD</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -135,21 +110,17 @@
     const agroChart = new Chart(ctx, {
         type: 'line',
         data: { labels: [], datasets: [
-            { label: 'DPV (kPa)', borderColor: '#f85149', data: [], tension: 0.3, yAxisID: 'y' },
-            { label: 'ETo (mm)', borderColor: '#58a6ff', data: [], tension: 0.3, yAxisID: 'y1' }
+            { label: 'ETo (mm)', borderColor: '#00d4ff', data: [], yAxisID: 'y' },
+            { label: 'DPV (kPa)', borderColor: '#ff4444', data: [], yAxisID: 'y1' }
         ]},
         options: { responsive: true, maintainAspectRatio: false, scales: { 
-            y: { position: 'left', grid: { color: '#21262d' } },
+            y: { position: 'left', grid: { color: '#1f242c' } },
             y1: { position: 'right', grid: { display: false } }
         }}
     });
 
-    async function initSystem() {
+    async function fetchData() {
         try {
-            const cult = document.getElementById('sel_cultura').value;
-            const tb = cult === 'trigo' ? 4 : 10;
-            
-            // Fetch Híbrido
             const [resDavis, resOWM] = await Promise.all([
                 fetch('/api/get-weather'),
                 fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric`)
@@ -158,76 +129,70 @@
             const xml = new DOMParser().parseFromString(await resDavis.text(), "text/xml");
             const owm = await resOWM.json();
 
-            // 1. Variáveis Brutas
+            // 1. Dados Sensores
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
             const rad = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || 0);
             const rain = xml.getElementsByTagName("day_rain_mm")[0]?.textContent || "0.0";
-            const press = xml.getElementsByTagName("pressure_mb")[0]?.textContent || "---";
             const wind = (owm.wind.speed * 3.6).toFixed(1);
-            const dir = owm.wind.deg;
 
-            // 2. Variáveis Agromet Calculadas
-            const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
-            const dpv = es * (1 - (ur / 100));
-            const dew = t - ((100 - ur) / 5);
+            // 2. Cálculos Complexos Agromet
+            const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3)); // Pressão saturação
+            const ea = es * (ur / 100); // Pressão real vapor
+            const dpv = es - ea; // Déficit de pressão de vapor
+            const dew = (243.04 * (Math.log(ur/100) + ((17.625 * t)/(243.04 + t)))) / (17.625 - (Math.log(ur/100) + ((17.625 * t)/(243.04 + t))));
             const dt = t - dew;
-            const gd = Math.max(0, t - tb);
             const eto = (0.0023 * (t + 17.8) * Math.sqrt(12) * (rad * 0.0864) / 2.45).toFixed(2);
-            
-            // 3. SAD & Riscos
-            const molh = dt < 1.5;
-            const rFer = (molh && t > 18 && t < 26) ? 85 : 12;
-            const rMofo = (t < 21 && ur > 88) ? 90 : 15;
-            const bhc = Math.min(100, 75 + parseFloat(rain) - parseFloat(eto)).toFixed(1);
+            const rn = (rad * 0.0036 * 0.77).toFixed(2); // Estimativa Rad. Líquida (MJ/m2)
+            const gd = Math.max(0, t - 10);
 
-            // 4. Lógica de Spray
-            const sprayOk = (dt >= 2 && dt <= 8 && wind >= 3 && wind <= 12);
-            const sBox = document.getElementById('spray_box');
-            sBox.style.background = sprayOk ? "rgba(35, 134, 54, 0.1)" : "rgba(248, 81, 73, 0.1)";
-            document.getElementById('v_spray').innerText = sprayOk ? "LIBERADO" : "BLOQUEADO";
-            document.getElementById('v_spray').style.color = sprayOk ? "var(--agro)" : "var(--danger)";
-
-            // 5. Update UI
+            // 3. Update UI
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rad').innerText = rad;
-            document.getElementById('v_rain').innerText = rain;
-            document.getElementById('v_press').innerText = press;
-            document.getElementById('v_wind').innerText = wind;
-            document.getElementById('v_dir').innerText = dir;
+            document.getElementById('v_rn').innerText = rn;
             document.getElementById('v_dpv').innerText = dpv.toFixed(3);
+            document.getElementById('v_ea').innerText = ea.toFixed(3);
+            document.getElementById('v_dew').innerText = dew.toFixed(1);
             document.getElementById('v_eto').innerText = eto;
             document.getElementById('v_dt').innerText = dt.toFixed(1);
-            document.getElementById('v_gd').innerText = gd.toFixed(2);
-            document.getElementById('v_dew').innerText = dew.toFixed(1);
-            document.getElementById('v_bhc').innerText = bhc + "%";
-            document.getElementById('r_fer').innerText = rFer + "%";
-            document.getElementById('r_mofo').innerText = rMofo + "%";
-            document.getElementById('v_molh').innerText = molh ? "PRESENTE" : "AUSENTE";
-            document.getElementById('v_molh').style.color = molh ? "var(--accent)" : "var(--sub)";
+            document.getElementById('v_wind').innerText = wind;
+            document.getElementById('v_rain').innerText = rain;
+            document.getElementById('v_gd').innerText = gd.toFixed(1);
+            document.getElementById('v_def_sat').innerText = (es - ea).toFixed(3);
 
-            // 6. Gráfico e Tabela
-            const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            if(agroChart.data.labels.length > 20) { agroChart.data.labels.shift(); agroChart.data.datasets.forEach(d => d.data.shift()); }
-            agroChart.data.labels.push(hora);
-            agroChart.data.datasets[0].data.push(dpv.toFixed(3));
-            agroChart.data.datasets[1].data.push(eto);
+            // Fotoperiodo Simplificado
+            const agora = new Date();
+            const d = Math.floor((agora - new Date(agora.getFullYear(), 0, 0)) / 86400000);
+            const dec = 23.45 * Math.sin(0.0172 * (d - 80));
+            const h = Math.acos(-Math.tan(LAT * 0.01745) * Math.tan(dec * 0.01745)) * 114.59;
+            const f_h = (h/15).toFixed(2);
+            document.getElementById('v_foto').innerText = Math.floor(f_h) + ":" + Math.round((f_h%1)*60);
+
+            // 4. Gráfico
+            const timeStr = agora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            if(agroChart.data.labels.length > 25) { 
+                agroChart.data.labels.shift(); 
+                agroChart.data.datasets.forEach(d => d.data.shift()); 
+            }
+            agroChart.data.labels.push(timeStr);
+            agroChart.data.datasets[0].data.push(eto);
+            agroChart.data.datasets[1].data.push(dpv.toFixed(3));
             agroChart.update();
 
+            // 5. Tabela de Dataset
             const row = `<tr>
-                <td>${hora}</td><td>${cult.toUpperCase()}</td><td>${t.toFixed(1)}</td><td>${ur}</td>
-                <td>${dew.toFixed(1)}</td><td>${rad}</td><td>${rain}</td><td>${wind}</td>
-                <td>${dpv.toFixed(3)}</td><td>${dt.toFixed(1)}</td><td>${gd.toFixed(1)}</td>
-                <td>${eto}</td><td>${bhc}</td><td style="color:${sprayOk?'var(--agro)':'var(--danger)'}">${sprayOk?'OK':'STOP'}</td>
+                <td>${timeStr}</td><td>${t.toFixed(1)}</td><td>${ur}</td><td>${dpv.toFixed(3)}</td>
+                <td>${dt.toFixed(1)}</td><td>${eto}</td><td>${rad}</td><td>${rain}</td>
+                <td>${wind}</td><td>${ea.toFixed(3)}</td><td>${es.toFixed(3)}</td>
+                <td>${dew.toFixed(1)}</td><td>${gd.toFixed(1)}</td>
             </tr>`;
-            document.querySelector("#full_table tbody").insertAdjacentHTML('afterbegin', row);
+            document.querySelector("#data_table tbody").insertAdjacentHTML('afterbegin', row);
 
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error fetching data:", e); }
     }
 
-    // Exportação CSV Simples
-    function exportTableToCSV(filename) {
+    function downloadCSV() {
         let csv = [];
         let rows = document.querySelectorAll("table tr");
         for (let i = 0; i < rows.length; i++) {
@@ -236,15 +201,15 @@
             csv.push(row.join(","));
         }
         let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
-        let downloadLink = document.createElement("a");
-        downloadLink.download = filename;
-        downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.click();
+        let dl = document.createElement("a");
+        dl.download = "uffs_agromet_dataset.csv";
+        dl.href = window.URL.createObjectURL(csvFile);
+        dl.click();
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    initSystem();
-    setInterval(initSystem, 120000);
+    fetchData();
+    setInterval(fetchData, 120000);
 </script>
 
 </body>
