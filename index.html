@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet Engine v9.4</title>
+    <title>UFFS | Agromet Engine v9.6</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --bg: #030507; --card: #0a0d11; --border: #1f242c; --accent: #00d4ff; --agro: #2ea043; --warning: #f1e05a; --danger: #ff4444; --text: #e6edf3; --sub: #7d8590; }
@@ -29,14 +29,14 @@
 
 <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px; background: #0a0d11; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
     <div>
-        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET v9.4</span></h1>
-        <small id="status_io" style="color:var(--agro);"><i class="fa fa-check-circle"></i> SISTEMA ONLINE</small>
+        <h1 style="margin:0; font-size:1.4rem;">UFFS <span style="font-weight:200; color:var(--sub);">AGROMET v9.6</span></h1>
+        <small id="status_io" style="color:var(--agro);"><i class="fa fa-sync"></i> SINCRONIZANDO COM GOOGLE SHEETS...</small>
     </div>
     <div id="clock" style="font-size:1.5rem; font-weight:bold; color:var(--accent);">00:00:00</div>
 </header>
 
 <div class="grid">
-    <div class="card" style="grid-column: span 12;" id="spray_card">
+    <div class="card" style="grid-column: span 12;">
         <div style="display:flex; justify-content:space-between;">
             <h2><i class="fa fa-spray-can-sparkles"></i> Monitor de Pulverização</h2>
             <div id="spray_badge" style="padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 10px;">ANALISANDO...</div>
@@ -81,7 +81,7 @@
 
     <div class="card" style="grid-column: span 12;">
         <div style="display:flex; justify-content:space-between;">
-            <h2><i class="fa fa-list"></i> Log de Dados</h2>
+            <h2><i class="fa fa-list"></i> Log Local</h2>
             <button class="btn-csv" onclick="exportCSV()">BAIXAR DATASET</button>
         </div>
         <div class="table-wrap">
@@ -95,6 +95,10 @@
 
 <script>
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
+    
+    // URL que você forneceu já inserida:
+    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyzZ9c6WilGHHPJzbnqfZbnhw6Ss4AgmQ3OCbH1Mdz7UCRNpzTQL8qQWO-IJ-xZxUOkvQ/exec"; 
+    
     let totalHF = 0;
 
     async function updateSystem() {
@@ -105,20 +109,18 @@
             
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
-            const pressTag = xml.getElementsByTagName("pressure_mb")[0] || xml.getElementsByTagName("barometer")[0] || xml.getElementsByTagName("pressure_in")[0];
+            const pressTag = xml.getElementsByTagName("pressure_mb")[0] || xml.getElementsByTagName("barometer")[0];
             const press = pressTag ? pressTag.textContent : "---";
 
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
 
-            // CÁLCULOS
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = (es * (1 - (ur / 100))).toFixed(3);
             if (t <= 7.2) totalHF += (2/60);
 
-            // UI SENSORES
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_press').innerText = press;
@@ -130,10 +132,10 @@
 
             // PULVERIZAÇÃO
             const badge = document.getElementById('spray_badge');
-            let st = "OK", msg = "Condições Ideais";
+            let st = "OK", msg = "Ideal";
             if (dt < 2 || dt > 8) { st = "STOP"; msg = "ΔT Crítico"; }
             else if (wind < 3) { st = "ALERTA"; msg = "Inversão Térmica"; }
-            else if (wind > 12) { st = "STOP"; msg = "Deriva Alta"; }
+            else if (wind > 12) { st = "STOP"; msg = "Vento Forte"; }
             badge.innerText = st;
             badge.style.background = st === "OK" ? "var(--agro)" : (st === "ALERTA" ? "var(--warning)" : "var(--danger)");
             document.getElementById('s_dt').innerText = dt;
@@ -141,11 +143,11 @@
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
             document.getElementById('s_msg').innerText = msg;
 
-            // LÓGICA DE DOENÇAS (RISCOS)
+            // DOENÇAS
             const risks = {
-                fer: (t > 18 && t < 26 && ur > 80) ? 80 : 15,
-                mofo: (t < 21 && ur > 85) ? 90 : 20,
-                mildo: (t < 22 && ur > 90) ? 70 : 10,
+                fer: (t > 18 && t < 26 && ur > 80) ? 85 : 12,
+                mofo: (t < 21 && ur > 85) ? 90 : 18,
+                mildo: (t < 22 && ur > 90) ? 70 : 8,
                 cerco: (t > 24 && ur > 85) ? 60 : 15
             };
             Object.keys(risks).forEach(k => {
@@ -153,11 +155,22 @@
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // LOG
+            // ENVIO PARA O GOOGLE SHEETS
+            fetch(URL_PLANILHA, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ temp: t, ur: ur, dew: dew, dt: dt, wind: wind })
+            });
+
             const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${dew}</td><td>${dt}</td><td>${wind}</td></tr>`);
-            statusIo.innerHTML = '<i class="fa fa-check-circle"></i> ONLINE';
-        } catch (e) { statusIo.innerHTML = '<i class="fa fa-times-circle"></i> ERRO'; }
+            
+            statusIo.innerHTML = '<i class="fa fa-check-circle"></i> CONECTADO E SALVANDO';
+            statusIo.style.color = 'var(--agro)';
+        } catch (e) { 
+            statusIo.innerHTML = '<i class="fa fa-times-circle"></i> ERRO DE CONEXÃO'; 
+            statusIo.style.color = 'var(--danger)';
+        }
     }
 
     function exportCSV() {
@@ -168,7 +181,7 @@
         });
         const blob = new Blob([csv], {type: 'text/csv'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = 'uffs_agromet_v9.4.csv'; a.click();
+        a.download = 'uffs_agromet_v9.6.csv'; a.click();
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
