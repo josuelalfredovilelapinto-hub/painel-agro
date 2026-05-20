@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v10.3</title>
+    <title>UFFS | Agromet v10.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -60,15 +60,21 @@
         .sensor-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .sensor-box { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
         .sensor-label { font-size: 0.6rem; color: var(--text-sub); display: block; margin-bottom: 4px; }
-        .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.4rem; font-weight: 700; color: #fff; }
+        .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.3rem; font-weight: 700; color: #fff; }
         .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
 
         /* Estilo do Calendário Compacto */
-        .calendar-strip { display: flex; gap: 8px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto; }
-        .cal-day { flex: 1; text-align: center; padding: 6px; border-radius: 6px; min-width: 45px; background: rgba(0,0,0,0.2); border: 1px solid transparent; }
-        .cal-day.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; font-weight: bold; }
+        .calendar-strip { display: flex; gap: 6px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        .cal-day { flex: 1; text-align: center; padding: 4px; border-radius: 6px; background: rgba(0,0,0,0.2); }
+        .cal-day.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; border: 1px solid var(--accent); }
         .cal-day small { display: block; font-size: 0.55rem; text-transform: uppercase; color: var(--text-sub); }
-        .cal-day span { display: block; font-size: 1.1rem; font-family: 'JetBrains Mono'; }
+        .cal-day span { display: block; font-size: 1rem; font-family: 'JetBrains Mono'; font-weight: bold; }
+
+        /* Estilo para Tabela de Zoneamento ZARC */
+        .zarc-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.75rem; }
+        .zarc-table th { text-align: left; color: var(--text-sub); font-size: 0.6rem; text-transform: uppercase; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); }
+        .zarc-table td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .crop-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; }
 
         .risk-container { display: flex; flex-direction: column; gap: 12px; }
         .risk-row { margin-bottom: 5px; }
@@ -80,13 +86,13 @@
         .badge { padding: 6px 15px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
 
         .history-card { grid-column: span 4; }
-        .table-scroll { max-height: 250px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .table-scroll { max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #161b22; padding: 12px; text-align: center; font-size: 0.7rem; color: var(--text-sub); position: sticky; top: 0; }
         td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); overflow-y: auto; }
-        .modal-content { background-color: #0d1117; margin: 5% auto; padding: 30px; border: 1px solid var(--accent); border-radius: 12px; width: 80%; max-width: 900px; color: var(--text-main); box-shadow: 0 0 20px rgba(0,229,255,0.2); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .modal-content { background-color: #0d1117; margin: 5% auto; padding: 30px; border: 1px solid var(--accent); border-radius: 12px; width: 80%; max-width: 900px; color: var(--text-main); max-height: 85vh; overflow-y: auto; }
         .close-btn { color: var(--text-sub); float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
         .close-btn:hover { color: var(--danger); }
         .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 15px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; }
@@ -97,7 +103,7 @@
 <div class="dashboard">
     <header>
         <div>
-            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.3</span></h1>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.4</span></h1>
             <div style="display: flex; gap: 15px; align-items: center; margin-top: 4px;">
                 <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> SISTEMA FITOSSANITÁRIO ATIVO</small>
                 <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; cursor: pointer; font-weight: bold;"><i class="fa fa-calculator"></i> VER EQUAÇÕES DO MOTOR</button>
@@ -127,33 +133,66 @@
     </div>
 
     <div class="card" style="grid-column: span 1.5;">
-        <h2><i class="fa fa-microchip"></i> Telemetria Atmosférica & Celeste</h2>
+        <h2><i class="fa fa-microchip"></i> Estação & Telemetria Celeste</h2>
         <div class="sensor-grid">
+            <div class="sensor-box" style="grid-column: span 2; background: rgba(0, 229, 255, 0.02); border-color: rgba(0, 229, 255, 0.2);">
+                <span class="sensor-label" style="color: var(--accent); font-weight: bold;"><i class="fa fa-map-marker-alt"></i> LOCALIZAÇÃO DA ESTAÇÃO (UFFS)</span>
+                <span class="sensor-value" style="font-size: 0.95rem; font-family: 'Inter';">Campus Laranjeiras do Sul / PR</span>
+                <div style="display: flex; gap: 15px; margin-top: 4px; font-size: 0.7rem; color: var(--text-sub); font-family: 'JetBrains Mono';">
+                    <span>LAT: -25.4125°</span><span>LON: -52.4111°</span><span>ALT: 840 m</span>
+                </div>
+            </div>
             <div class="sensor-box"><span class="sensor-label">TEMP. AR (DAVIS)</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
             <div class="sensor-box"><span class="sensor-label">UMID. REL. (DAVIS)</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
             <div class="sensor-box" style="border-color: var(--rain);"><span class="sensor-label" style="color:var(--rain)">PRECIPITAÇÃO IMED.</span><span class="sensor-value" id="v_rain" style="color:var(--rain)">--</span><span class="sensor-unit">mm</span></div>
             <div class="sensor-box"><span class="sensor-label">DPV VAPOR</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
-            
             <div class="sensor-box" style="border-color: rgba(255,170,0,0.3);"><span class="sensor-label" style="color:var(--sun)"><i class="fa fa-sun"></i> DECLINAÇÃO SOLAR</span><span class="sensor-value" id="v_dec" style="font-size:1.1rem; color:var(--sun);">--</span><span class="sensor-unit">°</span></div>
             <div class="sensor-box" style="border-color: rgba(224,224,224,0.3);"><span class="sensor-label" style="color:var(--moon)"><i id="moon_icon" class="fa fa-moon"></i> FASE DA LUA</span><span class="sensor-value" id="v_luna" style="font-size:1.1rem; color:var(--moon);">--</span></div>
         </div>
     </div>
 
-    <div class="card" style="grid-column: span 1;">
-        <h2><i class="fa fa-calendar-alt"></i> Calendário & Índices</h2>
-        <div class="risk-container">
-            <div class="calendar-strip" id="calendar_strip"></div>
-            
-            <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)"><i class="fa fa-clock"></i> FOTOPERÍODO REAL</span><span class="sensor-value" id="v_foto" style="color:var(--sun)">--</span><span class="sensor-unit">horas</span></div>
-            <div class="sensor-box"><span class="sensor-label">ETo ESTIMADA (RAD. TEÓRICA)</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
-            <div class="sensor-box"><span class="sensor-label">CHUVA ACUMULADA</span><span class="sensor-value" id="v_rain_acc" style="color:var(--rain)">0.0</span><span class="sensor-unit">mm</span></div>
-            <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span></div>
-        </div>
+    <div class="card" style="grid-column: span 1.3;">
+        <h2><i class="fa fa-calendar-alt"></i> Gestão da Safra & ZARC</h2>
+        <div class="calendar-strip" id="calendar_strip"></div>
+        
+        <span class="sensor-label" style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fa fa-seedling"></i> JANELAS DE PLANTIO RECOMENDADAS (Laranjeiras do Sul)</span>
+        <table class="zarc-table">
+            <thead>
+                <tr><th>Cultura</th><th>Período Ideal (ZARC)</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="crop-badge" style="background: #2e7d32; color: #fff;">Soja</span></td>
+                    <td>20/Out a 20/Dez</td>
+                    <td id="status_soja">--</td>
+                </tr>
+                <tr>
+                    <td><span class="crop-badge" style="background: #ef6c00; color: #fff;">Milho</span></td>
+                    <td>01/Set a 30/Nov</td>
+                    <td id="status_milho">--</td>
+                </tr>
+                <tr>
+                    <td><span class="crop-badge" style="background: #6d4c41; color: #fff;">Feijão</span></td>
+                    <td>10/Set a 10/Dez (Águas)</td>
+                    <td id="status_feijao">--</td>
+                </tr>
+                <tr>
+                    <td><span class="crop-badge" style="background: #fbc02d; color: #000;">Trigo</span></td>
+                    <td>10/Mai a 20/Jul</td>
+                    <td id="status_trigo">--</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <div class="card" style="grid-column: span 1.5;">
-        <h2><i class="fa fa-virus-covid"></i> Favorabilidade Epidemiológica</h2>
-        <div class="risk-container">
+    <div class="card" style="grid-column: span 1.2;">
+        <h2><i class="fa fa-virus-covid"></i> Índices e Fitossanidade</h2>
+        <div class="risk-container" style="gap: 8px;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 5px;">
+                <div class="sensor-box" style="padding: 8px;"><span class="sensor-label"><i class="fa fa-clock"></i> FOTOPERÍODO</span><span class="sensor-value" id="v_foto" style="font-size: 1.1rem; color: var(--sun);">--</span><span class="sensor-unit">h</span></div>
+                <div class="sensor-box_sub" style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 8px; border-radius: 8px;"><span class="sensor-label">ETo ESTIMADA</span><span class="sensor-value" id="v_eto" style="font-size: 1.1rem;">--</span><span class="sensor-unit">mm</span></div>
+            </div>
+            
             <div class="risk-row">
                 <div class="risk-info"><span>Ferrugem Asiática</span><span id="p_fer">0%</span></div>
                 <div class="bar-bg"><div id="b_fer" class="bar-fill" style="background:#ff4d4d; width: 0%;"></div></div>
@@ -175,7 +214,10 @@
 
     <div class="card history-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2><i class="fa fa-database"></i> Log de Dados Sincronizado</h2>
+            <h2><i class="fa fa-database"></i> Log de Dados Sincronizado (Sessão Atual)</h2>
+            <div style="font-size: 0.75rem; color: var(--text-sub);">
+                Chuva Acumulada: <b style="color:var(--rain)" id="v_rain_acc">0.0</b> mm | Graus-Dia: <b id="v_gd">--</b>
+            </div>
             <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; color: #000;">BAIXAR DATASET (.CSV)</button>
         </div>
         <div class="table-scroll">
@@ -228,84 +270,88 @@
     function openModal() { document.getElementById('eqModal').style.display = "block"; }
     function closeModal() { document.getElementById('eqModal').style.display = "none"; }
 
-    // Gerador de Calendário Inline (Exibe 5 dias centrados no dia de hoje)
+    // Gerador de Calendário Inline
     function buildCalendar() {
         const strip = document.getElementById('calendar_strip');
         strip.innerHTML = '';
         const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        
         for (let i = -2; i <= 2; i++) {
-            const d = new Date();
-            d.setDate(d.getDate() + i);
-            
+            const d = new Date(); d.setDate(d.getDate() + i);
             const dayClass = i === 0 ? 'cal-day active' : 'cal-day';
-            strip.innerHTML += `
-                <div class="${dayClass}">
-                    <small>${diasSemana[d.getDay()]}</small>
-                    <span>${d.getDate()}</span>
-                </div>
-            `;
+            strip.innerHTML += `<div class="${dayClass}"><small>${diasSemana[d.getDay()]}</small><span>${d.getDate()}</span></div>`;
         }
     }
 
-    // Função de Cálculo Astronômico da Lua (Ciclo Sinódico aproximado)
-    function getMoonPhase() {
+    // Validador em tempo real do Zoneamento Agrícola (ZARC) para Laranjeiras do Sul
+    function checkZarcWindows() {
         const agora = new Date();
-        // Referência estável: 06 de Janeiro de 2000 foi uma Lua Nova
-        const refDate = new Date(2000, 0, 6); 
-        const cicloSinodico = 29.530588853;
-        
-        const diffInMs = agora - refDate;
-        const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-        const idadeDaLua = diffInDays % cicloSinodico;
-        
-        const icon = document.getElementById('moon_icon');
-        
-        if (idadeDaLua < 1.84) { icon.className = "fa-solid fa-moon"; return "Nova"; }
-        else if (idadeDaLua < 5.53) { icon.className = "fa-solid fa-moon-cloud"; return "Crescente C."; }
-        else if (idadeDaLua < 9.22) { icon.className = "fa-solid fa-circle-half-stroke"; return "Quarto Cres."; }
-        else if (idadeDaLua < 12.91) { icon.className = "fa-solid fa-moon"; return "Gibosa Cres."; }
-        else if (idadeDaLua < 16.60) { icon.className = "fa-solid fa-circle"; return "Cheia"; }
-        else if (idadeDaLua < 20.29) { icon.className = "fa-solid fa-moon"; return "Gibosa Ming."; }
-        else if (idadeDaLua < 23.98) { icon.className = "fa-solid fa-circle-half-stroke"; return "Quarto Ming."; }
-        else if (idadeDaLua < 27.68) { icon.className = "fa-solid fa-moon-cloud"; return "Minguante C."; }
-        else { icon.className = "fa-solid fa-moon"; return "Nova"; }
+        const mes = agora.getMonth() + 1; // Jan = 1, Fev = 2, etc.
+        const dia = agora.getDate();
+
+        const checkWindow = (startM, startD, endM, endD) => {
+            if (mes > startM && mes < endM) return true;
+            if (mes === startM && dia >= startD) return true;
+            if (mes === endM && dia <= endD) return true;
+            return false;
+        };
+
+        const updateBadge = (id, inWindow) => {
+            const el = document.getElementById(id);
+            if (inWindow) {
+                el.innerHTML = '<span style="color: var(--success); font-weight: bold;"><i class="fa fa-check-circle"></i> RECOMENDADO</span>';
+            } else {
+                el.innerHTML = '<span style="color: var(--text-sub); font-size: 0.75rem;">Fora da Janela</span>';
+            }
+        };
+
+        // Regras ZARC aproximadas para o município (Região Sul/PR)
+        updateBadge('status_soja', checkWindow(10, 20, 12, 20));   // 20 Out a 20 Dez
+        updateBadge('status_milho', checkWindow(9, 1, 11, 30));    // 01 Set a 30 Nov
+        updateBadge('status_feijao', checkWindow(9, 10, 12, 10));  // 10 Set a 10 Dez
+        updateBadge('status_trigo', checkWindow(5, 10, 7, 20));    // 10 Mai a 20 Jul
     }
 
-    // Calcula a declinação solar isolada para exibição
+    // Função de Cálculo Astronômico da Lua
+    function getMoonPhase() {
+        const agora = new Date();
+        const refDate = new Date(2000, 0, 6); 
+        const cicloSinodico = 29.530588853;
+        const idadeDaLua = ((agora - refDate) / (1000 * 60 * 60 * 24)) % cicloSinodico;
+        const icon = document.getElementById('moon_icon');
+        
+        if (idadeDaLua < 1.84 || idadeDaLua > 27.68) { icon.className = "fa-solid fa-moon"; return "Nova"; }
+        else if (idadeDaLua < 7.38) { icon.className = "fa-solid fa-moon-blade"; return "Crescente"; }
+        else if (idadeDaLua < 11.07) { icon.className = "fa-solid fa-circle-half-stroke"; return "Quarto Cres."; }
+        else if (idadeDaLua < 16.60) { icon.className = "fa-solid fa-circle"; return "Cheia"; }
+        else if (idadeDaLua < 22.14) { icon.className = "fa-solid fa-moon"; return "Gibosa Ming."; }
+        else return "Minguante";
+    }
+
     function getSolarDeclination(doy) {
         return parseFloat((23.45 * Math.sin(((360 * (284 + doy)) / 365) * Math.PI / 180)).toFixed(2));
     }
 
     function calculatePhotoperiod(doy) {
-        const lat = -25.41; 
+        const lat = -25.4125; 
         const latRad = (lat * Math.PI) / 180;
         const declinacao = 23.45 * Math.sin(((360 * (284 + doy)) / 365) * Math.PI / 180);
         const decRad = (declinacao * Math.PI) / 180;
-        
         const cosWs = -Math.tan(latRad) * Math.tan(decRad);
         if (cosWs >= 1) return 0;
         if (cosWs <= -1) return 24;
-        
-        const ws = Math.acos(cosWs);
-        return parseFloat(((2 * ws * 180) / (Math.PI * 15)).toFixed(2));
+        return parseFloat(((2 * Math.acos(cosWs) * 180) / (Math.PI * 15)).toFixed(2));
     }
 
     function estimateRadiation() {
         const hora = new Date().getHours();
-        const minuto = new Date().getMinutes();
-        const tempoDecimal = hora + (minuto / 60);
-        
+        const tempoDecimal = hora + (new Date().getMinutes() / 60);
         if (tempoDecimal >= 6 && tempoDecimal <= 18) {
-            const amplitudeMax = 800; 
-            const radEstimada = amplitudeMax * Math.sin((Math.PI * (tempoDecimal - 6)) / 12);
-            return parseFloat(radEstimada.toFixed(1));
+            return parseFloat((800 * Math.sin((Math.PI * (tempoDecimal - 6)) / 12)).toFixed(1));
         }
         return 0;
     }
 
     async function updateSystem() {
-        const statusIo = document.getElementById('status_io');
         try {
             const resDavis = await fetch('/api/get-weather').then(r => r.text());
             const xml = new DOMParser().parseFromString(resDavis, "text/xml");
@@ -316,30 +362,22 @@
 
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
-            
-            const chuvaOWM = resOWM.rain ? (resOWM.rain['1h'] || 0) : 0;
-            const chuvaAtual = chuvaImediata > 0 ? chuvaImediata : chuvaOWM;
+            const chuvaAtual = chuvaImediata > 0 ? chuvaImediata : (resOWM.rain ? (resOWM.rain['1h'] || 0) : 0);
 
-            // Cálculos climáticos e de calendário
             const agora = new Date();
-            const inicioAno = new Date(agora.getFullYear(), 0, 1);
-            const doy = Math.floor((agora - inicioAno) / (1000 * 60 * 60 * 24)) + 1;
+            const doy = Math.floor((agora - new Date(agora.getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24)) + 1;
 
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = (es * (1 - (ur / 100))).toFixed(3);
             
-            if (t <= 7.2) totalHF += (2/60);
             if (chuvaAtual > 0) totalChuva += chuvaAtual;
 
             const radCalculada = estimateRadiation();
             const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
             const fotoperiodoReal = calculatePhotoperiod(doy);
-            const declinacaoSolar = getSolarDeclination(doy);
-            const faseLua = getMoonPhase();
 
-            // Atualização da UI
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
@@ -347,15 +385,15 @@
             document.getElementById('v_dpv').innerText = dpv;
             document.getElementById('v_eto').innerText = eto;
             document.getElementById('v_foto').innerText = fotoperiodoReal.toFixed(2);
-            document.getElementById('v_dec').innerText = declinacaoSolar > 0 ? `+${declinacaoSolar}` : declinacaoSolar;
-            document.getElementById('v_luna').innerText = faseLua;
+            document.getElementById('v_dec').innerText = getSolarDeclination(doy) > 0 ? `+${getSolarDeclination(doy)}` : getSolarDeclination(doy);
+            document.getElementById('v_luna').innerText = getMoonPhase();
             document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
 
-            buildCalendar(); // Atualiza o mini calendário
+            buildCalendar();
+            checkZarcWindows();
 
-            // Lógica do Monitor de pulverização
             const badge = document.getElementById('spray_badge');
             const msgBox = document.getElementById('s_msg');
             let st = "IDEAL", color = "var(--success)";
@@ -366,7 +404,6 @@
             badge.innerText = st; badge.style.background = color;
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
 
-            // Epidemiologia Dinâmica
             let r_fer = 0, r_mofo = 0, r_mildo = 0, r_cerco = 0;
             if (ur > 50) { r_fer = Math.round(((t >= 18 && t <= 26) ? 1.0 : 0.4) * ((ur - 50) / 50) * 100); }
             if (ur > 60) { r_mofo = Math.round(((t >= 15 && t <= 21) ? 1.0 : 0.3) * ((ur - 60) / 40) * 100); }
@@ -389,8 +426,8 @@
             const now = agora.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${fotoperiodoReal}h</td></tr>`);
 
-            statusIo.style.color = 'var(--success)';
-        } catch (e) { statusIo.style.color = 'var(--danger)'; }
+            document.getElementById('status_io').style.color = 'var(--success)';
+        } catch (e) { document.getElementById('status_io').style.color = 'var(--danger)'; }
     }
 
     function exportCSV() {
@@ -404,8 +441,7 @@
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    updateSystem(); 
-    setInterval(updateSystem, 120000);
+    updateSystem(); setInterval(updateSystem, 120000);
 </script>
 </body>
 </html>
