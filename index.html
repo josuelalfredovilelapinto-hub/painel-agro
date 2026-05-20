@@ -32,7 +32,7 @@
 
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Quatro colunas iguais para alinhar os cards */
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             max-width: 1800px;
             margin: 0 auto;
@@ -96,7 +96,7 @@
         .close-btn:hover { color: var(--danger); }
         .eq-section { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
         .eq-section h3 { color: var(--accent); font-size: 0.95rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
-        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 10px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; line-height: 1.5; color: #e0e6ed; }
+        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 10px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; line-height: 1.6; color: #e0e6ed; }
         .eq-block b { color: var(--warning); }
     </style>
 </head>
@@ -278,31 +278,68 @@
 <div id="eqModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h2 style="font-size:1.2rem; color:var(--accent); margin-bottom: 5px;"><i class="fa fa-book"></i> Memorial de Cálculo e Equações Internas (v10.9)</h2>
-        <p style="color:var(--text-sub); margin-top:0; font-size:0.8rem;">Documentação matemática dos algoritmos executados no navegador em tempo real.</p>
+        <h2 style="font-size:1.2rem; color:var(--accent); margin-bottom: 5px;"><i class="fa fa-book"></i> Memorial de Cálculo e Equações Internas do Motor</h2>
+        <p style="color:var(--text-sub); margin-top:0; font-size:0.8rem;">Documentação científica completa de todas as fórmulas matemáticas e biológicas processadas dinamicamente.</p>
         <hr style="border:0; border-top:1px solid var(--border-color); margin-bottom: 20px;">
         
         <div class="eq-section">
-            <h3><i class="fa fa-cow"></i> Novo Módulo: Bioclimatologia e Estresse Térmico Animal</h3>
-            <p><b>Índice de Temperatura e Umidade (ITU - Equação Clássica de Thom):</b></p>
-            <div class="eq-block">ITU = (1.8 * T + 32) - [(0.55 - 0.0055 * UR) * (1.8 * T - 26)]</div>
-            
-            <p><b>Limiares de Estresse Térmico para Bovinos de Leite:</b></p>
+            <h3><i class="fa fa-temperature-half"></i> 1. Psicrometria e Dinâmica Atmosférica</h3>
+            <p><b>Pressão de Saturação de Vapor ($e_s$ - Equação de Tetens):</b></p>
+            <div class="eq-block">es = 0.6108 * exp((17.27 * T) / (T + 237.3))</div>
+            <p><b>Deficit de Pressão de Vapor (DPV):</b></p>
+            <div class="eq-block">dpv = es * (1 - (UR / 100))</div>
+            <p><b>Temperatura do Ponto de Orvalho ($T_{po}$ - Método de Magnus-Tetens):</b></p>
+            <div class="eq-block">Tpo = T - ((100 - UR) / 5)</div>
+            <p><b>Diferencial de Evaporação Térmica ($\Delta T$):</b></p>
+            <div class="eq-block">DT = T - Tpo</div>
+        </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-sun"></i> 2. Dinâmica Celeste e Radiação</h3>
+            <p><b>Declinação Solar ($\delta$ - Equação de Cooper):</b></p>
+            <div class="eq-block">declinacao = 23.45 * sin(((360 * (284 + DOY)) / 365) * PI / 180)<br>* Onde DOY é o Dia do Ano (Day of Year) de 1 a 365.</div>
+            <p><b>Fotoperíodo Real ($N$):</b></p>
             <div class="eq-block">
-                • <b>ITU < 68:</b> Conforto Térmico Total.<br>
-                • <b>68 ≤ ITU < 72:</b> Estresse Leve (Início da queda de sólidos e gordura no leite).<br>
-                • <b>72 ≤ ITU < 79:</b> Estresse Moderado (Redução severa de consumo de matéria seca, perda de até 2-3kg leite/dia).<br>
-                • <b>79 ≤ ITU < 84:</b> Estresse Grave (Alta taxa respiratória, queda drástica na reprodução).<br>
-                • <b>ITU ≥ 84:</b> Emergência/Risco de Morte (Necessidade imediata de aspersão e ventilação).
+                cos(ws) = -tan(Latitude_Rad) * tan(Declinacao_Rad)<br>
+                N = (2 * acos(cos(ws)) * 180) / (PI * 15)
+            </div>
+            <p><b>Estimativa de Radiação Solar Global Instantânea ($R_g$):</b></p>
+            <div class="eq-block">Rg = 800 * sin((PI * (Hora_Decimal - 6)) / 12)  [Entre 06:00 e 18:00, caso contrário Rg = 0]</div>
+            <p><b>Evapotranspiração de Referência Simplificada (ETo - Método de Turc):</b></p>
+            <div class="eq-block">ETo = 0.7 * (Rg / 694.4) * (T / (T + 237.3))</div>
+        </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-droplet"></i> 3. Balanço Hídrico Continuo do Solo</h3>
+            <p><b>Capacidade de Água Disponível ($CAD$):</b></p>
+            <div class="eq-block">
+                CAD_Atual = CAD_Anterior + Chuva_Atual - (ETo * Fracao_Tempo)<br>
+                * Condições de Contorno: Se CAD_Atual > CAD_Máximo (60mm) → CAD_Atual = 60mm (Drenagem). Se < 0 → CAD_Atual = 0.
             </div>
         </div>
 
         <div class="eq-section">
-            <h3><i class="fa <i class="fa fa-temperature-half"></i> 1. Módulo de Psicrometria e Dinâmica Atmosférica</h3>
-            <p><b>Temperatura do Ponto de Orvalho (Magnus-Tetens OMM):</b></p>
-            <div class="eq-block">Tpo = T - ((100 - UR) / 5)</div>
-            <p><b>Diferencial Térmico de Evaporação (Delta T):</b></p>
-            <div class="eq-block">DT = T - Tpo</div>
+            <h3><i class="fa fa-bug"></i> 4. Índices Epidemiológicos e Fitossanitários</h3>
+            <p>Os modelos geram penalizações baseadas nas janelas de conforto térmico e hídrico de cada alvo biológico:</p>
+            <div class="eq-block">
+                • <b>Cigarrinha-do-Milho:</b> Ótimo térmico entre 25°C e 32°C. Solo seco (<65% UR) favorece. Chuva pesada (>2mm) lava ninfas e reduz o risco em 70%. Fora da janela do ZARC adiciona 15% de risco estrutural.<br>
+                • <b>Percevejo-Marrom:</b> Ótimo térmico entre 26°C e 30°C. UR entre 50% e 70% acelera ninfas. Chuvas fortes (>5mm) derrubam a população em 50%.<br>
+                • <b>Lagarta-do-Cartucho:</b> Ótimo térmico entre 25°C e 33°C. Ambientes secos (<75% UR) explodem a postura de ovos. Chuva reduz o risco em 60%.<br>
+                • <b>Ferrugem Asiática:</b> Depende exclusivamente de Molhamento Foliar (UR > 50%). O fator térmico máximo atua entre 18°C e 26°C. Risco = Fator_Térmico * ((UR - 50) / 50).<br>
+                • <b>Mofo Branco:</b> Exige alta umidade (UR > 60%) associada a temperaturas amenas/frias (entre 15°C e 21°C). Risco = Fator_Térmico * ((UR - 60) / 40).
+            </div>
+        </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-cow"></i> 5. Bioclimatologia Animal</h3>
+            <p><b>Índice de Temperatura e Umidade (ITU - Fórmula Clássica de Thom):</b></p>
+            <div class="eq-block">ITU = (1.8 * T + 32) - [(0.55 - 0.0055 * UR) * (1.8 * T - 26)]</div>
+            <p><b>Matriz de Decisão de Impacto Produtivo:</b></p>
+            <div class="eq-block">
+                • <b>Gado de Leite:</b> Início da perda de sólidos com ITU > 68. Perda severa de produção e consumo a partir de ITU > 72.<br>
+                • <b>Gado de Corte:</b> Queda na conversão alimentar e ganho de peso diário ativo (GMD) engatilhada em ITU > 72.<br>
+                • <b>Suínos/Aves:</b> Animais monogástricos possuem pouca eficiência dissipativa. Zonas de estresse moderado a grave (ITU > 75) elevam exponencialmente o risco de mortalidade por choque térmico.
+            </div>
         </div>
     </div>
 </div>
@@ -431,7 +468,7 @@
             else { sBadge.innerText = "ESTRESSE HÍDRICO"; sBadge.style.background = "var(--danger)"; sBadge.style.color = "#fff"; }
 
             // =========================================================
-            // NOVO MOTOR DE CÁLCULO: CONFORTO ANIMAL (ITU THOM)
+            // MOTOR DE CÁLCULO: CONFORTO ANIMAL (ITU THOM)
             // =========================================================
             const itu = (1.8 * t + 32) - ((0.55 - 0.0055 * ur) * (1.8 * t - 26));
             document.getElementById('v_itu').innerText = itu.toFixed(1);
@@ -469,7 +506,7 @@
             document.getElementById('p_suino').innerText = r_suino + "%";
             document.getElementById('b_suino').style.width = r_suino + "%";
 
-            // Modelos Fitossanitários antigos mantidos idênticos
+            // Modelos Fitossanitários antigos
             let r_cig = 5; if (t >= 15) { let fT = (t >= 25 && t <= 32) ? 0.8 : 0.4; let fU = ur < 65 ? 0.2 : 0.05; r_cig = Math.round((fT + fU) * 100); if (chuvaAtual > 2) r_cig = Math.round(r_cig * 0.3); if (!isMilhoInWindow) r_cig += 15; }
             let r_per = 5; if (t >= 18) { let fT = (t >= 26 && t <= 30) ? 0.75 : 0.4; let fU = (ur >= 50 && ur <= 70) ? 0.15 : 0.05; r_per = Math.round((fT + fU) * 100); if (chuvaAtual > 5) r_per = Math.round(r_per * 0.5); }
             let r_cart = 5; if (t >= 12) { let fT = (t >= 25 && t <= 33) ? 0.8 : 0.3; let fU = ur < 75 ? 0.15 : 0.05; r_cart = Math.round((fT + fU) * 100); if (chuvaAtual > 4) r_cart = Math.round(r_cart * 0.4); }
@@ -479,7 +516,7 @@
             const risks = { cig: Math.min(Math.max(r_cig, 5), 98), percevejo: Math.min(Math.max(r_per, 5), 98), cartucho: Math.min(Math.max(r_cart, 5), 98), fer: Math.min(Math.max(r_fer, 5), 98), mofo: Math.min(Math.max(r_mofo, 5), 98) };
             Object.keys(risks).forEach(k => { document.getElementById(`p_${k}`).innerText = risks[k] + "%"; document.getElementById(`b_${k}`).style.width = risks[k] + "%"; });
 
-            // Atualização da interface geral
+            // Interface Geral
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
