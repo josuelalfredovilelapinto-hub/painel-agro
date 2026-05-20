@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v10.7</title>
+    <title>UFFS | Agromet v10.8</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -89,11 +89,15 @@
         th { background: #161b22; padding: 12px; text-align: center; font-size: 0.7rem; color: var(--text-sub); position: sticky; top: 0; }
         td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #0d1117; margin: 5% auto; padding: 30px; border: 1px solid var(--accent); border-radius: 12px; width: 80%; max-width: 900px; color: var(--text-main); max-height: 85vh; overflow-y: auto; }
-        .close-btn { color: var(--text-sub); float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+        /* MODAL CONFIGS */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+        .modal-content { background-color: #0d1117; margin: 3% auto; padding: 30px; border: 1px solid var(--accent); border-radius: 12px; width: 85%; max-width: 1000px; color: var(--text-main); max-height: 85vh; overflow-y: auto; box-shadow: 0 0 30px rgba(0,229,255,0.2); }
+        .close-btn { color: var(--text-sub); float: right; font-size: 26px; font-weight: bold; cursor: pointer; }
         .close-btn:hover { color: var(--danger); }
-        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 15px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; }
+        .eq-section { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .eq-section h3 { color: var(--accent); font-size: 0.95rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 10px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; line-height: 1.5; color: #e0e6ed; }
+        .eq-block b { color: var(--warning); }
     </style>
 </head>
 <body>
@@ -101,10 +105,10 @@
 <div class="dashboard">
     <header>
         <div>
-            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.7</span></h1>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.8</span></h1>
             <div style="display: flex; gap: 15px; align-items: center; margin-top: 4px;">
                 <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> ECO-SISTEMA ATIVO</small>
-                <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; cursor: pointer; font-weight: bold;"><i class="fa fa-calculator"></i> VER EQUAÇÕES DO MOTOR</button>
+                <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: bold; letter-spacing: 0.5px; transition: all 0.3s;"><i class="fa fa-calculator"></i> VER EQUAÇÕES DO MOTOR</button>
             </div>
         </div>
         <div id="clock" style="font-family: 'JetBrains Mono'; font-size: 1.5rem; font-weight: 700; color: var(--accent);">00:00:00</div>
@@ -249,17 +253,98 @@
 <div id="eqModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h2 style="font-size:1.1rem; color:var(--accent);"><i class="fa fa-book"></i> Documentação do Motor de Cálculos (Agromet Engine)</h2>
-        <p style="color:var(--text-sub);">Fórmulas matemáticas e físicas processadas em tempo real neste painel:</p>
-        <hr style="border:0; border-top:1px solid var(--border-color);">
+        <h2 style="font-size:1.2rem; color:var(--accent); margin-bottom: 5px;"><i class="fa fa-book"></i> Memorial de Cálculo e Equações Internas (v10.8)</h2>
+        <p style="color:var(--text-sub); margin-top:0; font-size:0.8rem;">Documentação matemática dos algoritmos executados no navegador em tempo real.</p>
+        <hr style="border:0; border-top:1px solid var(--border-color); margin-bottom: 20px;">
         
-        <h3>1. Fatores Dinâmicos do Ciclo das Pragas</h3>
-        <p>Os coeficientes térmicos baseiam-se na taxa de desenvolvimento biológico (Graus-Dia acumulados e faixas ótimas):</p>
-        <div class="eq-block">
-            <b>Cigarrinha (Dalbulus maidis):</b> Ótimo entre 25°C e 32°C. Penalizada severamente por chuvas acima de 2mm/h (lavagem de ninfas) e frio &lt; 15°C.<br><br>
-            <b>Percevejo-Marrom:</b> Desenvolvimento ótimo em climas quentes estáveis (26°C a 30°C) e umidade moderada. Condições secas estendidas impulsionam o ataque às vagens.<br><br>
-            <b>Lagarta-do-Cartucho:</b> Atividade metabólica agressiva em temperaturas altas (25°C a 33°C). Chuvas pesadas afogam lagartas recém-eclodidas no cartucho do milho.<br><br>
-            <b>Falsa-Medideira:</b> Prefere temperaturas amenas a quentes (22°C a 28°C) associadas a umidade relativa ligeiramente mais alta (&gt; 60%) para evitar desidratação larval.
+        <div class="eq-section">
+            <h3><i class="fa fa-temperature-half"></i> 1. Módulo de Psicrometria e Dinâmica Atmosférica</h3>
+            <p><b>Temperatura do Ponto de Orvalho (Magnus-Tetens OMM):</b></p>
+            <div class="eq-block">Tpo = T - ((100 - UR) / 5)</div>
+            
+            <p><b>Diferencial Térmico de Evaporação (Delta T):</b></p>
+            <div class="eq-block">DT = T - Tpo <br>
+            • DT < 2 ou DT > 8 → <b>[STOP]</b> | • DT entre 2 e 8 → <b>[IDEAL]</b></div>
+            
+            <p><b>Déficit de Pressão de Vapor (Equações de Tetens):</b></p>
+            <div class="eq-block">
+                Es = 0.6108 * exp((17.27 * T) / (T + 237.3)) <span style="color:var(--text-sub)">[Pressão de Saturação, kPa]</span><br>
+                DPV = Es * (1 - (UR / 100)) <span style="color:var(--text-sub)">[kPa]</span>
+            </div>
+        </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-droplet"></i> 2. Módulo de Evapotranspiração e Balanço Hídrico</h3>
+            <p><b>Estimativa de Radiação Solar Global Sem Piranômetro (Curva Cosseno Adaptada):</b></p>
+            <div class="eq-block">Se hora entre 6h e 18h → Rg = 800 * sin(π * (Tempo_Decimal - 6) / 12) | Noite → Rg = 0</div>
+            
+            <p><b>Evapotranspiração de Referência Horária (Makkink Simplificado):</b></p>
+            <div class="eq-block">ETo = 0.7 * (Rg / 694.4) * (T / (T + 237.3)) [mm/h]</div>
+            
+            <p><b>Contabilidade de Massa Hidrológica do Solo (CAD Solo Argiloso - Perfil 40cm):</b></p>
+            <div class="eq-block">
+                CAD_atual = CAD_anterior + Chuva_atual - (ETo * Δt)<br>
+                <b>Restrições de Contorno:</b> Max_CAD = 60.0 mm | Min_CAD = 0.0 mm
+            </div>
+        </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-sun"></i> 3. Módulo de Mecânica Celeste e Biometeorologia</h3>
+            <p><b>Declinação Solar (δ) e Fotoperíodo Teórico (N) para Laranjeiras do Sul (Lat -25.4125°):</b></p>
+            <div class="eq-block">
+                δ = 23.45 * sin((360 * (284 + DOY) / 365) * π / 180)<br>
+                cos_ws = -tan(-25.4125 * π / 180) * tan(δ * π / 180)<br>
+                N = (2 * acos(cos_ws) * 180) / (π * 15)
+            </div>
+            <p><b>Acúmulo Térmico Biológico (Graus-Dia - Tb 10°C):</b></p>
+            <div class="eq-block">GD = max(0, T - 10)</div>
+        </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-bug"></i> 4. Modelos de Favorabilidade de Pragas (Eco-Sistemas)</h3>
+            
+            <p><b>A. Cigarrinha-do-Milho (Dalbulus maidis):</b></p>
+            <div class="eq-block">
+                • Se T < 15°C → Risco = 5% (Paralisia metabólica por frio)<br>
+                • Se 25°C ≤ T ≤ 32°C → fT = 0.8 | Outras faixas → fT = 0.4 ou 0.3<br>
+                • fU = (UR < 65%) ? 0.2 : 0.05 <span style="color:var(--text-sub)">(Ar seco favorece voo migratório)</span><br>
+                • Risco_Bruto = (fT + fU) * 100<br>
+                • Se Chuva > 2mm → Reduz para 30% do valor <span style="color:var(--text-sub)">(Lavagem mecânica de ninfas)</span><br>
+                • Se Fora da Janela ZARC (Ponte Verde ativa) → Risco = Risco + 15%
+            </div>
+
+            <p><b>B. Percevejo-Marrom (Euschistus heros):</b></p>
+            <div class="eq-block">
+                • Se 26°C ≤ T ≤ 30°C → fT = 0.75 | Outras faixas → fT = 0.4<br>
+                • fU = (UR entre 50% e 70%) ? 0.15 : 0.05 <span style="color:var(--text-sub)">(Umidade moderada otimiza ataque a vagens)</span><br>
+                • Risco_Bruto = (fT + fU) * 100<br>
+                • Se Chuva > 5mm → Reduz para 50% do valor <span style="color:var(--text-sub)">(Mortalidade de ninfas instar 1 e 2)</span>
+            </div>
+
+            <p><b>C. Lagarta-do-Cartucho (Spodoptera frugiperda):</b></p>
+            <div class="eq-block">
+                • Se 25°C ≤ T ≤ 33°C → fT = 0.8 | Outras faixas → fT = 0.3<br>
+                • fU = (UR < 75%) ? 0.15 : 0.05 <span style="color:var(--text-sub)">(Noites quentes/secas favorecem postura da mariposa)</span><br>
+                • Risco_Bruto = (fT + fU) * 100<br>
+                • Se Chuva > 4mm → Reduz para 40% do valor <span style="color:var(--text-sub)">(Afogamento larval no cartucho)</span>
+            </div>
+
+            <p><b>D. Lagarta Falsa-Medideira (Chrysodeixis includens):</b></p>
+            <div class="eq-block">
+                • Se 22°C ≤ T ≤ 28°C → fT = 0.7 | Outras faixas → fT = 0.3 <span style="color:var(--text-sub)">(Prefere climas mais amenos)</span><br>
+                • fU = (UR ≥ 60%) ? 0.2 : 0.05 <span style="color:var(--text-sub)">(Comum no microclima úmido do baixeiro da soja)</span><br>
+                • Risco_Bruto = (fT + fU) * 100<br>
+                • Se Chuva > 6mm → Reduz para 50% do valor
+            </div>
+        </div>
+
+        <div class="eq-section" style="border:none; padding:0;">
+            <h3><i class="fa fa-virus"></i> 5. Modelos de Favorabilidade de Doenças</h3>
+            <p><b>Ferrugem Asiática (Phakopsora pachyrhizi):</b></p>
+            <div class="eq-block">Se UR > 50% → Risco = [Se 18°C ≤ T ≤ 26°C → 1.0, se não → 0.4] * ((UR - 50) / 50) * 100</div>
+            
+            <p><b>Mofo Branco (Sclerotinia sclerotiorum):</b></p>
+            <div class="eq-block">Se UR > 60% → Risco = [Se 15°C ≤ T ≤ 21°C → 1.0, se não → 0.3] * ((UR - 60) / 40) * 100</div>
         </div>
     </div>
 </div>
@@ -389,10 +474,6 @@
             else if (soilPercent >= 40) { sBadge.innerText = "ÁGUA ÚTIL"; sBadge.style.background = "var(--warning)"; sBadge.style.color = "#000"; }
             else { sBadge.innerText = "ESTRESSE HÍDRICO"; sBadge.style.background = "var(--danger)"; sBadge.style.color = "#fff"; }
 
-            // ==========================================
-            // CÁLCULO DOS MODELOS DE ALERTAS DE PRAGAS
-            // ==========================================
-            
             // 1. Cigarrinha-do-Milho
             let r_cig = 5;
             if (t >= 15) {
@@ -409,33 +490,33 @@
                 let fT = (t >= 26 && t <= 30) ? 0.75 : 0.4;
                 let fU = (ur >= 50 && ur <= 70) ? 0.15 : 0.05;
                 r_per = Math.round((fT + fU) * 100);
-                if (chuvaAtual > 5) r_per = Math.round(r_per * 0.5); // Chuva afeta ninfas pequenas
+                if (chuvaAtual > 5) r_per = Math.round(r_per * 0.5);
             }
 
-            // 3. Lagarta-do-Cartucho (Spodoptera)
+            // 3. Lagarta-do-Cartucho
             let r_cart = 5;
             if (t >= 12) {
                 let fT = (t >= 25 && t <= 33) ? 0.8 : 0.3;
-                let fU = ur < 75 ? 0.15 : 0.05; // Ar seco favorece a mariposa
+                let fU = ur < 75 ? 0.15 : 0.05;
                 r_cart = Math.round((fT + fU) * 100);
-                if (chuvaAtual > 4) r_cart = Math.round(r_cart * 0.4); // Desalojamento por impacto mecânico de chuva
+                if (chuvaAtual > 4) r_cart = Math.round(r_cart * 0.4);
             }
 
             // 4. Falsa-Medideira
             let r_falsa = 5;
             if (t >= 14) {
                 let fT = (t >= 22 && t <= 28) ? 0.7 : 0.3;
-                let fU = ur >= 60 ? 0.2 : 0.05; // Prefere umidade ligeiramente superior à Spodoptera
+                let fU = ur >= 60 ? 0.2 : 0.05;
                 r_falsa = Math.round((fT + fU) * 100);
                 if (chuvaAtual > 6) r_falsa = Math.round(r_falsa * 0.5);
             }
 
-            // Doenças fúngicas clássicas
+            // Doenças fúngicas
             let r_fer = 0, r_mofo = 0;
             if (ur > 50) { r_fer = Math.round(((t >= 18 && t <= 26) ? 1.0 : 0.4) * ((ur - 50) / 50) * 100); }
             if (ur > 60) { r_mofo = Math.round(((t >= 15 && t <= 21) ? 1.0 : 0.3) * ((ur - 60) / 40) * 100); }
 
-            // Consolidação e Limitação dos Riscos [5% a 98%]
+            // Consolidação e Saturação de Riscos [5% a 98%]
             const risks = {
                 cig: Math.min(Math.max(r_cig, 5), 98),
                 percevejo: Math.min(Math.max(r_per, 5), 98),
@@ -450,7 +531,7 @@
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // Atualização de elementos da Interface
+            // Atualização do DOM
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
