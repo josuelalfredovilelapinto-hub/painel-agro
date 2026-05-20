@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v10.4</title>
+    <title>UFFS | Agromet v10.5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -63,30 +63,28 @@
         .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.3rem; font-weight: 700; color: #fff; }
         .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
 
-        /* Estilo do Calendário Compacto */
         .calendar-strip { display: flex; gap: 6px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; }
         .cal-day { flex: 1; text-align: center; padding: 4px; border-radius: 6px; background: rgba(0,0,0,0.2); }
         .cal-day.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; border: 1px solid var(--accent); }
         .cal-day small { display: block; font-size: 0.55rem; text-transform: uppercase; color: var(--text-sub); }
         .cal-day span { display: block; font-size: 1rem; font-family: 'JetBrains Mono'; font-weight: bold; }
 
-        /* Estilo para Tabela de Zoneamento ZARC */
         .zarc-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.75rem; }
         .zarc-table th { text-align: left; color: var(--text-sub); font-size: 0.6rem; text-transform: uppercase; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); }
-        .zarc-table td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .zarc-table td { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .crop-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; }
 
         .risk-container { display: flex; flex-direction: column; gap: 12px; }
         .risk-row { margin-bottom: 5px; }
         .risk-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; }
         .bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .bar-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
 
         .spray-widget { grid-column: span 4; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; align-items: center; }
         .badge { padding: 6px 15px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
 
         .history-card { grid-column: span 4; }
-        .table-scroll { max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .table-scroll { max-height: 180px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #161b22; padding: 12px; text-align: center; font-size: 0.7rem; color: var(--text-sub); position: sticky; top: 0; }
         td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; }
@@ -103,7 +101,7 @@
 <div class="dashboard">
     <header>
         <div>
-            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.4</span></h1>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.5</span></h1>
             <div style="display: flex; gap: 15px; align-items: center; margin-top: 4px;">
                 <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> SISTEMA FITOSSANITÁRIO ATIVO</small>
                 <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; cursor: pointer; font-weight: bold;"><i class="fa fa-calculator"></i> VER EQUAÇÕES DO MOTOR</button>
@@ -155,7 +153,7 @@
         <h2><i class="fa fa-calendar-alt"></i> Gestão da Safra & ZARC</h2>
         <div class="calendar-strip" id="calendar_strip"></div>
         
-        <span class="sensor-label" style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fa fa-seedling"></i> JANELAS DE PLANTIO RECOMENDADAS (Laranjeiras do Sul)</span>
+        <span class="sensor-label" style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fa fa-seedling"></i> JANELAS DE PLANTIO (Laranjeiras do Sul)</span>
         <table class="zarc-table">
             <thead>
                 <tr><th>Cultura</th><th>Período Ideal (ZARC)</th><th>Status</th></tr>
@@ -173,7 +171,7 @@
                 </tr>
                 <tr>
                     <td><span class="crop-badge" style="background: #6d4c41; color: #fff;">Feijão</span></td>
-                    <td>10/Set a 10/Dez (Águas)</td>
+                    <td>10/Set a 10/Dez</td>
                     <td id="status_feijao">--</td>
                 </tr>
                 <tr>
@@ -186,13 +184,21 @@
     </div>
 
     <div class="card" style="grid-column: span 1.2;">
-        <h2><i class="fa fa-virus-covid"></i> Índices e Fitossanidade</h2>
-        <div class="risk-container" style="gap: 8px;">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 5px;">
-                <div class="sensor-box" style="padding: 8px;"><span class="sensor-label"><i class="fa fa-clock"></i> FOTOPERÍODO</span><span class="sensor-value" id="v_foto" style="font-size: 1.1rem; color: var(--sun);">--</span><span class="sensor-unit">h</span></div>
-                <div class="sensor-box_sub" style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 8px; border-radius: 8px;"><span class="sensor-label">ETo ESTIMADA</span><span class="sensor-value" id="v_eto" style="font-size: 1.1rem;">--</span><span class="sensor-unit">mm</span></div>
-            </div>
+        <h2><i class="fa fa-droplet"></i> Água no Solo & Fitossanidade</h2>
+        <div class="risk-container" style="gap: 10px;">
             
+            <div class="sensor-box" style="border-color: var(--rain); background: rgba(33, 150, 243, 0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
+                    <span class="sensor-label" style="color: var(--rain); font-weight: bold;"><i class="fa fa-layers-water"></i> ÁGUA DISPONÍVEL (CAD)</span>
+                    <span id="soil_status_badge" style="font-size:0.6rem; font-weight:bold; padding:2px 6px; border-radius:3px; background:rgba(255,255,255,0.1);">LENDO...</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+                    <span class="sensor-value" id="v_soil_water" style="color: #fff;">-- <span class="sensor-unit" style="color:var(--text-sub)">mm</span></span>
+                    <span style="font-size:0.75rem; color:var(--text-sub); font-family:'JetBrains Mono';" id="v_soil_percent">--%</span>
+                </div>
+                <div class="bar-bg" style="height:6px;"><div id="b_soil" class="bar-fill" style="background:var(--rain); width: 0%;"></div></div>
+            </div>
+
             <div class="risk-row">
                 <div class="risk-info"><span>Ferrugem Asiática</span><span id="p_fer">0%</span></div>
                 <div class="bar-bg"><div id="b_fer" class="bar-fill" style="background:#ff4d4d; width: 0%;"></div></div>
@@ -205,10 +211,6 @@
                 <div class="risk-info"><span>Míldio</span><span id="p_mildo">0%</span></div>
                 <div class="bar-bg"><div id="b_mildo" class="bar-fill" style="background:#2196f3; width: 0%;"></div></div>
             </div>
-            <div class="risk-row">
-                <div class="risk-info"><span>Cercospora</span><span id="p_cerco">0%</span></div>
-                <div class="bar-bg"><div id="b_cerco" class="bar-fill" style="background:#ff9800; width: 0%;"></div></div>
-            </div>
         </div>
     </div>
 
@@ -216,13 +218,13 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2><i class="fa fa-database"></i> Log de Dados Sincronizado (Sessão Atual)</h2>
             <div style="font-size: 0.75rem; color: var(--text-sub);">
-                Chuva Acumulada: <b style="color:var(--rain)" id="v_rain_acc">0.0</b> mm | Graus-Dia: <b id="v_gd">--</b>
+                Chuva Acumulada: <b style="color:var(--rain)" id="v_rain_acc">0.0</b> mm | Graus-Dia: <b id="v_gd">--</b> | Fotoperíodo: <b style="color:var(--sun)" id="v_foto">--</b>h | ETo: <b id="v_eto">--</b> mm/h
             </div>
             <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; color: #000;">BAIXAR DATASET (.CSV)</button>
         </div>
         <div class="table-scroll">
             <table id="logTable">
-                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>CHUVA mm</th><th>DPV</th><th>ΔT</th><th>VENTO</th><th>FOTOPERÍODO</th></tr></thead>
+                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>CHUVA mm</th><th>DPV</th><th>ΔT</th><th>VENTO</th><th>ÁGUA SOLO</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -249,14 +251,12 @@
             DPV = Es * (1 - (UR / 100)) [kPa]
         </div>
 
-        <h3>2. Astronomia Solar (Coordenadas para Laranjeiras do Sul)</h3>
-        <p><b>Declinação Solar e Ângulo Horário (Ws):</b> Determina a inclinação da terra baseado no Dia do Ano (DoY).</p>
+        <h3>2. Balanço Hídrico do Solo (CAD Teórica)</h3>
+        <p>Baseia-se em um perfil típico de solo argiloso profundo ($CAD_{max} = 60\text{ mm}$ na zona radicular de $40\text{ cm}$). A estimativa roda de forma incremental a cada atualização de dados:</p>
         <div class="eq-block">
-            Declinação = 23.45 * sin((360 * (284 + DoY)) / 365) <br>
-            Ws = acos(-tan(LatRad) * tan(DecRad))
+            CAD_Atual = CAD_Anterior + Chuva_Imediata - (ETo_Instantanea * Intervalo_Tempo)<br>
+            * Limitado estritamente entre 0 (Murchamento Permanente) e 60 mm (Capacidade de Campo).
         </div>
-        <p><b>Fotoperíodo (N):</b> Duração total teórica de luz em horas.</p>
-        <div class="eq-block">N = (2 * Ws * 180) / (Math.PI * 15)</div>
     </div>
 </div>
 
@@ -264,13 +264,15 @@
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyzZ9c6WilGHHPJzbnqfZbnhw6Ss4AgmQ3OCbH1Mdz7UCRNpzTQL8qQWO-IJ-xZxUOkvQ/exec"; 
     
-    let totalHF = 0;
     let totalChuva = 0;
+    
+    // Parâmetros Físicos do Solo (Padrão Latossolo Argiloso UFFS LS)
+    const CAD_MAX = 60.0; // Capacidade máxima em mm (retenção útil até 40cm de profundidade)
+    let currentSoilWater = 45.0; // Inicialização teórica em 75% da capacidade de campo
 
     function openModal() { document.getElementById('eqModal').style.display = "block"; }
     function closeModal() { document.getElementById('eqModal').style.display = "none"; }
 
-    // Gerador de Calendário Inline
     function buildCalendar() {
         const strip = document.getElementById('calendar_strip');
         strip.innerHTML = '';
@@ -282,43 +284,33 @@
         }
     }
 
-    // Validador em tempo real do Zoneamento Agrícola (ZARC) para Laranjeiras do Sul
     function checkZarcWindows() {
         const agora = new Date();
-        const mes = agora.getMonth() + 1; // Jan = 1, Fev = 2, etc.
+        const mes = agora.getMonth() + 1;
         const dia = agora.getDate();
-
         const checkWindow = (startM, startD, endM, endD) => {
             if (mes > startM && mes < endM) return true;
             if (mes === startM && dia >= startD) return true;
             if (mes === endM && dia <= endD) return true;
             return false;
         };
-
         const updateBadge = (id, inWindow) => {
-            const el = document.getElementById(id);
-            if (inWindow) {
-                el.innerHTML = '<span style="color: var(--success); font-weight: bold;"><i class="fa fa-check-circle"></i> RECOMENDADO</span>';
-            } else {
-                el.innerHTML = '<span style="color: var(--text-sub); font-size: 0.75rem;">Fora da Janela</span>';
-            }
+            document.getElementById(id).innerHTML = inWindow ? 
+                '<span style="color: var(--success); font-weight: bold;"><i class="fa fa-check-circle"></i> RECOMENDADO</span>' : 
+                '<span style="color: var(--text-sub); font-size: 0.75rem;">Fora da Janela</span>';
         };
-
-        // Regras ZARC aproximadas para o município (Região Sul/PR)
-        updateBadge('status_soja', checkWindow(10, 20, 12, 20));   // 20 Out a 20 Dez
-        updateBadge('status_milho', checkWindow(9, 1, 11, 30));    // 01 Set a 30 Nov
-        updateBadge('status_feijao', checkWindow(9, 10, 12, 10));  // 10 Set a 10 Dez
-        updateBadge('status_trigo', checkWindow(5, 10, 7, 20));    // 10 Mai a 20 Jul
+        updateBadge('status_soja', checkWindow(10, 20, 12, 20));
+        updateBadge('status_milho', checkWindow(9, 1, 11, 30));
+        updateBadge('status_feijao', checkWindow(9, 10, 12, 10));
+        updateBadge('status_trigo', checkWindow(5, 10, 7, 20));
     }
 
-    // Função de Cálculo Astronômico da Lua
     function getMoonPhase() {
         const agora = new Date();
         const refDate = new Date(2000, 0, 6); 
         const cicloSinodico = 29.530588853;
         const idadeDaLua = ((agora - refDate) / (1000 * 60 * 60 * 24)) % cicloSinodico;
         const icon = document.getElementById('moon_icon');
-        
         if (idadeDaLua < 1.84 || idadeDaLua > 27.68) { icon.className = "fa-solid fa-moon"; return "Nova"; }
         else if (idadeDaLua < 7.38) { icon.className = "fa-solid fa-moon-blade"; return "Crescente"; }
         else if (idadeDaLua < 11.07) { icon.className = "fa-solid fa-circle-half-stroke"; return "Quarto Cres."; }
@@ -375,21 +367,42 @@
             if (chuvaAtual > 0) totalChuva += chuvaAtual;
 
             const radCalculada = estimateRadiation();
-            const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
+            const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : 0;
             const fotoperiodoReal = calculatePhotoperiod(doy);
 
+            // ALGORITMO INTEGRADO DO BALANÇO HÍDRICO DO SOLO (Roda a cada 2 minutos = 0.0333 h)
+            const etoFracionada = parseFloat(eto) * (2 / 60);
+            currentSoilWater = currentSoilWater + chuvaAtual - etoFracionada;
+            if (currentSoilWater > CAD_MAX) currentSoilWater = CAD_MAX; 
+            if (currentSoilWater < 0) currentSoilWater = 0;
+
+            const soilPercent = Math.round((currentSoilWater / CAD_MAX) * 100);
+            
+            // Definição física do estado hídrico para o display
+            const sBadge = document.getElementById('soil_status_badge');
+            if (soilPercent >= 95) { sBadge.innerText = "SATURADO"; sBadge.style.background = "var(--rain)"; sBadge.style.color = "#fff"; }
+            else if (soilPercent >= 70) { sBadge.innerText = "CAPAC. CAMPO"; sBadge.style.background = "var(--success)"; sBadge.style.color = "#000"; }
+            else if (soilPercent >= 40) { sBadge.innerText = "ÁGUA ÚTIL"; sBadge.style.background = "var(--warning)"; sBadge.style.color = "#000"; }
+            else { sBadge.innerText = "ESTRESSE HÍDRICO"; sBadge.style.background = "var(--danger)"; sBadge.style.color = "#fff"; }
+
+            // Atualização da UI
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
             document.getElementById('v_rain_acc').innerText = totalChuva.toFixed(1);
             document.getElementById('v_dpv').innerText = dpv;
-            document.getElementById('v_eto').innerText = eto;
+            document.getElementById('v_eto').innerText = typeof eto === 'number' ? eto.toFixed(3) : eto;
             document.getElementById('v_foto').innerText = fotoperiodoReal.toFixed(2);
             document.getElementById('v_dec').innerText = getSolarDeclination(doy) > 0 ? `+${getSolarDeclination(doy)}` : getSolarDeclination(doy);
             document.getElementById('v_luna').innerText = getMoonPhase();
             document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
+            
+            // Atualiza campos de solo
+            document.getElementById('v_soil_water').innerHTML = `${currentSoilWater.toFixed(1)} <span class="sensor-unit" style="color:var(--text-sub)">mm</span>`;
+            document.getElementById('v_soil_percent').innerText = `${soilPercent}%`;
+            document.getElementById('b_soil').style.width = `${soilPercent}%`;
 
             buildCalendar();
             checkZarcWindows();
@@ -404,17 +417,15 @@
             badge.innerText = st; badge.style.background = color;
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
 
-            let r_fer = 0, r_mofo = 0, r_mildo = 0, r_cerco = 0;
+            let r_fer = 0, r_mofo = 0, r_mildo = 0;
             if (ur > 50) { r_fer = Math.round(((t >= 18 && t <= 26) ? 1.0 : 0.4) * ((ur - 50) / 50) * 100); }
             if (ur > 60) { r_mofo = Math.round(((t >= 15 && t <= 21) ? 1.0 : 0.3) * ((ur - 60) / 40) * 100); }
             if (ur > 70) { r_mildo = Math.round(((t >= 15 && t <= 22) ? 1.0 : 0.2) * ((ur - 70) / 30) * 100); }
-            if (ur > 60) { r_cerco = Math.round(((t >= 23 && t <= 30) ? 1.0 : 0.4) * ((ur - 60) / 40) * 100); }
 
             const risks = {
                 fer: Math.min(Math.max(r_fer, 5), 98),
                 mofo: Math.min(Math.max(r_mofo, 5), 98),
-                mildo: Math.min(Math.max(r_mildo, 5), 98),
-                cerco: Math.min(Math.max(r_cerco, 5), 98)
+                mildo: Math.min(Math.max(r_mildo, 5), 98)
             };
             Object.keys(risks).forEach(k => {
                 document.getElementById(`p_${k}`).innerText = risks[k] + "%";
@@ -424,14 +435,14 @@
             fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto, fotoperiodo: fotoperiodoReal }) });
 
             const now = agora.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${fotoperiodoReal}h</td></tr>`);
+            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${currentSoilWater.toFixed(1)} mm</td></tr>`);
 
             document.getElementById('status_io').style.color = 'var(--success)';
         } catch (e) { document.getElementById('status_io').style.color = 'var(--danger)'; }
     }
 
     function exportCSV() {
-        let csv = "Hora,Temp,UR,Chuva_mm,DPV,DeltaT,Vento,Fotoperiodo_h\n";
+        let csv = "Hora,Temp,UR,Chuva_mm,DPV,DeltaT,Vento,AguaSolo_mm\n";
         document.querySelectorAll("#logTable tr").forEach(tr => {
             const row = Array.from(tr.querySelectorAll("td")).map(td => td.innerText).join(",");
             if(row) csv += row + "\n";
