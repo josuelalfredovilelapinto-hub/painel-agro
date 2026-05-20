@@ -62,7 +62,6 @@
         .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.4rem; font-weight: 700; color: #fff; }
         .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
 
-        /* Estilo para Doenças */
         .risk-container { display: flex; flex-direction: column; gap: 12px; }
         .risk-row { margin-bottom: 5px; }
         .risk-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; }
@@ -77,6 +76,19 @@
         table { width: 100%; border-collapse: collapse; }
         th { background: #161b22; padding: 12px; text-align: center; font-size: 0.7rem; color: var(--text-sub); position: sticky; top: 0; }
         td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; }
+
+        /* Estilos do Modal de Equações */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); overflow-y: auto;
+        }
+        .modal-content {
+            background-color: #0d1117; margin: 5% auto; padding: 30px; border: 1px solid var(--accent);
+            border-radius: 12px; width: 80%; max-width: 900px; color: var(--text-main); box-shadow: 0 0 20px rgba(0,229,255,0.2);
+        }
+        .close-btn { color: var(--text-sub); float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover { color: var(--danger); }
+        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 15px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; }
     </style>
 </head>
 <body>
@@ -85,7 +97,10 @@
     <header>
         <div>
             <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.3</span></h1>
-            <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> SISTEMA FITOSSANITÁRIO ATIVO</small>
+            <div style="display: flex; gap: 15px; align-items: center; margin-top: 4px;">
+                <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> SISTEMA FITOSSANITÁRIO ATIVO</small>
+                <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; cursor: pointer; font-weight: bold;"><i class="fa fa-calculator"></i> VER EQUAÇÕES DO MOTOR</button>
+            </div>
         </div>
         <div id="clock" style="font-family: 'JetBrains Mono'; font-size: 1.5rem; font-weight: 700; color: var(--accent);">00:00:00</div>
     </header>
@@ -113,8 +128,8 @@
     <div class="card" style="grid-column: span 1.5;">
         <h2><i class="fa fa-microchip"></i> Telemetria Atmosférica</h2>
         <div class="sensor-grid">
-            <div class="sensor-box"><span class="sensor-label">TEMP. AR</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
-            <div class="sensor-box"><span class="sensor-label">UMID. REL.</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
+            <div class="sensor-box"><span class="sensor-label">TEMP. AR (DAVIS)</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
+            <div class="sensor-box"><span class="sensor-label">UMID. REL. (DAVIS)</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
             <div class="sensor-box" style="border-color: var(--rain);"><span class="sensor-label" style="color:var(--rain)">PRECIPITAÇÃO IMED.</span><span class="sensor-value" id="v_rain" style="color:var(--rain)">--</span><span class="sensor-unit">mm</span></div>
             <div class="sensor-box"><span class="sensor-label">DPV VAPOR</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
         </div>
@@ -167,6 +182,41 @@
     </div>
 </div>
 
+<div id="eqModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 style="font-size:1.1rem; color:var(--accent);"><i class="fa fa-book"></i> Documentação do Motor de Cálculos (Agromet Engine)</h2>
+        <p style="color:var(--text-sub);">Fórmulas matemáticas e físicas processadas em tempo real neste painel:</p>
+        <hr style="border:0; border-top:1px solid var(--border-color);">
+        
+        <h3>1. Psicrometria e Evaporação</h3>
+        <p><b>Ponto de Orvalho (Tpo):</b> Baseado na aproximação física de Magnus-Tetens.</p>
+        <div class="eq-block">Tpo = T - ((100 - UR) / 5)</div>
+        
+        <p><b>Delta T (ΔT):</b> Indicador crítico diferencial para pulverização agrícola.</p>
+        <div class="eq-block">ΔT = T - Tpo</div>
+
+        <p><b>Déficit de Pressão de Vapor (DPV):</b> Calcula a pressão de saturação (Es) via Tetens e desconta a UR.</p>
+        <div class="eq-block">
+            Es = 0.6108 * exp((17.27 * T) / (T + 237.3)) <br>
+            DPV = Es * (1 - (UR / 100)) [kPa]
+        </div>
+
+        <h3>2. Astronomia Solar (Coordenadas para Laranjeiras do Sul)</h3>
+        <p><b>Declinação Solar e Ângulo Horário (Ws):</b> Determina a inclinação da terra baseado no Dia do Ano (DoY).</p>
+        <div class="eq-block">
+            Declinação = 23.45 * sin((360 * (284 + DoY)) / 365) <br>
+            Ws = acos(-tan(LatRad) * tan(DecRad))
+        </div>
+        <p><b>Fotoperíodo (N):</b> Duração total teórica de luz em horas.</p>
+        <div class="eq-block">N = (2 * Ws * 180) / (Math.PI * 15)</div>
+
+        <h3>3. Evapotranspiração de Referência (ETo)</h3>
+        <p>Calculada através de radiação teórica senoidal instantânea combinada com o modelo de Makkink.</p>
+        <div class="eq-block">ETo = 0.7 * (Rad_Estimada / 694.4) * (T / (T + 237.3)) [mm/h]</div>
+    </div>
+</div>
+
 <script>
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyzZ9c6WilGHHPJzbnqfZbnhw6Ss4AgmQ3OCbH1Mdz7UCRNpzTQL8qQWO-IJ-xZxUOkvQ/exec"; 
@@ -174,38 +224,35 @@
     let totalHF = 0;
     let totalChuva = 0;
 
-    // Função Astronômica para calcular o fotoperíodo exato com base na latitude do local e dia do ano
+    // Funções de Controle do Modal
+    function openModal() { document.getElementById('eqModal').style.display = "block"; }
+    function closeModal() { document.getElementById('eqModal').style.display = "none"; }
+    window.onclick = function(event) {
+        let modal = document.getElementById('eqModal');
+        if (event.target == modal) { modal.style.display = "none"; }
+    }
+
+    // Função Astronômica para o fotoperíodo
     function calculatePhotoperiod() {
-        const lat = -25.41; // Latitude aproximada da região (Laranjeiras do Sul)
+        const lat = -25.41; 
         const agora = new Date();
-        
-        // Calcular o Dia do Ano (Day of Year)
         const inicioAno = new Date(agora.getFullYear(), 0, 1);
         const difTempo = agora - inicioAno;
         const doy = Math.floor(difTempo / (1000 * 60 * 60 * 24)) + 1;
         
-        // Conversão da latitude para radianos
         const latRad = (lat * Math.PI) / 180;
-        
-        // Declinação solar do dia (Fórmula de Cooper)
         const declinacao = 23.45 * Math.sin(((360 * (284 + doy)) / 365) * Math.PI / 180);
         const decRad = (declinacao * Math.PI) / 180;
         
-        // Cálculo do ângulo horário do pôr do sol (Ws)
         const cosWs = -Math.tan(latRad) * Math.tan(decRad);
-        
-        // Tratamento de limites para extremos polares (segurança matemática)
         if (cosWs >= 1) return 0;
         if (cosWs <= -1) return 24;
         
         const ws = Math.acos(cosWs);
-        
-        // Conversão do ângulo horário em horas de fotoperíodo real
-        const fotoperiodo = (2 * ws * 180) / (Math.PI * 15);
-        return parseFloat(fotoperiodo.toFixed(2));
+        return parseFloat(((2 * ws * 180) / (Math.PI * 15)).toFixed(2));
     }
 
-    // Função para estimar a radiação solar teórica (em W/m²) para o cálculo da ETo
+    // Estimativa de Radiação solar diurna
     function estimateRadiation() {
         const hora = new Date().getHours();
         const minuto = new Date().getMinutes();
@@ -222,7 +269,6 @@
     async function updateSystem() {
         const statusIo = document.getElementById('status_io');
         try {
-            // Coleta dados da Davis
             const resDavis = await fetch('/api/get-weather').then(r => r.text());
             const xml = new DOMParser().parseFromString(resDavis, "text/xml");
             
@@ -230,14 +276,13 @@
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
             const chuvaImediata = parseFloat(xml.getElementsByTagName("rain_in")[0]?.textContent || xml.getElementsByTagName("rain")[0]?.textContent || 0) * 25.4;
 
-            // Coleta dados adicionais via OpenWeatherMap
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
             
             const chuvaOWM = resOWM.rain ? (resOWM.rain['1h'] || 0) : 0;
             const chuvaAtual = chuvaImediata > 0 ? chuvaImediata : chuvaOWM;
 
-            // CÁLCULOS METEOROLÓGICOS E AGRONÔMICOS
+            // Cálculos climáticos
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
@@ -248,11 +293,9 @@
 
             const radCalculada = estimateRadiation();
             const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
-            
-            // Calcula o Fotoperíodo dinamicamente
             const fotoperiodoReal = calculatePhotoperiod();
 
-            // RENDERIZAÇÃO DA INTERFACE (UI SENSORES)
+            // Atualização da UI
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
@@ -265,7 +308,7 @@
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
 
-            // STATUS DE PULVERIZAÇÃO
+            // Lógica do Monitor de pulverização
             const badge = document.getElementById('spray_badge');
             const msgBox = document.getElementById('s_msg');
             let st = "IDEAL", color = "var(--success)";
@@ -276,29 +319,12 @@
             badge.innerText = st; badge.style.background = color;
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
 
-            // LÓGICA DE DOENÇAS
+            // Epidemiologia Dinâmica
             let r_fer = 0, r_mofo = 0, r_mildo = 0, r_cerco = 0;
-
-            if (ur > 50) {
-                let fatorT = (t >= 18 && t <= 26) ? 1.0 : (t > 12 && t < 30) ? 0.5 : 0.1;
-                let fatorUR = (ur - 50) / 50;
-                r_fer = Math.round(fatorT * fatorUR * 100);
-            }
-            if (ur > 60) {
-                let fatorT = (t >= 15 && t <= 21) ? 1.0 : (t >= 10 && t < 25) ? 0.4 : 0.1;
-                let fatorUR = (ur - 60) / 40; 
-                r_mofo = Math.round(fatorT * fatorUR * 100);
-            }
-            if (ur > 70) {
-                let fatorT = (t >= 15 && t <= 22) ? 1.0 : (t >= 8 && t < 27) ? 0.3 : 0.0;
-                let fatorUR = (ur - 70) / 30;
-                r_mildo = Math.round(fatorT * fatorUR * 100);
-            }
-            if (ur > 60) {
-                let fatorT = (t >= 23 && t <= 30) ? 1.0 : (t > 18 && t < 35) ? 0.5 : 0.1;
-                let fatorUR = (ur - 60) / 40;
-                r_cerco = Math.round(fatorT * fatorUR * 100);
-            }
+            if (ur > 50) { r_fer = Math.round(((t >= 18 && t <= 26) ? 1.0 : 0.4) * ((ur - 50) / 50) * 100); }
+            if (ur > 60) { r_mofo = Math.round(((t >= 15 && t <= 21) ? 1.0 : 0.3) * ((ur - 60) / 40) * 100); }
+            if (ur > 70) { r_mildo = Math.round(((t >= 15 && t <= 22) ? 1.0 : 0.2) * ((ur - 70) / 30) * 100); }
+            if (ur > 60) { r_cerco = Math.round(((t >= 23 && t <= 30) ? 1.0 : 0.4) * ((ur - 60) / 40) * 100); }
 
             const risks = {
                 fer: Math.min(Math.max(r_fer, 5), 98),
@@ -306,30 +332,22 @@
                 mildo: Math.min(Math.max(r_mildo, 5), 98),
                 cerco: Math.min(Math.max(r_cerco, 5), 98)
             };
-
             Object.keys(risks).forEach(k => {
                 document.getElementById(`p_${k}`).innerText = risks[k] + "%";
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // DISPARO PARA O GOOGLE SHEETS (Incluindo o fotoperíodo no JSON de envio)
-            fetch(URL_PLANILHA, { 
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto, fotoperiodo: fotoperiodoReal }) 
-            });
+            // Post para o Planilhas
+            fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto, fotoperiodo: fotoperiodoReal }) });
 
-            // ATUALIZAÇÃO DO LOG LOCAL NA TELA
+            // Linha no Log
             const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${fotoperiodoReal}h</td></tr>`);
 
             statusIo.style.color = 'var(--success)';
-        } catch (e) { 
-            statusIo.style.color = 'var(--danger)'; 
-        }
+        } catch (e) { statusIo.style.color = 'var(--danger)'; }
     }
 
-    // EXPORTAR HISTÓRICO EM .CSV (Atualizado com Fotoperíodo)
     function exportCSV() {
         let csv = "Hora,Temp,UR,Chuva_mm,DPV,DeltaT,Vento,Fotoperiodo_h\n";
         document.querySelectorAll("#logTable tr").forEach(tr => {
@@ -341,8 +359,7 @@
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    updateSystem(); 
-    setInterval(updateSystem, 120000);
+    updateSystem(); setInterval(updateSystem, 120000);
 </script>
 </body>
 </html>
