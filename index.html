@@ -121,8 +121,9 @@
     </div>
 
     <div class="card" style="grid-column: span 1;">
-        <h2><i class="fa fa-calculator"></i> Acúmulos</h2>
+        <h2><i class="fa fa-calculator"></i> Acúmulos e Índices</h2>
         <div class="risk-container">
+            <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)"><i class="fa fa-sun"></i> FOTOPERÍODO REAL</span><span class="sensor-value" id="v_foto" style="color:var(--sun)">--</span><span class="sensor-unit">horas</span></div>
             <div class="sensor-box"><span class="sensor-label">ETo ESTIMADA (RAD. TEÓRICA)</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
             <div class="sensor-box"><span class="sensor-label">CHUVA ACUMULADA</span><span class="sensor-value" id="v_rain_acc" style="color:var(--rain)">0.0</span><span class="sensor-unit">mm</span></div>
             <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span></div>
@@ -159,7 +160,7 @@
         </div>
         <div class="table-scroll">
             <table id="logTable">
-                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>CHUVA mm</th><th>DPV</th><th>ΔT</th><th>VENTO</th></tr></thead>
+                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>CHUVA mm</th><th>DPV</th><th>ΔT</th><th>VENTO</th><th>FOTOPERÍODO</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -173,67 +174,98 @@
     let totalHF = 0;
     let totalChuva = 0;
 
-    // Função para estimar a radiação solar (em W/m²) com base na hora do dia
+    // Função Astronômica para calcular o fotoperíodo exato com base na latitude do local e dia do ano
+    function calculatePhotoperiod() {
+        const lat = -25.41; // Latitude aproximada da região (Laranjeiras do Sul)
+        const agora = new Date();
+        
+        // Calcular o Dia do Ano (Day of Year)
+        const inicioAno = new Date(agora.getFullYear(), 0, 1);
+        const difTempo = agora - inicioAno;
+        const doy = Math.floor(difTempo / (1000 * 60 * 60 * 24)) + 1;
+        
+        // Conversão da latitude para radianos
+        const latRad = (lat * Math.PI) / 180;
+        
+        // Declinação solar do dia (Fórmula de Cooper)
+        const declinacao = 23.45 * Math.sin(((360 * (284 + doy)) / 365) * Math.PI / 180);
+        const decRad = (declinacao * Math.PI) / 180;
+        
+        // Cálculo do ângulo horário do pôr do sol (Ws)
+        const cosWs = -Math.tan(latRad) * Math.tan(decRad);
+        
+        // Tratamento de limites para extremos polares (segurança matemática)
+        if (cosWs >= 1) return 0;
+        if (cosWs <= -1) return 24;
+        
+        const ws = Math.acos(cosWs);
+        
+        // Conversão do ângulo horário em horas de fotoperíodo real
+        const fotoperiodo = (2 * ws * 180) / (Math.PI * 15);
+        return parseFloat(fotoperiodo.toFixed(2));
+    }
+
+    // Função para estimar a radiação solar teórica (em W/m²) para o cálculo da ETo
     function estimateRadiation() {
         const hora = new Date().getHours();
         const minuto = new Date().getMinutes();
         const tempoDecimal = hora + (minuto / 60);
         
-        // Janela do dia útil para radiação solar (6h às 18h)
         if (tempoDecimal >= 6 && tempoDecimal <= 18) {
-            // Curva senoidal simulando o pico de radiação ao meio dia (~12h = 800 W/m²)
             const amplitudeMax = 800; 
             const radEstimada = amplitudeMax * Math.sin((Math.PI * (tempoDecimal - 6)) / 12);
             return parseFloat(radEstimada.toFixed(1));
         }
-        return 0; // Noite
+        return 0;
     }
 
     async function updateSystem() {
         const statusIo = document.getElementById('status_io');
         try {
+            // Coleta dados da Davis
             const resDavis = await fetch('/api/get-weather').then(r => r.text());
             const xml = new DOMParser().parseFromString(resDavis, "text/xml");
             
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
-            
-            // Tenta pegar dados de precipitação (chuva de hora em hora ou diária) da Davis
-            const chuvaImediata = parseFloat(xml.getElementsByTagName("rain_in")[0]?.textContent || xml.getElementsByTagName("rain")[0]?.textContent || 0) * 25.4; // Converte polegadas para mm se necessário
+            const chuvaImediata = parseFloat(xml.getElementsByTagName("rain_in")[0]?.textContent || xml.getElementsByTagName("rain")[0]?.textContent || 0) * 25.4;
 
+            // Coleta dados adicionais via OpenWeatherMap
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
             
-            // Se a Davis falhar na chuva, tenta ler do OpenWeatherMap secundariamente
             const chuvaOWM = resOWM.rain ? (resOWM.rain['1h'] || 0) : 0;
             const chuvaAtual = chuvaImediata > 0 ? chuvaImediata : chuvaOWM;
 
-            // CÁLCULOS
+            // CÁLCULOS METEOROLÓGICOS E AGRONÔMICOS
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = (es * (1 - (ur / 100))).toFixed(3);
             
             if (t <= 7.2) totalHF += (2/60);
-            if (chuvaAtual > 0) totalChuva += chuvaAtual; // Incrementa acúmulo de chuva na sessão
+            if (chuvaAtual > 0) totalChuva += chuvaAtual;
 
-            // CÁLCULO DA ETo UTILIZANDO A RADIAÇÃO ESTIMADA TEÓRICA
             const radCalculada = estimateRadiation();
             const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
+            
+            // Calcula o Fotoperíodo dinamicamente
+            const fotoperiodoReal = calculatePhotoperiod();
 
-            // UI SENSORES
+            // RENDERIZAÇÃO DA INTERFACE (UI SENSORES)
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
             document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
             document.getElementById('v_rain_acc').innerText = totalChuva.toFixed(1);
             document.getElementById('v_dpv').innerText = dpv;
             document.getElementById('v_eto').innerText = eto;
+            document.getElementById('v_foto').innerText = fotoperiodoReal.toFixed(2);
             document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
             document.getElementById('v_hf').innerText = totalHF.toFixed(1);
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
 
-            // PULVERIZAÇÃO
+            // STATUS DE PULVERIZAÇÃO
             const badge = document.getElementById('spray_badge');
             const msgBox = document.getElementById('s_msg');
             let st = "IDEAL", color = "var(--success)";
@@ -245,29 +277,61 @@
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
 
             // LÓGICA DE DOENÇAS
+            let r_fer = 0, r_mofo = 0, r_mildo = 0, r_cerco = 0;
+
+            if (ur > 50) {
+                let fatorT = (t >= 18 && t <= 26) ? 1.0 : (t > 12 && t < 30) ? 0.5 : 0.1;
+                let fatorUR = (ur - 50) / 50;
+                r_fer = Math.round(fatorT * fatorUR * 100);
+            }
+            if (ur > 60) {
+                let fatorT = (t >= 15 && t <= 21) ? 1.0 : (t >= 10 && t < 25) ? 0.4 : 0.1;
+                let fatorUR = (ur - 60) / 40; 
+                r_mofo = Math.round(fatorT * fatorUR * 100);
+            }
+            if (ur > 70) {
+                let fatorT = (t >= 15 && t <= 22) ? 1.0 : (t >= 8 && t < 27) ? 0.3 : 0.0;
+                let fatorUR = (ur - 70) / 30;
+                r_mildo = Math.round(fatorT * fatorUR * 100);
+            }
+            if (ur > 60) {
+                let fatorT = (t >= 23 && t <= 30) ? 1.0 : (t > 18 && t < 35) ? 0.5 : 0.1;
+                let fatorUR = (ur - 60) / 40;
+                r_cerco = Math.round(fatorT * fatorUR * 100);
+            }
+
             const risks = {
-                fer: (t > 18 && t < 26 && ur > 80) ? 85 : 12,
-                mofo: (t < 21 && ur > 85) ? 90 : 18,
-                mildo: (t < 22 && ur > 90) ? 70 : 8,
-                cerco: (t > 24 && ur > 85) ? 65 : 15
+                fer: Math.min(Math.max(r_fer, 5), 98),
+                mofo: Math.min(Math.max(r_mofo, 5), 98),
+                mildo: Math.min(Math.max(r_mildo, 5), 98),
+                cerco: Math.min(Math.max(r_cerco, 5), 98)
             };
+
             Object.keys(risks).forEach(k => {
                 document.getElementById(`p_${k}`).innerText = risks[k] + "%";
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // ENVIO PARA O GOOGLE SHEETS (Substituído rad por chuva no envio)
-            fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto }) });
+            // DISPARO PARA O GOOGLE SHEETS (Incluindo o fotoperíodo no JSON de envio)
+            fetch(URL_PLANILHA, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto, fotoperiodo: fotoperiodoReal }) 
+            });
 
+            // ATUALIZAÇÃO DO LOG LOCAL NA TELA
             const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td></tr>`);
+            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${fotoperiodoReal}h</td></tr>`);
 
             statusIo.style.color = 'var(--success)';
-        } catch (e) { statusIo.style.color = 'var(--danger)'; }
+        } catch (e) { 
+            statusIo.style.color = 'var(--danger)'; 
+        }
     }
 
+    // EXPORTAR HISTÓRICO EM .CSV (Atualizado com Fotoperíodo)
     function exportCSV() {
-        let csv = "Hora,Temp,UR,Chuva_mm,DPV,DeltaT,Vento\n";
+        let csv = "Hora,Temp,UR,Chuva_mm,DPV,DeltaT,Vento,Fotoperiodo_h\n";
         document.querySelectorAll("#logTable tr").forEach(tr => {
             const row = Array.from(tr.querySelectorAll("td")).map(td => td.innerText).join(",");
             if(row) csv += row + "\n";
@@ -277,7 +341,8 @@
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    updateSystem(); setInterval(updateSystem, 120000);
+    updateSystem(); 
+    setInterval(updateSystem, 120000);
 </script>
 </body>
 </html>
