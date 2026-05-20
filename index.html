@@ -13,6 +13,7 @@
             --border-color: rgba(255, 255, 255, 0.08);
             --accent: #00e5ff;
             --sun: #ffaa00;
+            --rain: #2196f3;
             --success: #00ff88;
             --warning: #f1e05a;
             --danger: #ff4d4d;
@@ -114,7 +115,7 @@
         <div class="sensor-grid">
             <div class="sensor-box"><span class="sensor-label">TEMP. AR</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
             <div class="sensor-box"><span class="sensor-label">UMID. REL.</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
-            <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)">RADIAÇÃO</span><span class="sensor-value" id="v_rad" style="color:var(--sun)">--</span><span class="sensor-unit">W/m²</span></div>
+            <div class="sensor-box" style="border-color: var(--rain);"><span class="sensor-label" style="color:var(--rain)">PRECIPITAÇÃO IMED.</span><span class="sensor-value" id="v_rain" style="color:var(--rain)">--</span><span class="sensor-unit">mm</span></div>
             <div class="sensor-box"><span class="sensor-label">DPV VAPOR</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
         </div>
     </div>
@@ -122,7 +123,8 @@
     <div class="card" style="grid-column: span 1;">
         <h2><i class="fa fa-calculator"></i> Acúmulos</h2>
         <div class="risk-container">
-            <div class="sensor-box"><span class="sensor-label">ETo ESTIMADA</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
+            <div class="sensor-box"><span class="sensor-label">ETo ESTIMADA (RAD. TEÓRICA)</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
+            <div class="sensor-box"><span class="sensor-label">CHUVA ACUMULADA</span><span class="sensor-value" id="v_rain_acc" style="color:var(--rain)">0.0</span><span class="sensor-unit">mm</span></div>
             <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span></div>
             <div class="sensor-box"><span class="sensor-label">HORAS FRIO</span><span class="sensor-value" id="v_hf">0.0</span></div>
         </div>
@@ -157,7 +159,7 @@
         </div>
         <div class="table-scroll">
             <table id="logTable">
-                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>RAD</th><th>DPV</th><th>ΔT</th><th>VENTO</th></tr></thead>
+                <thead><tr><th>HORA</th><th>TEMP</th><th>UR%</th><th>CHUVA mm</th><th>DPV</th><th>ΔT</th><th>VENTO</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -169,6 +171,23 @@
     const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyzZ9c6WilGHHPJzbnqfZbnhw6Ss4AgmQ3OCbH1Mdz7UCRNpzTQL8qQWO-IJ-xZxUOkvQ/exec"; 
     
     let totalHF = 0;
+    let totalChuva = 0;
+
+    // Função para estimar a radiação solar (em W/m²) com base na hora do dia
+    function estimateRadiation() {
+        const hora = new Date().getHours();
+        const minuto = new Date().getMinutes();
+        const tempoDecimal = hora + (minuto / 60);
+        
+        // Janela do dia útil para radiação solar (6h às 18h)
+        if (tempoDecimal >= 6 && tempoDecimal <= 18) {
+            // Curva senoidal simulando o pico de radiação ao meio dia (~12h = 800 W/m²)
+            const amplitudeMax = 800; 
+            const radEstimada = amplitudeMax * Math.sin((Math.PI * (tempoDecimal - 6)) / 12);
+            return parseFloat(radEstimada.toFixed(1));
+        }
+        return 0; // Noite
+    }
 
     async function updateSystem() {
         const statusIo = document.getElementById('status_io');
@@ -178,25 +197,35 @@
             
             const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 0);
             const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 0);
-            const rad = parseFloat(xml.getElementsByTagName("solar_radiation")[0]?.textContent || xml.getElementsByTagName("solarrad")[0]?.textContent || 0);
-            const pressTag = xml.getElementsByTagName("pressure_mb")[0] || xml.getElementsByTagName("barometer")[0];
-            const press = pressTag ? pressTag.textContent : "---";
+            
+            // Tenta pegar dados de precipitação (chuva de hora em hora ou diária) da Davis
+            const chuvaImediata = parseFloat(xml.getElementsByTagName("rain_in")[0]?.textContent || xml.getElementsByTagName("rain")[0]?.textContent || 0) * 25.4; // Converte polegadas para mm se necessário
 
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
             const wind = (resOWM.wind.speed * 3.6).toFixed(1);
+            
+            // Se a Davis falhar na chuva, tenta ler do OpenWeatherMap secundariamente
+            const chuvaOWM = resOWM.rain ? (resOWM.rain['1h'] || 0) : 0;
+            const chuvaAtual = chuvaImediata > 0 ? chuvaImediata : chuvaOWM;
 
             // CÁLCULOS
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = (es * (1 - (ur / 100))).toFixed(3);
+            
             if (t <= 7.2) totalHF += (2/60);
-            const eto = (rad > 0) ? (0.7 * (rad / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
+            if (chuvaAtual > 0) totalChuva += chuvaAtual; // Incrementa acúmulo de chuva na sessão
+
+            // CÁLCULO DA ETo UTILIZANDO A RADIAÇÃO ESTIMADA TEÓRICA
+            const radCalculada = estimateRadiation();
+            const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
 
             // UI SENSORES
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur;
-            document.getElementById('v_rad').innerText = rad;
+            document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
+            document.getElementById('v_rain_acc').innerText = totalChuva.toFixed(1);
             document.getElementById('v_dpv').innerText = dpv;
             document.getElementById('v_eto').innerText = eto;
             document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
@@ -215,7 +244,7 @@
             badge.innerText = st; badge.style.background = color;
             document.getElementById('s_inv').innerText = wind < 3 ? "ALTA" : "NULA";
 
-            // LÓGICA DE DOENÇAS (Favorabilidade baseada em T e UR)
+            // LÓGICA DE DOENÇAS
             const risks = {
                 fer: (t > 18 && t < 26 && ur > 80) ? 85 : 12,
                 mofo: (t < 21 && ur > 85) ? 90 : 18,
@@ -227,18 +256,18 @@
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // ENVIO PARA O GOOGLE SHEETS
-            fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, rad: rad, dt: dt, wind: wind, eto: eto }) });
+            // ENVIO PARA O GOOGLE SHEETS (Substituído rad por chuva no envio)
+            fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto }) });
 
             const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${rad}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td></tr>`);
+            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td></tr>`);
 
             statusIo.style.color = 'var(--success)';
         } catch (e) { statusIo.style.color = 'var(--danger)'; }
     }
 
     function exportCSV() {
-        let csv = "Hora,Temp,UR,Rad,DPV,DeltaT,Vento\n";
+        let csv = "Hora,Temp,UR,Chuva_mm,DPV,DeltaT,Vento\n";
         document.querySelectorAll("#logTable tr").forEach(tr => {
             const row = Array.from(tr.querySelectorAll("td")).map(td => td.innerText).join(",");
             if(row) csv += row + "\n";
