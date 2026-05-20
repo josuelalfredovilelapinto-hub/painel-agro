@@ -13,6 +13,7 @@
             --border-color: rgba(255, 255, 255, 0.08);
             --accent: #00e5ff;
             --sun: #ffaa00;
+            --moon: #e0e0e0;
             --rain: #2196f3;
             --success: #00ff88;
             --warning: #f1e05a;
@@ -62,6 +63,13 @@
         .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.4rem; font-weight: 700; color: #fff; }
         .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
 
+        /* Estilo do Calendário Compacto */
+        .calendar-strip { display: flex; gap: 8px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto; }
+        .cal-day { flex: 1; text-align: center; padding: 6px; border-radius: 6px; min-width: 45px; background: rgba(0,0,0,0.2); border: 1px solid transparent; }
+        .cal-day.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; font-weight: bold; }
+        .cal-day small { display: block; font-size: 0.55rem; text-transform: uppercase; color: var(--text-sub); }
+        .cal-day span { display: block; font-size: 1.1rem; font-family: 'JetBrains Mono'; }
+
         .risk-container { display: flex; flex-direction: column; gap: 12px; }
         .risk-row { margin-bottom: 5px; }
         .risk-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; }
@@ -77,15 +85,8 @@
         th { background: #161b22; padding: 12px; text-align: center; font-size: 0.7rem; color: var(--text-sub); position: sticky; top: 0; }
         td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; }
 
-        /* Estilos do Modal de Equações */
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); overflow-y: auto;
-        }
-        .modal-content {
-            background-color: #0d1117; margin: 5% auto; padding: 30px; border: 1px solid var(--accent);
-            border-radius: 12px; width: 80%; max-width: 900px; color: var(--text-main); box-shadow: 0 0 20px rgba(0,229,255,0.2);
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); overflow-y: auto; }
+        .modal-content { background-color: #0d1117; margin: 5% auto; padding: 30px; border: 1px solid var(--accent); border-radius: 12px; width: 80%; max-width: 900px; color: var(--text-main); box-shadow: 0 0 20px rgba(0,229,255,0.2); }
         .close-btn { color: var(--text-sub); float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
         .close-btn:hover { color: var(--danger); }
         .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 15px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; }
@@ -126,23 +127,27 @@
     </div>
 
     <div class="card" style="grid-column: span 1.5;">
-        <h2><i class="fa fa-microchip"></i> Telemetria Atmosférica</h2>
+        <h2><i class="fa fa-microchip"></i> Telemetria Atmosférica & Celeste</h2>
         <div class="sensor-grid">
             <div class="sensor-box"><span class="sensor-label">TEMP. AR (DAVIS)</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
             <div class="sensor-box"><span class="sensor-label">UMID. REL. (DAVIS)</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
             <div class="sensor-box" style="border-color: var(--rain);"><span class="sensor-label" style="color:var(--rain)">PRECIPITAÇÃO IMED.</span><span class="sensor-value" id="v_rain" style="color:var(--rain)">--</span><span class="sensor-unit">mm</span></div>
             <div class="sensor-box"><span class="sensor-label">DPV VAPOR</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
+            
+            <div class="sensor-box" style="border-color: rgba(255,170,0,0.3);"><span class="sensor-label" style="color:var(--sun)"><i class="fa fa-sun"></i> DECLINAÇÃO SOLAR</span><span class="sensor-value" id="v_dec" style="font-size:1.1rem; color:var(--sun);">--</span><span class="sensor-unit">°</span></div>
+            <div class="sensor-box" style="border-color: rgba(224,224,224,0.3);"><span class="sensor-label" style="color:var(--moon)"><i id="moon_icon" class="fa fa-moon"></i> FASE DA LUA</span><span class="sensor-value" id="v_luna" style="font-size:1.1rem; color:var(--moon);">--</span></div>
         </div>
     </div>
 
     <div class="card" style="grid-column: span 1;">
-        <h2><i class="fa fa-calculator"></i> Acúmulos e Índices</h2>
+        <h2><i class="fa fa-calendar-alt"></i> Calendário & Índices</h2>
         <div class="risk-container">
-            <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)"><i class="fa fa-sun"></i> FOTOPERÍODO REAL</span><span class="sensor-value" id="v_foto" style="color:var(--sun)">--</span><span class="sensor-unit">horas</span></div>
+            <div class="calendar-strip" id="calendar_strip"></div>
+            
+            <div class="sensor-box" style="border-color: var(--sun);"><span class="sensor-label" style="color:var(--sun)"><i class="fa fa-clock"></i> FOTOPERÍODO REAL</span><span class="sensor-value" id="v_foto" style="color:var(--sun)">--</span><span class="sensor-unit">horas</span></div>
             <div class="sensor-box"><span class="sensor-label">ETo ESTIMADA (RAD. TEÓRICA)</span><span class="sensor-value" id="v_eto">--</span><span class="sensor-unit">mm/h</span></div>
             <div class="sensor-box"><span class="sensor-label">CHUVA ACUMULADA</span><span class="sensor-value" id="v_rain_acc" style="color:var(--rain)">0.0</span><span class="sensor-unit">mm</span></div>
             <div class="sensor-box"><span class="sensor-label">GRAUS-DIA (GD)</span><span class="sensor-value" id="v_gd">--</span></div>
-            <div class="sensor-box"><span class="sensor-label">HORAS FRIO</span><span class="sensor-value" id="v_hf">0.0</span></div>
         </div>
     </div>
 
@@ -210,10 +215,6 @@
         </div>
         <p><b>Fotoperíodo (N):</b> Duração total teórica de luz em horas.</p>
         <div class="eq-block">N = (2 * Ws * 180) / (Math.PI * 15)</div>
-
-        <h3>3. Evapotranspiração de Referência (ETo)</h3>
-        <p>Calculada através de radiação teórica senoidal instantânea combinada com o modelo de Makkink.</p>
-        <div class="eq-block">ETo = 0.7 * (Rad_Estimada / 694.4) * (T / (T + 237.3)) [mm/h]</div>
     </div>
 </div>
 
@@ -224,22 +225,60 @@
     let totalHF = 0;
     let totalChuva = 0;
 
-    // Funções de Controle do Modal
     function openModal() { document.getElementById('eqModal').style.display = "block"; }
     function closeModal() { document.getElementById('eqModal').style.display = "none"; }
-    window.onclick = function(event) {
-        let modal = document.getElementById('eqModal');
-        if (event.target == modal) { modal.style.display = "none"; }
+
+    // Gerador de Calendário Inline (Exibe 5 dias centrados no dia de hoje)
+    function buildCalendar() {
+        const strip = document.getElementById('calendar_strip');
+        strip.innerHTML = '';
+        const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        
+        for (let i = -2; i <= 2; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+            
+            const dayClass = i === 0 ? 'cal-day active' : 'cal-day';
+            strip.innerHTML += `
+                <div class="${dayClass}">
+                    <small>${diasSemana[d.getDay()]}</small>
+                    <span>${d.getDate()}</span>
+                </div>
+            `;
+        }
     }
 
-    // Função Astronômica para o fotoperíodo
-    function calculatePhotoperiod() {
-        const lat = -25.41; 
+    // Função de Cálculo Astronômico da Lua (Ciclo Sinódico aproximado)
+    function getMoonPhase() {
         const agora = new Date();
-        const inicioAno = new Date(agora.getFullYear(), 0, 1);
-        const difTempo = agora - inicioAno;
-        const doy = Math.floor(difTempo / (1000 * 60 * 60 * 24)) + 1;
+        // Referência estável: 06 de Janeiro de 2000 foi uma Lua Nova
+        const refDate = new Date(2000, 0, 6); 
+        const cicloSinodico = 29.530588853;
         
+        const diffInMs = agora - refDate;
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+        const idadeDaLua = diffInDays % cicloSinodico;
+        
+        const icon = document.getElementById('moon_icon');
+        
+        if (idadeDaLua < 1.84) { icon.className = "fa-solid fa-moon"; return "Nova"; }
+        else if (idadeDaLua < 5.53) { icon.className = "fa-solid fa-moon-cloud"; return "Crescente C."; }
+        else if (idadeDaLua < 9.22) { icon.className = "fa-solid fa-circle-half-stroke"; return "Quarto Cres."; }
+        else if (idadeDaLua < 12.91) { icon.className = "fa-solid fa-moon"; return "Gibosa Cres."; }
+        else if (idadeDaLua < 16.60) { icon.className = "fa-solid fa-circle"; return "Cheia"; }
+        else if (idadeDaLua < 20.29) { icon.className = "fa-solid fa-moon"; return "Gibosa Ming."; }
+        else if (idadeDaLua < 23.98) { icon.className = "fa-solid fa-circle-half-stroke"; return "Quarto Ming."; }
+        else if (idadeDaLua < 27.68) { icon.className = "fa-solid fa-moon-cloud"; return "Minguante C."; }
+        else { icon.className = "fa-solid fa-moon"; return "Nova"; }
+    }
+
+    // Calcula a declinação solar isolada para exibição
+    function getSolarDeclination(doy) {
+        return parseFloat((23.45 * Math.sin(((360 * (284 + doy)) / 365) * Math.PI / 180)).toFixed(2));
+    }
+
+    function calculatePhotoperiod(doy) {
+        const lat = -25.41; 
         const latRad = (lat * Math.PI) / 180;
         const declinacao = 23.45 * Math.sin(((360 * (284 + doy)) / 365) * Math.PI / 180);
         const decRad = (declinacao * Math.PI) / 180;
@@ -252,7 +291,6 @@
         return parseFloat(((2 * ws * 180) / (Math.PI * 15)).toFixed(2));
     }
 
-    // Estimativa de Radiação solar diurna
     function estimateRadiation() {
         const hora = new Date().getHours();
         const minuto = new Date().getMinutes();
@@ -282,7 +320,11 @@
             const chuvaOWM = resOWM.rain ? (resOWM.rain['1h'] || 0) : 0;
             const chuvaAtual = chuvaImediata > 0 ? chuvaImediata : chuvaOWM;
 
-            // Cálculos climáticos
+            // Cálculos climáticos e de calendário
+            const agora = new Date();
+            const inicioAno = new Date(agora.getFullYear(), 0, 1);
+            const doy = Math.floor((agora - inicioAno) / (1000 * 60 * 60 * 24)) + 1;
+
             const dew = (t - ((100 - ur) / 5)).toFixed(1);
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
@@ -293,7 +335,9 @@
 
             const radCalculada = estimateRadiation();
             const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : "0.000";
-            const fotoperiodoReal = calculatePhotoperiod();
+            const fotoperiodoReal = calculatePhotoperiod(doy);
+            const declinacaoSolar = getSolarDeclination(doy);
+            const faseLua = getMoonPhase();
 
             // Atualização da UI
             document.getElementById('v_t').innerText = t.toFixed(1);
@@ -303,10 +347,13 @@
             document.getElementById('v_dpv').innerText = dpv;
             document.getElementById('v_eto').innerText = eto;
             document.getElementById('v_foto').innerText = fotoperiodoReal.toFixed(2);
+            document.getElementById('v_dec').innerText = declinacaoSolar > 0 ? `+${declinacaoSolar}` : declinacaoSolar;
+            document.getElementById('v_luna').innerText = faseLua;
             document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
-            document.getElementById('v_hf').innerText = totalHF.toFixed(1);
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
+
+            buildCalendar(); // Atualiza o mini calendário
 
             // Lógica do Monitor de pulverização
             const badge = document.getElementById('spray_badge');
@@ -337,11 +384,9 @@
                 document.getElementById(`b_${k}`).style.width = risks[k] + "%";
             });
 
-            // Post para o Planilhas
             fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto, fotoperiodo: fotoperiodoReal }) });
 
-            // Linha no Log
-            const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            const now = agora.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${fotoperiodoReal}h</td></tr>`);
 
             statusIo.style.color = 'var(--success)';
@@ -359,7 +404,8 @@
     }
 
     setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-    updateSystem(); setInterval(updateSystem, 120000);
+    updateSystem(); 
+    setInterval(updateSystem, 120000);
 </script>
 </body>
 </html>
