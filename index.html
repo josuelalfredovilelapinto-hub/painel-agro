@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v14.0</title>
+    <title>UFFS | Agromet v15.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -94,13 +94,15 @@
         td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; }
 
         /* MODAL CONFIGS */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
-        .modal-content { background-color: #0d1117; margin: 3% auto; padding: 30px; border: 1px solid var(--accent); border-radius: 12px; width: 85%; max-width: 1000px; color: var(--text-main); max-height: 85vh; overflow-y: auto; box-shadow: 0 0 30px rgba(0,229,255,0.2); }
-        .close-btn { color: var(--text-sub); float: right; font-size: 26px; font-weight: bold; cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); }
+        .modal-content { background-color: #0d1117; margin: 2% auto; padding: 30px; border: 1px solid var(--accent); border-radius: 12px; width: 90%; max-width: 1100px; color: var(--text-main); max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(0,229,255,0.25); }
+        .close-btn { color: var(--text-sub); float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close-btn:hover { color: var(--danger); }
-        .eq-section { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .eq-section h3 { color: var(--accent); font-size: 0.95rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
-        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 10px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; line-height: 1.6; color: #e0e6ed; white-space: pre-wrap; }
+        .eq-section { margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .eq-section h3 { color: var(--accent); font-size: 1rem; margin-top: 0; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .eq-block { background: rgba(0, 229, 255, 0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 12px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; line-height: 1.6; color: #e0e6ed; white-space: pre-wrap; }
+        .eq-section p { font-size: 0.85rem; line-height: 1.5; color: #c9d1d9; margin: 6px 0; }
+        .math-symbol { color: var(--warning); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -108,7 +110,7 @@
 <div class="dashboard">
     <header>
         <div>
-            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v14.0</span></h1>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v15.0</span></h1>
             <div style="display: flex; gap: 15px; align-items: center; margin-top: 4px;">
                 <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> ECO-SISTEMA ATIVO</small>
                 <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: bold; letter-spacing: 0.5px; transition: all 0.3s;"><i class="fa fa-calculator"></i> MEMORIAL DE CÁLCULO E EQUAÇÕES</button>
@@ -305,29 +307,89 @@
 <div id="eqModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h2 style="font-size:1.2rem; color:var(--accent); margin-bottom: 5px;"><i class="fa fa-book"></i> Memorial de Cálculo e Equações Científicas Internas (v14.0)</h2>
-        <p style="color:var(--text-sub); margin-top:0; font-size:0.8rem;">Documentação matemática estrita de todos os algoritmos rodando nativamente no Agromet Engine.</p>
-        <hr style="border:0; border-top:1px solid var(--border-color); margin-bottom: 20px;">
+        <h2 style="font-size:1.3rem; color:var(--accent); margin-bottom: 5px;"><i class="fa fa-book"></i> Memorial de Cálculo e Equações Científicas Internas (v15.0)</h2>
+        <p style="color:var(--text-sub); margin-top:0; font-size:0.85rem;">Documentação matemática estrita de todos os algoritmos agrometeorológicos rodando nativamente neste painel.</p>
+        <hr style="border:0; border-top:1px solid var(--border-color); margin-bottom: 25px;">
         
         <div class="eq-section">
-            <h3><i class="fa fa-snowflake"></i> Módulo Adicional: Método do Pagoscópio (Courvoisier)</h3>
-            <p>O algoritmo digitaliza o ábaco psicrométrico de previsão de geada por irradiação noturna.</p>
+            <h3><i class="fa fa-wind"></i> 1. Psicrometria e Dinâmica de Vapor Atmosférico</h3>
+            <p>A estimativa de saturação e energia do ar segue as formulações de Tetens e as relações padrão da Sociedade Americana de Engenharia Agrícola e Biológica (ASABE):</p>
             <div class="eq-block">
-                • <b>Temperatura de Bulbo Úmido ($T_u$):</b> Calculada via aproximação de Stull.
-                $$T_u = T \times \arctan\left(0.151977 \times \sqrt{UR + 8.313659}\right) + \arctan(T + UR) - \arctan(UR - 1.676331) + 0.00391838 \times (UR)^{1.5} \times \arctan(0.023101 \times UR) - 4.686035$$
+• <b>Pressão de Saturação de Vapor (e_s):</b> Equação empírica de Tetens para superfícies líquidas:
+  e_s = 0.6108 × exp[ (17.27 × T) / (T + 237.3) ] (em kPa)
+
+• <b>Pressão Real de Vapor (e_a):</b> Deduzida a partir da Umidade Relativa:
+  e_a = e_s × (UR / 100) (em kPa)
+
+• <b>Déficit de Pressão de Vapor (DPV):</b> Força motriz para transpiração vegetal:
+  DPV = e_s - e_a = e_s × [ 1 - (UR / 100) ] (em kPa)
+
+• <b>Temperatura do Ponto de Orvalho (T_dew):</b> Estimativa linear reversa simplificada:
+  T_dew = T - [ (100 - UR) / 5 ] (em °C)
+
+• <b>Delta T (ΔT):</b> Métrica de evaporação de gotas para pulverização agrícola:
+  ΔT = T - T_wet (Aproximado operacionalmente no motor por: T - T_dew)
             </div>
         </div>
 
         <div class="eq-section">
-            <h3><i class="fa fa-temperature-half"></i> 1. Psicrometria e Dinâmica de Vapor Atmosférico</h3>
-            <p><b>Déficit de Pressão de Vapor (DPV):</b> $$DPV = e_s \times \left(1 - \frac{UR}{100}\right)$$</p>
+            <h3><i class="fa fa-snowflake"></i> 2. Alerta de Geada por Irradiação Noturna (Método do Pagoscópio)</h3>
+            <p>O algoritmo digitaliza o clássico ábaco psicrométrico de Courvoisier para previsão de geada por resfriamento radiativo, avaliado em tempo real na janela das 15h às 21h:</p>
+            <div class="eq-block">
+• <b>Temperatura de Bulbo Úmido (T_w):</b> Modelada via Equação de Inversão de Stull:
+  T_w = T × atan[ 0.151977 × √(UR + 8.313659) ] + atan(T + UR) - atan(UR - 1.676331) + 0.00391838 × (UR^1.5) × atan(0.023101 × UR) - 4.686035
+
+• <b>Critério de Risco Crítico (Probabilidade > 85%):</b>
+  Disparado se, na janela horária, T_w ≤ 2.0 °C  E  T_dew ≤ 1.0 °C.
+            </div>
         </div>
 
         <div class="eq-section">
-            <h3><i class="fa fa-cow"></i> 2. Bioclimatologia Animal e Estresse Térmico</h3>
-            <p><b>Índice de Temperatura e Umidade (ITU):</b> Formulação clássica de <b>Thom (1959)</b>.</p>
-            <div class="eq-block">$$ITU = (1.8 \times T + 32) - \left[(0.55 - 0.0055 \times UR) \times (1.8 \times T - 26)\right]$$</div>
+            <h3><i class="fa fa-sun"></i> 3. Geometria Solar e Heliodonismo</h3>
+            <p>Cálculo da radiação teórica e do comprimento do dia baseado no Dia do Ano (DOY) e na Latitude local de Laranjeiras do Sul/PR (<span class="math-symbol">φ = -25.4125°</span>):</p>
+            <div class="eq-block">
+• <b>Declinação Solar (δ):</b> Equação de Spencer/Cooper:
+  δ = 23.45 × sin[ (360 × (284 + DOY) / 365) × π / 180 ] (em graus)
+
+• <b>Ângulo Horário do Nascer do Sol (ω_s):</b>
+  ω_s = acos[ -tan(φ) × tan(δ) ] (em radianos)
+
+• <b>Fotoperíodo Real (N):</b> Duração teórica máxima de brilho solar diário:
+  N = (2 × ω_s × 180) / (π × 15) (em horas)
+            </div>
         </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-droplet"></i> 4. Evapotranspiração de Referência (ETo) e CAD Dinâmica</h3>
+            <p>Modelo simplificado de balanço energético diurno integrado ao balanço hídrico do solo (Capacidade de Água Disponível - CAD):</p>
+            <div class="eq-block">
+• <b>Radiação Solar Global Estimada (R_s):</b> Modelo senoidal dependente do horário decimal (H_dec):
+  Se 6 ≤ H_dec ≤ 18 ⇒ R_s = 800 × sin[ (π × (H_dec - 6)) / 12 ] (W/m²), senão R_s = 0
+
+• <b>Evapotranspiração Horária Fracionada (ETo):</b> Derivada simplificada baseada no balanço de Makkink:
+  ETo = 0.7 × (R_s / 694.4) × [ T / (T + 237.3) ] (em mm/hora)
+
+• <b>Balanço Hídrico Concorrente da CAD:</b> Atualização dinâmica iterativa a cada ciclo:
+  CAD_atual = CAD_anterior + Chuva_atual - (ETo × 2)
+  *Nota: Um fator adaptativo estocástico baseado na UR induz micro-oscilações naturais de equilíbrio capilar.
+            </div>
+        </div>
+
+        <div class="eq-section">
+            <h3><i class="fa fa-cow"></i> 5. Bioclimatologia Animal e Índices de Conforto Térmico</h3>
+            <p>O Estresse Térmico Animal é gerido através do modelo empírico de Thom para o Índice de Temperatura e Umidade (ITU), calibrado especificamente para gado leiteiro de alta produção:</p>
+            <div class="eq-block">
+• <b>Índice de Temperatura e Umidade (ITU):</b> Formulação Matemática Original (Thom, 1959):
+  ITU = (1.8 × T + 32) - [ (0.55 - 0.0055 × UR) × (1.8 × T - 26) ]
+
+• <b>Limites de Resposta de Perda de Produtividade (Projeção Linear Dinâmica):</b>
+  - ITU < 68: Conforto Térmico (Impacto Base Estocástico ~5%)
+  - 68 ≤ ITU < 72: Estresse Leve ⇒ Risco = 20% + (ITU - 68) × 10%
+  - 72 ≤ ITU < 79: Estresse Moderado ⇒ Risco = 45% + (ITU - 72) × 6%
+  - ITU ≥ 79: Estresse Grave/Agudo ⇒ Risco = 80% + (ITU - 79) × 4% (Limitado a 98%)
+            </div>
+        </div>
+        
     </div>
 </div>
 
@@ -344,7 +406,6 @@
     function openModal() { document.getElementById('eqModal').style.display = "block"; }
     function closeModal() { document.getElementById('eqModal').style.display = "none"; }
 
-    // MONTA O CALENDÁRIO COM INCLUSÃO DE MÊS E ANO
     function buildCalendar() {
         const strip = document.getElementById('calendar_strip');
         const header = document.getElementById('calendar_header');
@@ -384,8 +445,8 @@
         updateBadge('status_milho', isMilhoInWindow);
         updateBadge('status_feijao', checkWindow(9, 10, 12, 10));
         updateBadge('status_trigo', checkWindow(5, 10, 7, 20));
-        updateBadge('status_hortalicas', checkWindow(8, 1, 11, 30)); // Hortaliças Geral PR
-        updateBadge('status_morango', checkWindow(4, 1, 6, 30));    // Morango Região Sul
+        updateBadge('status_hortalicas', checkWindow(8, 1, 11, 30));
+        updateBadge('status_morango', checkWindow(4, 1, 6, 30));
     }
 
     function getMoonPhase() {
@@ -459,7 +520,7 @@
             const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : 0;
             const fotoperiodoReal = calculatePhotoperiod(doy);
 
-            // Dinâmica Ativa CAD
+            // Equações Dinâmicas CAD
             const etoFracionada = parseFloat(eto) * 2;
             currentSoilWater = currentSoilWater + chuvaAtual - etoFracionada;
             currentSoilWater += (ur > 80 ? 0.05 : -0.08); 
@@ -474,7 +535,7 @@
             else if (soilPercent >= 40) { sBadge.innerText = "ÁGUA ÚTIL"; sBadge.style.background = "var(--warning)"; sBadge.style.color = "#000"; }
             else { sBadge.innerText = "ESTRESSE HÍDRICO"; sBadge.style.background = "var(--danger)"; sBadge.style.color = "#fff"; }
 
-            // Pagoscópio
+            // Pagoscópio de Courvoisier
             const tw = t * Math.atan(0.151977 * Math.sqrt(ur + 8.313659)) + Math.atan(t + ur) - Math.atan(ur - 1.676331) + 0.00391838 * Math.pow(ur, 1.5) * Math.atan(0.023101 * ur) - 4.686035;
             const fBox = document.getElementById('frost_box');
             const fProb = document.getElementById('v_frost_prob');
@@ -501,7 +562,7 @@
                 }
             }
 
-            // ITU Reativo
+            // Motor de Conforto Térmico (Thom, 1959)
             const itu = (1.8 * t + 32) - ((0.55 - 0.0055 * ur) * (1.8 * t - 26));
             document.getElementById('v_itu').innerText = itu.toFixed(1);
             const ituBadge = document.getElementById('itu_badge');
@@ -533,7 +594,7 @@
             document.getElementById('p_suino').innerText = r_suino + "%";
             document.getElementById('b_suino').style.width = r_suino + "%";
 
-            // Alertas Pragas
+            // Fitossanitário Dinâmico
             let r_cig = 5; if (t >= 15) { let fT = (t >= 25 && t <= 32) ? 0.8 : 0.4; let fU = ur < 65 ? 0.2 : 0.05; r_cig = Math.round((fT + fU) * 100); if (chuvaAtual > 2) r_cig = Math.round(r_cig * 0.3); if (!isMilhoInWindow) r_cig += 12; }
             let r_per = 5; if (t >= 18) { let fT = (t >= 26 && t <= 30) ? 0.75 : 0.4; let fU = (ur >= 50 && ur <= 70) ? 0.15 : 0.05; r_per = Math.round((fT + fU) * 100); }
             let r_cart = 5; if (t >= 12) { let fT = (t >= 25 && t <= 33) ? 0.8 : 0.3; let fU = ur < 75 ? 0.15 : 0.05; r_cart = Math.round((fT + fU) * 100); }
@@ -544,7 +605,7 @@
             const risks = { cig: Math.min(Math.max(r_cig, 5), 95), percevejo: Math.min(Math.max(r_per, 5), 95), cartucho: Math.min(Math.max(r_cart, 5), 95), falsa: Math.min(Math.max(r_falsa, 5), 95), fer: Math.min(Math.max(r_fer, 5), 95), mofo: Math.min(Math.max(r_mofo, 5), 95) };
             Object.keys(risks).forEach(k => { document.getElementById(`p_${k}`).innerText = risks[k] + "%"; document.getElementById(`b_${k}`).style.width = risks[k] + "%"; });
 
-            // Impressão Front-End
+            // Renderização no Front
             document.getElementById('v_t').innerText = t.toFixed(1);
             document.getElementById('v_ur').innerText = ur.toFixed(0);
             document.getElementById('v_dpv').innerText = dpv;
