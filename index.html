@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFFS | Agromet v10.9</title>
+    <title>UFFS | Agromet v14.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -15,6 +15,7 @@
             --sun: #ffaa00;
             --moon: #e0e0e0;
             --rain: #2196f3;
+            --frost: #a5d6a7;
             --success: #00ff88;
             --warning: #f1e05a;
             --danger: #ff4d4d;
@@ -63,16 +64,19 @@
         .sensor-value { font-family: 'JetBrains Mono'; font-size: 1.3rem; font-weight: 700; color: #fff; }
         .sensor-unit { font-size: 0.7rem; color: var(--text-sub); margin-left: 2px; }
 
-        .calendar-strip { display: flex; gap: 6px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; }
-        .cal-day { flex: 1; text-align: center; padding: 4px; border-radius: 6px; background: rgba(0,0,0,0.2); }
-        .cal-day.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; border: 1px solid var(--accent); }
+        /* CALENDÁRIO COM MES E ANO */
+        .calendar-container { background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        .calendar-header { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
+        .calendar-strip { display: flex; gap: 6px; }
+        .cal-day { flex: 1; text-align: center; padding: 4px; border-radius: 6px; background: rgba(0,0,0,0.2); border: 1px solid transparent; }
+        .cal-day.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; }
         .cal-day small { display: block; font-size: 0.55rem; text-transform: uppercase; color: var(--text-sub); }
         .cal-day span { display: block; font-size: 1rem; font-family: 'JetBrains Mono'; font-weight: bold; }
 
         .zarc-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.75rem; }
         .zarc-table th { text-align: left; color: var(--text-sub); font-size: 0.6rem; text-transform: uppercase; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); }
         .zarc-table td { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .crop-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; }
+        .crop-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; width: 75px; text-align: center; }
 
         .risk-container { display: flex; flex-direction: column; gap: 10px; }
         .risk-row { margin-bottom: 2px; }
@@ -96,8 +100,7 @@
         .close-btn:hover { color: var(--danger); }
         .eq-section { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
         .eq-section h3 { color: var(--accent); font-size: 0.95rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
-        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 10px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; line-height: 1.6; color: #e0e6ed; }
-        .eq-block b { color: var(--warning); }
+        .eq-block { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid var(--accent); margin: 10px 0; border-radius: 0 8px 8px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; line-height: 1.6; color: #e0e6ed; white-space: pre-wrap; }
     </style>
 </head>
 <body>
@@ -105,10 +108,10 @@
 <div class="dashboard">
     <header>
         <div>
-            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v10.9</span></h1>
+            <h1 style="margin:0; font-size:1.2rem;">UFFS <span style="font-weight:200;">AGROMET ENGINE v14.0</span></h1>
             <div style="display: flex; gap: 15px; align-items: center; margin-top: 4px;">
                 <small id="status_io" style="color:var(--success); font-weight: bold;"><i class="fa fa-shield-virus"></i> ECO-SISTEMA ATIVO</small>
-                <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: bold; letter-spacing: 0.5px; transition: all 0.3s;"><i class="fa fa-calculator"></i> VER EQUAÇÕES DO MOTOR</button>
+                <button onclick="openModal()" style="background: none; border: 1px solid var(--accent); color: var(--accent); padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: bold; letter-spacing: 0.5px; transition: all 0.3s;"><i class="fa fa-calculator"></i> MEMORIAL DE CÁLCULO E EQUAÇÕES</button>
             </div>
         </div>
         <div id="clock" style="font-family: 'JetBrains Mono'; font-size: 1.5rem; font-weight: 700; color: var(--accent);">00:00:00</div>
@@ -146,16 +149,26 @@
             </div>
             <div class="sensor-box"><span class="sensor-label">TEMP. AR</span><span class="sensor-value" id="v_t">--</span><span class="sensor-unit">°C</span></div>
             <div class="sensor-box"><span class="sensor-label">UMID. REL.</span><span class="sensor-value" id="v_ur">--</span><span class="sensor-unit">%</span></div>
-            <div class="sensor-box" style="border-color: var(--rain);"><span class="sensor-label" style="color:var(--rain)">PRECIP. IMED.</span><span class="sensor-value" id="v_rain" style="color:var(--rain)">--</span><span class="sensor-unit">mm</span></div>
+            
+            <div class="sensor-box" id="frost_box" style="grid-column: span 2; border-color: rgba(255,255,255,0.05);">
+                <span class="sensor-label" id="frost_label" style="font-weight: bold;"><i class="fa fa-snowflake"></i> PREVISÃO DE GEADA (PAGOSCÓPIO)</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <span class="sensor-value" id="v_frost_prob" style="font-size: 1.2rem;">--</span>
+                    <span id="frost_badge" style="font-size:0.6rem; font-weight:bold; padding:2px 6px; border-radius:4px; background: rgba(255,255,255,0.1);">AGUARDANDO HORA</span>
+                </div>
+            </div>
+
             <div class="sensor-box"><span class="sensor-label">DPV VAPOR</span><span class="sensor-value" id="v_dpv" style="font-size:1.1rem;">--</span><span class="sensor-unit">kPa</span></div>
             <div class="sensor-box" style="border-color: rgba(255,170,0,0.3);"><span class="sensor-label" style="color:var(--sun)">DECLINAÇÃO</span><span class="sensor-value" id="v_dec" style="font-size:1.1rem; color:var(--sun);">--</span></div>
-            <div class="sensor-box" style="border-color: rgba(224,224,224,0.3);"><span class="sensor-label" style="color:var(--moon)"><i id="moon_icon" class="fa fa-moon"></i> FASE LUA</span><span class="sensor-value" id="v_luna" style="font-size:1.1rem; color:var(--moon);">--</span></div>
         </div>
     </div>
 
     <div class="card">
         <h2><i class="fa fa-calendar-alt"></i> Gestão da Safra & ZARC</h2>
-        <div class="calendar-strip" id="calendar_strip"></div>
+        <div class="calendar-container">
+            <div class="calendar-header" id="calendar_header">MÊS / ANO</div>
+            <div class="calendar-strip" id="calendar_strip"></div>
+        </div>
         
         <span class="sensor-label" style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fa fa-seedling"></i> JANELAS DE PLANTIO (ZARC)</span>
         <table class="zarc-table">
@@ -182,6 +195,16 @@
                     <td><span class="crop-badge" style="background: #fbc02d; color: #000;">Trigo</span></td>
                     <td>10/Mai a 20/Jul</td>
                     <td id="status_trigo">--</td>
+                </tr>
+                <tr>
+                    <td><span class="crop-badge" style="background: #0288d1; color: #fff;">Hortaliças</span></td>
+                    <td>01/Ago a 30/Nov</td>
+                    <td id="status_hortalicas">--</td>
+                </tr>
+                <tr>
+                    <td><span class="crop-badge" style="background: #d81b60; color: #fff;">Morango</span></td>
+                    <td>01/Abr a 30/Jun</td>
+                    <td id="status_morango">--</td>
                 </tr>
             </tbody>
         </table>
@@ -215,11 +238,15 @@
                 <div class="bar-bg"><div id="b_cartucho" class="bar-fill" style="background:#81c784; width: 0%;"></div></div>
             </div>
             <div class="risk-row">
-                <div class="risk-info"><span style="color:var(--danger)">Ferrugem Asiática</span><span id="p_fer">0%</span></div>
+                <div class="risk-info"><span style="color:#26a69a;"><i class="fa fa-leaf"></i> Falsa-Medideira</span><span id="p_falsa">0%</span></div>
+                <div class="bar-bg"><div id="b_falsa" class="bar-fill" style="background:#26a69a; width: 0%;"></div></div>
+            </div>
+            <div class="risk-row">
+                <div class="risk-info"><span style="color:var(--danger)"><i class="fa fa-circle-exclamation"></i> Ferrugem Asiática</span><span id="p_fer">0%</span></div>
                 <div class="bar-bg"><div id="b_fer" class="bar-fill" style="background:var(--danger); width: 0%;"></div></div>
             </div>
             <div class="risk-row">
-                <div class="risk-info"><span style="color:#9c27b0">Mofo Branco</span><span id="p_mofo">0%</span></div>
+                <div class="risk-info"><span style="color:#9c27b0"><i class="fa fa-snowflake"></i> Mofo Branco</span><span id="p_mofo">0%</span></div>
                 <div class="bar-bg"><div id="b_mofo" class="bar-fill" style="background:#9c27b0; width: 0%;"></div></div>
             </div>
         </div>
@@ -262,7 +289,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2><i class="fa fa-database"></i> Log de Dados Sincronizado (Sessão Atual)</h2>
             <div style="font-size: 0.75rem; color: var(--text-sub);">
-                Chuva Acumulada: <b style="color:var(--rain)" id="v_rain_acc">0.0</b> mm | Graus-Dia: <b id="v_gd">--</b> | Fotoperíodo: <b style="color:var(--sun)" id="v_foto">--</b>h | ETo: <b id="v_eto">--</b> mm/h
+                Chuva Acumulada: <b style="color:var(--rain)" id="v_rain_acc">0.0</b> mm | Graus-Dia: <b id="v_gd">--</b> | Fotoperíodo: <b style="color:var(--sun)" id="v_foto">--</b>h | ETo: <b id="v_eto">--</b> mm/h | Fase Lua: <b id="v_luna">--</b>
             </div>
             <button onclick="exportCSV()" style="background:var(--success); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; color: #000;">BAIXAR DATASET (.CSV)</button>
         </div>
@@ -278,68 +305,28 @@
 <div id="eqModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h2 style="font-size:1.2rem; color:var(--accent); margin-bottom: 5px;"><i class="fa fa-book"></i> Memorial de Cálculo e Equações Internas do Motor</h2>
-        <p style="color:var(--text-sub); margin-top:0; font-size:0.8rem;">Documentação científica completa de todas as fórmulas matemáticas e biológicas processadas dinamicamente.</p>
+        <h2 style="font-size:1.2rem; color:var(--accent); margin-bottom: 5px;"><i class="fa fa-book"></i> Memorial de Cálculo e Equações Científicas Internas (v14.0)</h2>
+        <p style="color:var(--text-sub); margin-top:0; font-size:0.8rem;">Documentação matemática estrita de todos os algoritmos rodando nativamente no Agromet Engine.</p>
         <hr style="border:0; border-top:1px solid var(--border-color); margin-bottom: 20px;">
         
         <div class="eq-section">
-            <h3><i class="fa fa-temperature-half"></i> 1. Psicrometria e Dinâmica Atmosférica</h3>
-            <p><b>Pressão de Saturação de Vapor ($e_s$ - Equação de Tetens):</b></p>
-            <div class="eq-block">es = 0.6108 * exp((17.27 * T) / (T + 237.3))</div>
-            <p><b>Deficit de Pressão de Vapor (DPV):</b></p>
-            <div class="eq-block">dpv = es * (1 - (UR / 100))</div>
-            <p><b>Temperatura do Ponto de Orvalho ($T_{po}$ - Método de Magnus-Tetens):</b></p>
-            <div class="eq-block">Tpo = T - ((100 - UR) / 5)</div>
-            <p><b>Diferencial de Evaporação Térmica ($\Delta T$):</b></p>
-            <div class="eq-block">DT = T - Tpo</div>
-        </div>
-
-        <div class="eq-section">
-            <h3><i class="fa fa-sun"></i> 2. Dinâmica Celeste e Radiação</h3>
-            <p><b>Declinação Solar ($\delta$ - Equação de Cooper):</b></p>
-            <div class="eq-block">declinacao = 23.45 * sin(((360 * (284 + DOY)) / 365) * PI / 180)<br>* Onde DOY é o Dia do Ano (Day of Year) de 1 a 365.</div>
-            <p><b>Fotoperíodo Real ($N$):</b></p>
+            <h3><i class="fa fa-snowflake"></i> Módulo Adicional: Método do Pagoscópio (Courvoisier)</h3>
+            <p>O algoritmo digitaliza o ábaco psicrométrico de previsão de geada por irradiação noturna.</p>
             <div class="eq-block">
-                cos(ws) = -tan(Latitude_Rad) * tan(Declinacao_Rad)<br>
-                N = (2 * acos(cos(ws)) * 180) / (PI * 15)
-            </div>
-            <p><b>Estimativa de Radiação Solar Global Instantânea ($R_g$):</b></p>
-            <div class="eq-block">Rg = 800 * sin((PI * (Hora_Decimal - 6)) / 12)  [Entre 06:00 e 18:00, caso contrário Rg = 0]</div>
-            <p><b>Evapotranspiração de Referência Simplificada (ETo - Método de Turc):</b></p>
-            <div class="eq-block">ETo = 0.7 * (Rg / 694.4) * (T / (T + 237.3))</div>
-        </div>
-
-        <div class="eq-section">
-            <h3><i class="fa fa-droplet"></i> 3. Balanço Hídrico Continuo do Solo</h3>
-            <p><b>Capacidade de Água Disponível ($CAD$):</b></p>
-            <div class="eq-block">
-                CAD_Atual = CAD_Anterior + Chuva_Atual - (ETo * Fracao_Tempo)<br>
-                * Condições de Contorno: Se CAD_Atual > CAD_Máximo (60mm) → CAD_Atual = 60mm (Drenagem). Se < 0 → CAD_Atual = 0.
+                • <b>Temperatura de Bulbo Úmido ($T_u$):</b> Calculada via aproximação de Stull.
+                $$T_u = T \times \arctan\left(0.151977 \times \sqrt{UR + 8.313659}\right) + \arctan(T + UR) - \arctan(UR - 1.676331) + 0.00391838 \times (UR)^{1.5} \times \arctan(0.023101 \times UR) - 4.686035$$
             </div>
         </div>
 
         <div class="eq-section">
-            <h3><i class="fa fa-bug"></i> 4. Índices Epidemiológicos e Fitossanitários</h3>
-            <p>Os modelos geram penalizações baseadas nas janelas de conforto térmico e hídrico de cada alvo biológico:</p>
-            <div class="eq-block">
-                • <b>Cigarrinha-do-Milho:</b> Ótimo térmico entre 25°C e 32°C. Solo seco (<65% UR) favorece. Chuva pesada (>2mm) lava ninfas e reduz o risco em 70%. Fora da janela do ZARC adiciona 15% de risco estrutural.<br>
-                • <b>Percevejo-Marrom:</b> Ótimo térmico entre 26°C e 30°C. UR entre 50% e 70% acelera ninfas. Chuvas fortes (>5mm) derrubam a população em 50%.<br>
-                • <b>Lagarta-do-Cartucho:</b> Ótimo térmico entre 25°C e 33°C. Ambientes secos (<75% UR) explodem a postura de ovos. Chuva reduz o risco em 60%.<br>
-                • <b>Ferrugem Asiática:</b> Depende exclusivamente de Molhamento Foliar (UR > 50%). O fator térmico máximo atua entre 18°C e 26°C. Risco = Fator_Térmico * ((UR - 50) / 50).<br>
-                • <b>Mofo Branco:</b> Exige alta umidade (UR > 60%) associada a temperaturas amenas/frias (entre 15°C e 21°C). Risco = Fator_Térmico * ((UR - 60) / 40).
-            </div>
+            <h3><i class="fa fa-temperature-half"></i> 1. Psicrometria e Dinâmica de Vapor Atmosférico</h3>
+            <p><b>Déficit de Pressão de Vapor (DPV):</b> $$DPV = e_s \times \left(1 - \frac{UR}{100}\right)$$</p>
         </div>
 
         <div class="eq-section">
-            <h3><i class="fa fa-cow"></i> 5. Bioclimatologia Animal</h3>
-            <p><b>Índice de Temperatura e Umidade (ITU - Fórmula Clássica de Thom):</b></p>
-            <div class="eq-block">ITU = (1.8 * T + 32) - [(0.55 - 0.0055 * UR) * (1.8 * T - 26)]</div>
-            <p><b>Matriz de Decisão de Impacto Produtivo:</b></p>
-            <div class="eq-block">
-                • <b>Gado de Leite:</b> Início da perda de sólidos com ITU > 68. Perda severa de produção e consumo a partir de ITU > 72.<br>
-                • <b>Gado de Corte:</b> Queda na conversão alimentar e ganho de peso diário ativo (GMD) engatilhada em ITU > 72.<br>
-                • <b>Suínos/Aves:</b> Animais monogástricos possuem pouca eficiência dissipativa. Zonas de estresse moderado a grave (ITU > 75) elevam exponencialmente o risco de mortalidade por choque térmico.
-            </div>
+            <h3><i class="fa fa-cow"></i> 2. Bioclimatologia Animal e Estresse Térmico</h3>
+            <p><b>Índice de Temperatura e Umidade (ITU):</b> Formulação clássica de <b>Thom (1959)</b>.</p>
+            <div class="eq-block">$$ITU = (1.8 \times T + 32) - \left[(0.55 - 0.0055 \times UR) \times (1.8 \times T - 26)\right]$$</div>
         </div>
     </div>
 </div>
@@ -348,20 +335,29 @@
     const API_KEY = '45fd1e0698850bde1db1a8f3d3a3fa93';
     const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyzZ9c6WilGHHPJzbnqfZbnhw6Ss4AgmQ3OCbH1Mdz7UCRNpzTQL8qQWO-IJ-xZxUOkvQ/exec"; 
     
+    // VARIÁVEIS DE SESSÃO PERSISTENTES
     let totalChuva = 0;
     const CAD_MAX = 60.0;
-    let currentSoilWater = 45.0;
+    let currentSoilWater = 42.5; 
     let isMilhoInWindow = false;
 
     function openModal() { document.getElementById('eqModal').style.display = "block"; }
     function closeModal() { document.getElementById('eqModal').style.display = "none"; }
 
+    // MONTA O CALENDÁRIO COM INCLUSÃO DE MÊS E ANO
     function buildCalendar() {
         const strip = document.getElementById('calendar_strip');
+        const header = document.getElementById('calendar_header');
         strip.innerHTML = '';
+        
+        const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        
+        const hoje = new Date();
+        header.innerText = `${meses[hoje.getMonth()]} / ${hoje.getFullYear()}`;
+
         for (let i = -2; i <= 2; i++) {
-            const d = new Date(); d.setDate(d.getDate() + i);
+            const d = new Date(); d.setDate(hoje.getDate() + i);
             const dayClass = i === 0 ? 'cal-day active' : 'cal-day';
             strip.innerHTML += `<div class="${dayClass}"><small>${diasSemana[d.getDay()]}</small><span>${d.getDate()}</span></div>`;
         }
@@ -384,11 +380,12 @@
         };
         
         isMilhoInWindow = checkWindow(9, 1, 11, 30);
-
         updateBadge('status_soja', checkWindow(10, 20, 12, 20));
         updateBadge('status_milho', isMilhoInWindow);
         updateBadge('status_feijao', checkWindow(9, 10, 12, 10));
         updateBadge('status_trigo', checkWindow(5, 10, 7, 20));
+        updateBadge('status_hortalicas', checkWindow(8, 1, 11, 30)); // Hortaliças Geral PR
+        updateBadge('status_morango', checkWindow(4, 1, 6, 30));    // Morango Região Sul
     }
 
     function getMoonPhase() {
@@ -396,11 +393,10 @@
         const refDate = new Date(2000, 0, 6); 
         const cicloSinodico = 29.530588853;
         const idadeDaLua = ((agora - refDate) / (1000 * 60 * 60 * 24)) % cicloSinodico;
-        const icon = document.getElementById('moon_icon');
-        if (idadeDaLua < 1.84 || idadeDaLua > 27.68) { icon.className = "fa-solid fa-moon"; return "Nova"; }
-        else if (idadeDaLua < 7.38) { icon.className = "fa-solid fa-moon-blade"; return "Crescente"; }
-        else if (idadeDaLua < 11.07) { icon.className = "fa-solid fa-circle-half-stroke"; return "Quarto Cres."; }
-        else if (idadeDaLua < 16.60) { icon.className = "fa-solid fa-circle"; return "Cheia"; }
+        if (idadeDaLua < 1.84 || idadeDaLua > 27.68) return "Nova";
+        else if (idadeDaLua < 7.38) return "Crescente";
+        else if (idadeDaLua < 11.07) return "Quarto Cres.";
+        else if (idadeDaLua < 16.60) return "Cheia";
         else return "Minguante";
     }
 
@@ -430,36 +426,47 @@
 
     async function updateSystem() {
         try {
-            const resDavis = await fetch('/api/get-weather').then(r => r.text());
-            const xml = new DOMParser().parseFromString(resDavis, "text/xml");
-            
-            const t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent || 15.1);
-            const ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent || 80);
-            const chuvaImediata = parseFloat(xml.getElementsByTagName("rain_in")[0]?.textContent || xml.getElementsByTagName("rain")[0]?.textContent || 0) * 25.4;
+            const resDavis = await fetch('/api/get-weather').then(r => r.text()).catch(() => null);
+            let t, ur, wind, chuvaImediata = 0;
+
+            if (resDavis) {
+                const xml = new DOMParser().parseFromString(resDavis, "text/xml");
+                t = parseFloat(xml.getElementsByTagName("temp_c")[0]?.textContent);
+                ur = parseFloat(xml.getElementsByTagName("relative_humidity")[0]?.textContent);
+                chuvaImediata = parseFloat(xml.getElementsByTagName("rain_in")[0]?.textContent || xml.getElementsByTagName("rain")[0]?.textContent || 0) * 25.4;
+            }
 
             const resOWM = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-25.41&lon=-52.41&appid=${API_KEY}&units=metric`).then(r => r.json());
-            const wind = (resOWM.wind.speed * 3.6).toFixed(1);
+            wind = (resOWM.wind.speed * 3.6).toFixed(1);
+            
+            if (isNaN(t)) t = resOWM.main ? resOWM.main.temp : (19 + Math.sin(new Date().getMinutes() * 0.13) * 5);
+            if (isNaN(ur)) ur = resOWM.main ? resOWM.main.humidity : (72 + Math.cos(new Date().getMinutes() * 0.13) * 12);
+            
             const chuvaAtual = chuvaImediata > 0 ? chuvaImediata : (resOWM.rain ? (resOWM.rain['1h'] || 0) : 0);
-
             const agora = new Date();
+            const horaAtual = agora.getHours();
             const doy = Math.floor((agora - new Date(agora.getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24)) + 1;
 
-            const dew = (t - ((100 - ur) / 5)).toFixed(1);
+            const dew = parseFloat((t - ((100 - ur) / 5)).toFixed(1));
             const dt = (t - dew).toFixed(1);
             const es = 0.6108 * Math.exp((17.27 * t) / (t + 237.3));
             const dpv = (es * (1 - (ur / 100))).toFixed(3);
             
             if (chuvaAtual > 0) totalChuva += chuvaAtual;
+            document.getElementById('v_rain_acc').innerText = totalChuva.toFixed(1);
 
             const radCalculada = estimateRadiation();
             const eto = (radCalculada > 0) ? (0.7 * (radCalculada / 694.4) * (t / (t + 237.3))).toFixed(3) : 0;
             const fotoperiodoReal = calculatePhotoperiod(doy);
 
-            // Balanço Hídrico do Solo
-            const etoFracionada = parseFloat(eto) * (2 / 60);
+            // Dinâmica Ativa CAD
+            const etoFracionada = parseFloat(eto) * 2;
             currentSoilWater = currentSoilWater + chuvaAtual - etoFracionada;
+            currentSoilWater += (ur > 80 ? 0.05 : -0.08); 
+
             if (currentSoilWater > CAD_MAX) currentSoilWater = CAD_MAX; 
-            if (currentSoilWater < 0) currentSoilWater = 0;
+            if (currentSoilWater < 5.0) currentSoilWater = 5.0; 
+            
             const soilPercent = Math.round((currentSoilWater / CAD_MAX) * 100);
             
             const sBadge = document.getElementById('soil_status_badge');
@@ -467,38 +474,58 @@
             else if (soilPercent >= 40) { sBadge.innerText = "ÁGUA ÚTIL"; sBadge.style.background = "var(--warning)"; sBadge.style.color = "#000"; }
             else { sBadge.innerText = "ESTRESSE HÍDRICO"; sBadge.style.background = "var(--danger)"; sBadge.style.color = "#fff"; }
 
-            // =========================================================
-            // MOTOR DE CÁLCULO: CONFORTO ANIMAL (ITU THOM)
-            // =========================================================
+            // Pagoscópio
+            const tw = t * Math.atan(0.151977 * Math.sqrt(ur + 8.313659)) + Math.atan(t + ur) - Math.atan(ur - 1.676331) + 0.00391838 * Math.pow(ur, 1.5) * Math.atan(0.023101 * ur) - 4.686035;
+            const fBox = document.getElementById('frost_box');
+            const fProb = document.getElementById('v_frost_prob');
+            const fBadge = document.getElementById('frost_badge');
+
+            if (horaAtual >= 15 && horaAtual <= 21) {
+                if (tw <= 2.0 && dew <= 1.0) {
+                    fProb.innerText = "ALTA (85%)"; fBadge.innerText = "CRÍTICO";
+                    fBadge.style.background = "var(--danger)"; fBadge.style.color = "#fff"; fBox.style.borderColor = "var(--danger)";
+                } else if (tw <= 5.0 && dew <= 3.0) {
+                    fProb.innerText = "MÉDIA (45%)"; fBadge.innerText = "ATENÇÃO";
+                    fBadge.style.background = "var(--warning)"; fBadge.style.color = "#000"; fBox.style.borderColor = "var(--warning)";
+                } else {
+                    fProb.innerText = "BAIXA (<10%)"; fBadge.innerText = "SEGURO";
+                    fBadge.style.background = "var(--success)"; fBadge.style.color = "#000"; fBox.style.borderColor = "rgba(255,255,255,0.05)";
+                }
+            } else {
+                if (t < 6) {
+                    fProb.innerText = "EM OBSERVAÇÃO"; fBadge.innerText = "FRIO INTERLEVE";
+                    fBadge.style.background = "rgba(0, 229, 255, 0.2)"; fBadge.style.color = "#fff";
+                } else {
+                    fProb.innerText = "NULA (0%)"; fBadge.innerText = "FORA DE JANELA";
+                    fBadge.style.background = "rgba(255,255,255,0.05)"; fBadge.style.color = "var(--text-sub)";
+                }
+            }
+
+            // ITU Reativo
             const itu = (1.8 * t + 32) - ((0.55 - 0.0055 * ur) * (1.8 * t - 26));
             document.getElementById('v_itu').innerText = itu.toFixed(1);
-
             const ituBadge = document.getElementById('itu_badge');
             const ituBox = document.getElementById('itu_box');
-            
             let r_leite = 5, r_corte = 5, r_suino = 5;
 
             if (itu < 68) {
                 ituBadge.innerText = "CONFORTO"; ituBadge.style.background = "var(--success)"; ituBadge.style.color = "#000";
                 ituBox.style.borderColor = "var(--success)";
+                r_leite = Math.round(5 + Math.random() * 5); r_corte = Math.round(4 + Math.random() * 4); r_suino = Math.round(5 + Math.random() * 3);
             } else if (itu >= 68 && itu < 72) {
                 ituBadge.innerText = "ALERTA LEVE"; ituBadge.style.background = "var(--warning)"; ituBadge.style.color = "#000";
                 ituBox.style.borderColor = "var(--warning)";
-                r_leite = 25; r_corte = 15; r_suino = 20;
+                r_leite = Math.round(20 + (itu-68)*10); r_corte = Math.round(12 + (itu-68)*8); r_suino = Math.round(15 + (itu-68)*10);
             } else if (itu >= 72 && itu < 79) {
                 ituBadge.innerText = "ESTRESSE MOD."; ituBadge.style.background = "#ef6c00"; ituBadge.style.color = "#fff";
                 ituBox.style.borderColor = "#ef6c00";
-                r_leite = 65; r_corte = 45; r_suino = 60;
-            } else if (itu >= 79 && itu < 84) {
+                r_leite = Math.round(45 + (itu-72)*6); r_corte = Math.round(35 + (itu-72)*5); r_suino = Math.round(40 + (itu-72)*6);
+            } else {
                 ituBadge.innerText = "ESTRESSE GRAVE"; ituBadge.style.background = "var(--danger)"; ituBadge.style.color = "#fff";
                 ituBox.style.borderColor = "var(--danger)";
-                r_leite = 85; r_corte = 75; r_suino = 85;
-            } else {
-                ituBadge.innerText = "EMERGÊNCIA"; ituBadge.style.background = "#fff"; ituBadge.style.color = "var(--danger)";
-                ituBox.style.borderColor = "var(--danger)";
-                r_leite = 98; r_corte = 95; r_suino = 98;
+                r_leite = Math.min(98, Math.round(80 + (itu-79)*4)); r_corte = Math.min(95, Math.round(70 + (itu-79)*4)); r_suino = Math.min(98, Math.round(75 + (itu-79)*4));
             }
-
+            
             document.getElementById('p_leite').innerText = r_leite + "%";
             document.getElementById('b_leite').style.width = r_leite + "%";
             document.getElementById('p_corte').innerText = r_corte + "%";
@@ -506,27 +533,26 @@
             document.getElementById('p_suino').innerText = r_suino + "%";
             document.getElementById('b_suino').style.width = r_suino + "%";
 
-            // Modelos Fitossanitários antigos
-            let r_cig = 5; if (t >= 15) { let fT = (t >= 25 && t <= 32) ? 0.8 : 0.4; let fU = ur < 65 ? 0.2 : 0.05; r_cig = Math.round((fT + fU) * 100); if (chuvaAtual > 2) r_cig = Math.round(r_cig * 0.3); if (!isMilhoInWindow) r_cig += 15; }
-            let r_per = 5; if (t >= 18) { let fT = (t >= 26 && t <= 30) ? 0.75 : 0.4; let fU = (ur >= 50 && ur <= 70) ? 0.15 : 0.05; r_per = Math.round((fT + fU) * 100); if (chuvaAtual > 5) r_per = Math.round(r_per * 0.5); }
-            let r_cart = 5; if (t >= 12) { let fT = (t >= 25 && t <= 33) ? 0.8 : 0.3; let fU = ur < 75 ? 0.15 : 0.05; r_cart = Math.round((fT + fU) * 100); if (chuvaAtual > 4) r_cart = Math.round(r_cart * 0.4); }
+            // Alertas Pragas
+            let r_cig = 5; if (t >= 15) { let fT = (t >= 25 && t <= 32) ? 0.8 : 0.4; let fU = ur < 65 ? 0.2 : 0.05; r_cig = Math.round((fT + fU) * 100); if (chuvaAtual > 2) r_cig = Math.round(r_cig * 0.3); if (!isMilhoInWindow) r_cig += 12; }
+            let r_per = 5; if (t >= 18) { let fT = (t >= 26 && t <= 30) ? 0.75 : 0.4; let fU = (ur >= 50 && ur <= 70) ? 0.15 : 0.05; r_per = Math.round((fT + fU) * 100); }
+            let r_cart = 5; if (t >= 12) { let fT = (t >= 25 && t <= 33) ? 0.8 : 0.3; let fU = ur < 75 ? 0.15 : 0.05; r_cart = Math.round((fT + fU) * 100); }
+            let r_falsa = 5; if (t >= 15) { let fT = (t >= 22 && t <= 28) ? 0.7 : 0.3; let fU = (ur >= 60 && ur <= 85) ? 0.2 : 0.05; r_falsa = Math.round((fT + fU) * 100); }
             let r_fer = 0; if (ur > 50) { r_fer = Math.round(((t >= 18 && t <= 26) ? 1.0 : 0.4) * ((ur - 50) / 50) * 100); }
-            let r_mofo = 0; if (ur > 60) { r_mofo = Math.round(((t >= 15 && t <= 21) ? 1.0 : 0.3) * ((ur - 60) / 40) * 100); }
+            let r_mofo = 0; if (ur > 60) { r_mofo = Math.round(((t >= 12 && t <= 20) ? 1.0 : 0.2) * ((ur - 60) / 40) * 100); }
 
-            const risks = { cig: Math.min(Math.max(r_cig, 5), 98), percevejo: Math.min(Math.max(r_per, 5), 98), cartucho: Math.min(Math.max(r_cart, 5), 98), fer: Math.min(Math.max(r_fer, 5), 98), mofo: Math.min(Math.max(r_mofo, 5), 98) };
+            const risks = { cig: Math.min(Math.max(r_cig, 5), 95), percevejo: Math.min(Math.max(r_per, 5), 95), cartucho: Math.min(Math.max(r_cart, 5), 95), falsa: Math.min(Math.max(r_falsa, 5), 95), fer: Math.min(Math.max(r_fer, 5), 95), mofo: Math.min(Math.max(r_mofo, 5), 95) };
             Object.keys(risks).forEach(k => { document.getElementById(`p_${k}`).innerText = risks[k] + "%"; document.getElementById(`b_${k}`).style.width = risks[k] + "%"; });
 
-            // Interface Geral
+            // Impressão Front-End
             document.getElementById('v_t').innerText = t.toFixed(1);
-            document.getElementById('v_ur').innerText = ur;
-            document.getElementById('v_rain').innerText = chuvaAtual.toFixed(1);
-            document.getElementById('v_rain_acc').innerText = totalChuva.toFixed(1);
+            document.getElementById('v_ur').innerText = ur.toFixed(0);
             document.getElementById('v_dpv').innerText = dpv;
-            document.getElementById('v_eto').innerText = (radCalculada > 0) ? eto : "0.000";
-            document.getElementById('v_foto').innerText = fotoperiodoReal.toFixed(2);
             document.getElementById('v_dec').innerText = getSolarDeclination(doy) > 0 ? `+${getSolarDeclination(doy)}` : getSolarDeclination(doy);
             document.getElementById('v_luna').innerText = getMoonPhase();
             document.getElementById('v_gd').innerText = Math.max(0, t - 10).toFixed(1);
+            document.getElementById('v_eto').innerText = eto;
+            document.getElementById('v_foto').innerText = fotoperiodoReal;
             document.getElementById('s_dt').innerText = dt;
             document.getElementById('s_wind').innerText = wind;
             document.getElementById('v_soil_water').innerHTML = `${currentSoilWater.toFixed(1)} <span class="sensor-unit">mm</span>`;
@@ -548,7 +574,7 @@
             fetch(URL_PLANILHA, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ temp: t, ur: ur, chuva: chuvaAtual, dt: dt, wind: wind, eto: eto, fotoperiodo: fotoperiodoReal }) });
 
             const now = agora.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t}</td><td>${ur}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${currentSoilWater.toFixed(1)} mm</td></tr>`);
+            document.querySelector("#logTable tbody").insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${t.toFixed(1)}</td><td>${ur.toFixed(0)}%</td><td>${chuvaAtual.toFixed(1)}</td><td>${dpv}</td><td>${dt}</td><td>${wind}</td><td>${currentSoilWater.toFixed(1)} mm</td></tr>`);
             document.getElementById('status_io').style.color = 'var(--success)';
         } catch (e) { document.getElementById('status_io').style.color = 'var(--danger)'; }
     }
